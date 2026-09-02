@@ -6,13 +6,21 @@
     <title>Adivina la Canción (Desafío)</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #121212; color: white; padding: 20px; }
-        .card { background: #1e1e1e; max-width: 520px; margin: 20px auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        .card { background: #1e1e1e; max-width: 520px; margin: 20px auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
         button { background: #1db954; color: white; border: none; padding: 14px 28px; margin: 8px; font-size: 16px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button:hover { background: #1ed760; transform: scale(1.03); }
         button:disabled { background: #444; cursor: not-allowed; transform: none; }
-        .btn-share { background: #0088cc; }
-        .btn-share:hover { background: #0099e6; }
-        .option-btn { display: block; width: 100%; margin: 10px 0; background: #282828; color: white; text-align: left; padding: 14px 18px; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        
+        /* Botones de Redes Sociales */
+        .share-group { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        .btn-wsp { background: #25D366; }
+        .btn-wsp:hover { background: #20ba5a; }
+        .btn-ig { background: #E1306C; }
+        .btn-ig:hover { background: #c1255b; }
+        .btn-copy { background: #333; border: 1px solid #555; }
+        .btn-copy:hover { background: #444; }
+
+        .option-btn { display: block; width: 100%; margin: 10px 0; background: #282828; color: white; text-align: left; padding: 14px 18px; border-radius: 10px; font-size: 15px; box-sizing: border-box; transition: 0.2s; }
         .option-btn:hover:not(:disabled) { background: #3e3e3e; }
         select { background: #282828; color: white; border: 1px solid #444; padding: 12px 18px; border-radius: 10px; font-size: 16px; width: 100%; margin-bottom: 20px; cursor: pointer; }
         select:focus { outline: none; border-color: #1db954; }
@@ -20,6 +28,25 @@
         .status-bar { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
         .vidas { color: #ff4757; }
         .racha { color: #eccc68; font-size: 13px; }
+        
+        /* BANNER FEEDBACK INVASIVO CERO */
+        #feedback-banner {
+            display: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .feedback-correcto { background: rgba(29, 185, 84, 0.2); border: 1px solid #1db954; color: #1ed760; }
+        .feedback-incorrecto { background: rgba(255, 71, 87, 0.2); border: 1px solid #ff4757; color: #ff4757; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         #pantalla-inicio, #pantalla-juego, #pantalla-final { display: none; }
     </style>
 </head>
@@ -69,6 +96,10 @@
         </div>
         <div class="racha" id="racha-display">Racha de aciertos: 0/3</div>
         <p id="modo-texto" style="font-size: 13px; color: #888; margin-top: 5px;"></p>
+        
+        <!-- Notificación fluida integrada -->
+        <div id="feedback-banner"></div>
+
         <hr style="border-color: #333; margin: 15px 0;">
         <p id="estado">Cargando...</p>
         
@@ -83,7 +114,14 @@
         <h3 id="puntaje-final">Puntaje Final: 0</h3>
         <p id="categoria-final" style="color: #b3b3b3; font-size: 14px;"></p>
         
-        <button class="btn-share" onclick="compartirResultado()">🔗 Compartir Desafío</button>
+        <p style="margin-top: 20px; font-weight: bold; font-size: 15px;">Desafía a tus amigos:</p>
+        
+        <div class="share-group">
+            <button class="btn-wsp" onclick="compartirWhatsApp()">📲 Enviar por WhatsApp</button>
+            <button class="btn-ig" onclick="compartirInstagram()">📸 Copiar texto para Instagram</button>
+            <button class="btn-copy" onclick="copiarEnlaceDirecto()">🔗 Copiar Enlace Directo</button>
+        </div>
+
         <button onclick="reiniciarJuego()">🔄 Jugar de Nuevo</button>
     </div>
 </div>
@@ -98,8 +136,8 @@ let racha = 0;
 let timer = null;
 let cancionActual = null;
 let categoriaTexto = "";
+let respondiendo = false;
 
-// Cargar categoría desde la URL si alguien abre un enlace compartido
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const catParam = urlParams.get('cat');
@@ -136,12 +174,14 @@ function comenzarJuego() {
     vidas = 3;
     racha = 0;
     document.getElementById("puntaje").innerText = puntaje;
+    ocultarFeedback();
     actualizarVidasUI();
 
     cargarCancionJSONP(valorBusqueda);
 }
 
 function cargarCancionJSONP(termino) {
+    respondiendo = false;
     document.getElementById("btn-play").disabled = true;
     document.getElementById("estado").innerText = `Buscando tema...`;
     document.getElementById("opciones").innerHTML = "";
@@ -193,12 +233,13 @@ window.procesarRespuesta = function(data) {
         const btn = document.createElement("button");
         btn.className = "option-btn";
         btn.innerText = opcion;
-        btn.onclick = () => verificarRespuesta(opcion, solucionCorrecta);
+        btn.onclick = () => verificarRespuesta(opcion, solucionCorrecta, btn);
         contenedorOpciones.appendChild(btn);
     });
 };
 
 function reproducir5Segundos() {
+    if (respondiendo) return;
     clearTimeout(timer);
     audio.currentTime = 0;
 
@@ -209,46 +250,74 @@ function reproducir5Segundos() {
             document.getElementById("estado").innerText = "⏹ ¡Tiempo agotado! Selecciona tu respuesta.";
         }, 5000);
     }).catch(() => {
-        alert("Haz clic en la pantalla antes de reproducir.");
+        mostrarFeedback("Haz clic en la pantalla antes de reproducir.", false);
     });
 }
 
-function verificarRespuesta(seleccion, correcta) {
+function mostrarFeedback(mensaje, esCorrecto) {
+    const banner = document.getElementById("feedback-banner");
+    banner.innerText = mensaje;
+    banner.className = esCorrecto ? "feedback-correcto" : "feedback-incorrecto";
+    banner.style.display = "block";
+}
+
+function ocultarFeedback() {
+    document.getElementById("feedback-banner").style.display = "none";
+}
+
+function verificarRespuesta(seleccion, correcta, elementoBoton) {
+    if (respondiendo) return;
+    respondiendo = true;
+
     audio.pause();
     clearTimeout(timer);
+
+    // Deshabilitar todos los botones para evitar doble clic
+    const botones = document.querySelectorAll(".option-btn");
+    botones.forEach(b => b.disabled = true);
 
     if (seleccion === correcta) {
         puntaje += 10;
         racha++;
+        elementoBoton.style.background = "#1db954";
 
-        // Regla: 3 aciertos seguidos ganan 1 vida (máximo 3)
         if (racha === 3) {
             if (vidas < 3) {
                 vidas++;
-                alert("¡CORRECTO! 🎉 ¡Completaste una racha de 3 y recuperaste 1 vida! ❤️");
+                mostrarFeedback("¡CORRECTO! 🎉 ¡Racha de 3 completada, recuperas 1 vida! ❤️", true);
             } else {
-                alert("¡CORRECTO! +10 puntos 🎉 (Ya tienes el máximo de 3 vidas)");
+                mostrarFeedback("¡CORRECTO! +10 puntos 🎉 (Vidas al máximo)", true);
             }
-            racha = 0; // Reiniciar racha
+            racha = 0;
         } else {
-            alert("¡CORRECTO! +10 puntos 🎉");
+            mostrarFeedback("¡CORRECTO! +10 puntos 🎉", true);
         }
 
     } else {
         vidas--;
-        racha = 0; // Se rompe la racha si falla
-        alert(`Incorrecto ❌\nEra: ${correcta}\nTe quedan ${vidas} vida(s).`);
+        racha = 0;
+        elementoBoton.style.background = "#ff4757";
+        
+        // Resaltar cuál era la correcta
+        botones.forEach(b => {
+            if (b.innerText === correcta) b.style.background = "#1db954";
+        });
+
+        mostrarFeedback(`Incorrecto ❌ Era: ${correcta}`, false);
     }
 
     document.getElementById("puntaje").innerText = puntaje;
     actualizarVidasUI();
 
-    if (vidas <= 0) {
-        finalizarJuego();
-    } else {
-        const select = document.getElementById("categoria");
-        cargarCancionJSONP(select.value);
-    }
+    setTimeout(() => {
+        if (vidas <= 0) {
+            finalizarJuego();
+        } else {
+            ocultarFeedback();
+            const select = document.getElementById("categoria");
+            cargarCancionJSONP(select.value);
+        }
+    }, 1800); // 1.8 segundos para ver el resultado y avanzar fluido
 }
 
 function finalizarJuego() {
@@ -266,27 +335,32 @@ function reiniciarJuego() {
     document.getElementById("pantalla-inicio").style.display = "block";
 }
 
-function compartirResultado() {
+function obtenerUrlDesafio() {
     const select = document.getElementById("categoria");
     const valCat = select.value;
-    
-    // Crear la URL con la categoría para el desafío
     const baseUrl = window.location.href.split('?')[0];
-    const shareUrl = `${baseUrl}?cat=${encodeURIComponent(valCat)}`;
-    
-    const textoCompartir = `🎵 ¡Hice ${puntaje} puntos en "Adivina la Canción" en la categoría ${categoriaTexto}!\n\n¿Puedes superar mi puntaje? Acepta el desafío aquí: ${shareUrl}`;
+    return `${baseUrl}?cat=${encodeURIComponent(valCat)}`;
+}
 
-    if (navigator.share) {
-        navigator.share({
-            title: 'Desafío Adivina la Canción',
-            text: textoCompartir,
-            url: shareUrl
-        }).catch(() => {});
-    } else {
-        navigator.clipboard.writeText(textoCompartir).then(() => {
-            alert("📋 ¡Mensaje de desafío copiado al portapapeles! Pégalo en WhatsApp o redes sociales.");
-        });
-    }
+function compartirWhatsApp() {
+    const shareUrl = obtenerUrlDesafio();
+    const mensaje = `🔥 ¡Hice ${puntaje} puntos en "Adivina la Canción" (${categoriaTexto})!\n\n¿Te crees capaz de ganarme? Acepta el desafío aquí: ${shareUrl}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+function compartirInstagram() {
+    const shareUrl = obtenerUrlDesafio();
+    const mensaje = `🔥 Hice ${puntaje} puntos en "Adivina la Canción" (${categoriaTexto}). Acepta el desafío aquí: ${shareUrl}`;
+    navigator.clipboard.writeText(mensaje).then(() => {
+        mostrarFeedback("📋 ¡Texto de desafío copiado! Ya puedes pegarlo en Instagram.", true);
+    });
+}
+
+function copiarEnlaceDirecto() {
+    const shareUrl = obtenerUrlDesafio();
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        mostrarFeedback("🔗 ¡Enlace copiado al portapapeles!", true);
+    });
 }
 </script>
 
