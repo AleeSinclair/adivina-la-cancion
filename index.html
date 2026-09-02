@@ -11,12 +11,11 @@
         button:hover { background: #1ed760; transform: scale(1.03); }
         button:disabled { background: #444; cursor: not-allowed; transform: none; }
         
-        /* Botones de Redes Sociales */
         .share-group { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
         .btn-wsp { background: #25D366; }
         .btn-wsp:hover { background: #20ba5a; }
-        .btn-ig { background: #E1306C; }
-        .btn-ig:hover { background: #c1255b; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .btn-ig:hover { opacity: 0.9; }
         .btn-copy { background: #333; border: 1px solid #555; }
         .btn-copy:hover { background: #444; }
 
@@ -29,7 +28,6 @@
         .vidas { color: #ff4757; }
         .racha { color: #eccc68; font-size: 13px; }
         
-        /* BANNER FEEDBACK INVASIVO CERO */
         #feedback-banner {
             display: none;
             padding: 12px 15px;
@@ -41,6 +39,24 @@
         }
         .feedback-correcto { background: rgba(29, 185, 84, 0.2); border: 1px solid #1db954; color: #1ed760; }
         .feedback-incorrecto { background: rgba(255, 71, 87, 0.2); border: 1px solid #ff4757; color: #ff4757; }
+
+        #modal-ig {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #222;
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 380px;
+            text-align: left;
+            border: 1px solid #444;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
@@ -63,6 +79,8 @@
         <div style="margin-top: 20px; text-align: left;">
             <label for="categoria">Elige la categoría del desafío:</label>
             <select id="categoria">
+                <option value="AZAR">🎲 Al Azar / De Todo (Mezclado)</option>
+                
                 <optgroup label="Por País">
                     <option value="Música Chilena">Chile 🇨🇱</option>
                     <option value="Rock Argentina Pop Argentina">Argentina 🇦🇷</option>
@@ -70,17 +88,27 @@
                     <option value="Música Mexicana Mariachi Regional">México 🇲🇽</option>
                     <option value="USA Top Hits Pop Rock">USA 🇺🇸</option>
                 </optgroup>
-                <optgroup label="Estilos y Formatos">
-                    <option value="Kpop K-Pop">K-Pop 🇰🇷</option>
-                    <option value="Soundtrack Movie Theme Film">Música de Películas 🎬</option>
-                    <option value="Rock Band Greatest Hits">Bandas 🎸</option>
-                    <option value="Pop Solista Pop Hits">Solistas 🎤</option>
+
+                <optgroup label="Estilos & Formatos">
+                    <option value="SOLISTAS">Solistas Famosos 🎤</option>
+                    <option value="GRUPOS">Grupos & Dúos Musicales 👥</option>
+                    <option value="Rock Band Greatest Hits Queen Metallica">Bandas de Rock 🎸</option>
+                    <option value="Reggaeton Urbano Trap Latino">Urbano & Reggaeton 🎧</option>
+                    <option value="Pop Latino Bailables">Pop Latino & Bailables 💃</option>
+                    <option value="Electronic Dance EDM DJ">Electrónica / EDM ⚡</option>
                 </optgroup>
-                <optgroup label="Por Épocas">
-                    <option value="80s Hits">Años 80s</option>
-                    <option value="90s Hits">Años 90s</option>
-                    <option value="2000s Hits">Años 2000s</option>
-                    <option value="2010s Hits">Años 2010s</option>
+
+                <optgroup label="Cultura Pop & Banda Sonora">
+                    <option value="Kpop K-Pop BTS BLACKPINK">K-Pop 🇰🇷</option>
+                    <option value="Soundtrack Movie Theme Film Disney Anime">Películas, Anime & Juegos 🎬🎮</option>
+                </optgroup>
+
+                <optgroup label="Por Décadas">
+                    <option value="70s Rock Hits">Años 70s 🕺</option>
+                    <option value="80s Hits">Años 80s 📼</option>
+                    <option value="90s Hits">Años 90s 📻</option>
+                    <option value="2000s Hits">Años 2000s 🎧</option>
+                    <option value="2010s Hits">Años 2010s 📱</option>
                 </optgroup>
             </select>
         </div>
@@ -97,7 +125,6 @@
         <div class="racha" id="racha-display">Racha de aciertos: 0/3</div>
         <p id="modo-texto" style="font-size: 13px; color: #888; margin-top: 5px;"></p>
         
-        <!-- Notificación fluida integrada -->
         <div id="feedback-banner"></div>
 
         <hr style="border-color: #333; margin: 15px 0;">
@@ -118,11 +145,25 @@
         
         <div class="share-group">
             <button class="btn-wsp" onclick="compartirWhatsApp()">📲 Enviar por WhatsApp</button>
-            <button class="btn-ig" onclick="compartirInstagram()">📸 Copiar texto para Instagram</button>
+            <button class="btn-ig" onclick="abrirModalInstagram()">📸 Publicar en Historia de Instagram</button>
             <button class="btn-copy" onclick="copiarEnlaceDirecto()">🔗 Copiar Enlace Directo</button>
         </div>
 
         <button onclick="reiniciarJuego()">🔄 Jugar de Nuevo</button>
+    </div>
+</div>
+
+<!-- MODAL INSTAGRAM -->
+<div id="modal-ig">
+    <div class="modal-content">
+        <h3 style="margin-top: 0; color: #E1306C;">📸 Publicar Historia con Enlace</h3>
+        <p style="font-size: 14px; color: #ddd; line-height: 1.5;">
+            1. ¡El enlace de tu desafío ya fue <b>copiado al portapapeles</b>! 📋<br><br>
+            2. Abre Instagram y crea una nueva <b>Historia</b>.<br><br>
+            3. Selecciona el ícono de <b>Stickers</b> (arriba) y elige la opción <b>ENLACE</b>.<br><br>
+            4. Pega el enlace y publica tu Historia para que entren directo a jugar.
+        </p>
+        <button style="width: 100%; margin-top: 15px;" onclick="cerrarModalInstagram()">¡Entendido!</button>
     </div>
 </div>
 
@@ -137,6 +178,30 @@ let timer = null;
 let cancionActual = null;
 let categoriaTexto = "";
 let respondiendo = false;
+
+// Banco directo para SOLISTAS
+const ARTISTAS_SOLISTAS = [
+    "Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", 
+    "Dua Lipa", "Bruno Mars", "Adele", "Rihanna", "Eminem", "Billie Eilish", 
+    "Harry Styles", "Justin Bieber", "Lady Gaga", "Beyonce", "Shawn Mendes",
+    "Mon Laferte", "Luis Miguel", "Rosalia", "The Weeknd"
+];
+
+// Banco directo para GRUPOS Y DÚOS
+const GRUPOS_DUS = [
+    "Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5",
+    "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons",
+    "KISS", "Bacilos", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "CNCO"
+];
+
+// Banco directo para "AL AZAR / DE TODO"
+const PALABRAS_AZAR = [
+    "Rock", "Pop", "80s", "90s", "2000s", "Latino", "Reggaeton", "Disco", "Indie",
+    "Queen", "Michael Jackson", "Depeche Mode", "Nirvana", "Coldplay", "Daft Punk",
+    "Gorillaz", "The Beatles", "Dua Lipa", "Bruno Mars", "ACDC", "Guns N Roses",
+    "The Weeknd", "Red Hot Chili Peppers", "Soda Stereo", "Manuel Garcia", "Gepe",
+    "Mon Laferte", "Los Prisioneros", "Bad Bunny", "Rosalia", "Eminem", "Rihanna"
+];
 
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -163,7 +228,6 @@ function actualizarVidasUI() {
 function comenzarJuego() {
     const select = document.getElementById("categoria");
     categoriaTexto = select.options[select.selectedIndex].text;
-    const valorBusqueda = select.value;
 
     document.getElementById("pantalla-inicio").style.display = "none";
     document.getElementById("pantalla-juego").style.display = "block";
@@ -177,7 +241,22 @@ function comenzarJuego() {
     ocultarFeedback();
     actualizarVidasUI();
 
-    cargarCancionJSONP(valorBusqueda);
+    siguienteCancion();
+}
+
+function siguienteCancion() {
+    const select = document.getElementById("categoria");
+    let termino = select.value;
+
+    if (termino === "AZAR") {
+        termino = PALABRAS_AZAR[Math.floor(Math.random() * PALABRAS_AZAR.length)];
+    } else if (termino === "SOLISTAS") {
+        termino = ARTISTAS_SOLISTAS[Math.floor(Math.random() * ARTISTAS_SOLISTAS.length)];
+    } else if (termino === "GRUPOS") {
+        termino = GRUPOS_DUS[Math.floor(Math.random() * GRUPOS_DUS.length)];
+    }
+
+    cargarCancionJSONP(termino);
 }
 
 function cargarCancionJSONP(termino) {
@@ -205,8 +284,7 @@ window.procesarRespuesta = function(data) {
     const canciones = (data.results || []).filter(item => item.previewUrl && item.trackName && item.artistName);
 
     if (canciones.length < 4) {
-        const select = document.getElementById("categoria");
-        setTimeout(() => cargarCancionJSONP(select.value), 1000);
+        setTimeout(siguienteCancion, 1000);
         return;
     }
 
@@ -272,7 +350,6 @@ function verificarRespuesta(seleccion, correcta, elementoBoton) {
     audio.pause();
     clearTimeout(timer);
 
-    // Deshabilitar todos los botones para evitar doble clic
     const botones = document.querySelectorAll(".option-btn");
     botones.forEach(b => b.disabled = true);
 
@@ -297,8 +374,7 @@ function verificarRespuesta(seleccion, correcta, elementoBoton) {
         vidas--;
         racha = 0;
         elementoBoton.style.background = "#ff4757";
-        
-        // Resaltar cuál era la correcta
+
         botones.forEach(b => {
             if (b.innerText === correcta) b.style.background = "#1db954";
         });
@@ -314,10 +390,9 @@ function verificarRespuesta(seleccion, correcta, elementoBoton) {
             finalizarJuego();
         } else {
             ocultarFeedback();
-            const select = document.getElementById("categoria");
-            cargarCancionJSONP(select.value);
+            siguienteCancion();
         }
-    }, 1800); // 1.8 segundos para ver el resultado y avanzar fluido
+    }, 1800);
 }
 
 function finalizarJuego() {
@@ -348,12 +423,18 @@ function compartirWhatsApp() {
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
-function compartirInstagram() {
+function abrirModalInstagram() {
     const shareUrl = obtenerUrlDesafio();
-    const mensaje = `🔥 Hice ${puntaje} puntos en "Adivina la Canción" (${categoriaTexto}). Acepta el desafío aquí: ${shareUrl}`;
-    navigator.clipboard.writeText(mensaje).then(() => {
-        mostrarFeedback("📋 ¡Texto de desafío copiado! Ya puedes pegarlo en Instagram.", true);
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        document.getElementById("modal-ig").style.display = "flex";
+    }).catch(() => {
+        document.getElementById("modal-ig").style.display = "flex";
     });
+}
+
+function cerrarModalInstagram() {
+    document.getElementById("modal-ig").style.display = "none";
+    window.location.href = "instagram://story-camera";
 }
 
 function copiarEnlaceDirecto() {
