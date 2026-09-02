@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adivina la Canción (Desafío)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #121212; color: white; padding: 20px; }
+        .card { background: #1e1e1e; max-width: 520px; margin: 20px auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        button { background: #1db954; color: white; border: none; padding: 14px 28px; margin: 8px; font-size: 16px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #1ed760; transform: scale(1.03); }
+        button:disabled { background: #444; cursor: not-allowed; transform: none; }
+        .btn-share { background: #0088cc; }
+        .btn-share:hover { background: #0099e6; }
+        .option-btn { display: block; width: 100%; margin: 10px 0; background: #282828; color: white; text-align: left; padding: 14px 18px; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .option-btn:hover:not(:disabled) { background: #3e3e3e; }
+        select { background: #282828; color: white; border: 1px solid #444; padding: 12px 18px; border-radius: 10px; font-size: 16px; width: 100%; margin-bottom: 20px; cursor: pointer; }
+        select:focus { outline: none; border-color: #1db954; }
+        label { display: block; text-align: left; margin-bottom: 8px; font-size: 14px; color: #b3b3b3; }
+        .status-bar { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+        .vidas { color: #ff4757; }
+        .racha { color: #eccc68; font-size: 13px; }
+        #pantalla-inicio, #pantalla-juego, #pantalla-final { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Adivina la Canción 🎵</h1>
+
+    <!-- PANTALLA DE INICIO -->
+    <div id="pantalla-inicio" style="display: block;">
+        <p>Adivina la canción escuchando solo 5 segundos del tema real.</p>
+        <p style="font-size: 14px; color: #1db954;">❤️ Tienes 3 vidas | 🔥 3 aciertos seguidos recuperan 1 vida</p>
+        
+        <div style="margin-top: 20px; text-align: left;">
+            <label for="categoria">Elige la categoría del desafío:</label>
+            <select id="categoria">
+                <optgroup label="Por País">
+                    <option value="Música Chilena">Chile 🇨🇱</option>
+                    <option value="Rock Argentina Pop Argentina">Argentina 🇦🇷</option>
+                    <option value="Música Colombiana Vallenato Cumbia">Colombia 🇨🇴</option>
+                    <option value="Música Mexicana Mariachi Regional">México 🇲🇽</option>
+                    <option value="USA Top Hits Pop Rock">USA 🇺🇸</option>
+                </optgroup>
+                <optgroup label="Estilos y Formatos">
+                    <option value="Kpop K-Pop">K-Pop 🇰🇷</option>
+                    <option value="Soundtrack Movie Theme Film">Música de Películas 🎬</option>
+                    <option value="Rock Band Greatest Hits">Bandas 🎸</option>
+                    <option value="Pop Solista Pop Hits">Solistas 🎤</option>
+                </optgroup>
+                <optgroup label="Por Épocas">
+                    <option value="80s Hits">Años 80s</option>
+                    <option value="90s Hits">Años 90s</option>
+                    <option value="2000s Hits">Años 2000s</option>
+                    <option value="2010s Hits">Años 2010s</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <button onclick="comenzarJuego()">🎮 Empezar Desafío</button>
+    </div>
+
+    <!-- PANTALLA DE JUEGO -->
+    <div id="pantalla-juego">
+        <div class="status-bar">
+            <span>Puntos: <span id="puntaje" style="color: #1db954;">0</span></span>
+            <span class="vidas" id="vidas-display">❤️❤️❤️</span>
+        </div>
+        <div class="racha" id="racha-display">Racha de aciertos: 0/3</div>
+        <p id="modo-texto" style="font-size: 13px; color: #888; margin-top: 5px;"></p>
+        <hr style="border-color: #333; margin: 15px 0;">
+        <p id="estado">Cargando...</p>
+        
+        <button id="btn-play" onclick="reproducir5Segundos()" disabled>🔊 Escuchar 5 Segundos</button>
+        <div id="opciones" style="margin-top:15px;"></div>
+    </div>
+
+    <!-- PANTALLA FINAL -->
+    <div id="pantalla-final">
+        <h2 style="color: #ff4757;">¡Juego Terminado! 💀</h2>
+        <p>Te quedaste sin vidas.</p>
+        <h3 id="puntaje-final">Puntaje Final: 0</h3>
+        <p id="categoria-final" style="color: #b3b3b3; font-size: 14px;"></p>
+        
+        <button class="btn-share" onclick="compartirResultado()">🔗 Compartir Desafío</button>
+        <button onclick="reiniciarJuego()">🔄 Jugar de Nuevo</button>
+    </div>
+</div>
+
+<audio id="audio-player" crossorigin="anonymous"></audio>
+
+<script>
+let audio = document.getElementById("audio-player");
+let puntaje = 0;
+let vidas = 3;
+let racha = 0;
+let timer = null;
+let cancionActual = null;
+let categoriaTexto = "";
+
+// Cargar categoría desde la URL si alguien abre un enlace compartido
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    if (catParam) {
+        const select = document.getElementById("categoria");
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === catParam) {
+                select.selectedIndex = i;
+                break;
+            }
+        }
+    }
+};
+
+function actualizarVidasUI() {
+    let corazones = "";
+    for (let i = 0; i < vidas; i++) corazones += "❤️";
+    for (let i = vidas; i < 3; i++) corazones += "🖤";
+    document.getElementById("vidas-display").innerText = corazones;
+    document.getElementById("racha-display").innerText = `Racha para recuperar vida: ${racha}/3`;
+}
+
+function comenzarJuego() {
+    const select = document.getElementById("categoria");
+    categoriaTexto = select.options[select.selectedIndex].text;
+    const valorBusqueda = select.value;
+
+    document.getElementById("pantalla-inicio").style.display = "none";
+    document.getElementById("pantalla-juego").style.display = "block";
+    document.getElementById("pantalla-final").style.display = "none";
+    document.getElementById("modo-texto").innerText = `Categoría: ${categoriaTexto}`;
+
+    puntaje = 0;
+    vidas = 3;
+    racha = 0;
+    document.getElementById("puntaje").innerText = puntaje;
+    actualizarVidasUI();
+
+    cargarCancionJSONP(valorBusqueda);
+}
+
+function cargarCancionJSONP(termino) {
+    document.getElementById("btn-play").disabled = true;
+    document.getElementById("estado").innerText = `Buscando tema...`;
+    document.getElementById("opciones").innerHTML = "";
+
+    const scriptAntiguo = document.getElementById("jsonp-script");
+    if (scriptAntiguo) scriptAntiguo.remove();
+
+    const script = document.createElement("script");
+    script.id = "jsonp-script";
+    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=50&callback=procesarRespuesta`;
+    
+    script.onerror = function() {
+        document.getElementById("estado").innerText = "Reintentando conexión...";
+        setTimeout(() => cargarCancionJSONP(termino), 2000);
+    };
+
+    document.body.appendChild(script);
+}
+
+window.procesarRespuesta = function(data) {
+    const canciones = (data.results || []).filter(item => item.previewUrl && item.trackName && item.artistName);
+
+    if (canciones.length < 4) {
+        const select = document.getElementById("categoria");
+        setTimeout(() => cargarCancionJSONP(select.value), 1000);
+        return;
+    }
+
+    const indiceCorrecto = Math.floor(Math.random() * canciones.length);
+    cancionActual = canciones[indiceCorrecto];
+
+    audio.src = cancionActual.previewUrl;
+    audio.load();
+
+    document.getElementById("estado").innerText = "¡Canción lista! Escucha los 5 segundos.";
+    document.getElementById("btn-play").disabled = false;
+
+    let opcionesFalsas = canciones
+        .filter((_, idx) => idx !== indiceCorrecto)
+        .map(item => `${item.trackName} - ${item.artistName}`);
+
+    opcionesFalsas = Array.from(new Set(opcionesFalsas)).sort(() => Math.random() - 0.5).slice(0, 3);
+
+    const solucionCorrecta = `${cancionActual.trackName} - ${cancionActual.artistName}`;
+    let todasOpciones = [...opcionesFalsas, solucionCorrecta].sort(() => Math.random() - 0.5);
+
+    const contenedorOpciones = document.getElementById("opciones");
+    todasOpciones.forEach(opcion => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = opcion;
+        btn.onclick = () => verificarRespuesta(opcion, solucionCorrecta);
+        contenedorOpciones.appendChild(btn);
+    });
+};
+
+function reproducir5Segundos() {
+    clearTimeout(timer);
+    audio.currentTime = 0;
+
+    audio.play().then(() => {
+        document.getElementById("estado").innerText = "▶ Reproduciendo (5 segundos)...";
+        timer = setTimeout(() => {
+            audio.pause();
+            document.getElementById("estado").innerText = "⏹ ¡Tiempo agotado! Selecciona tu respuesta.";
+        }, 5000);
+    }).catch(() => {
+        alert("Haz clic en la pantalla antes de reproducir.");
+    });
+}
+
+function verificarRespuesta(seleccion, correcta) {
+    audio.pause();
+    clearTimeout(timer);
+
+    if (seleccion === correcta) {
+        puntaje += 10;
+        racha++;
+
+        // Regla: 3 aciertos seguidos ganan 1 vida (máximo 3)
+        if (racha === 3) {
+            if (vidas < 3) {
+                vidas++;
+                alert("¡CORRECTO! 🎉 ¡Completaste una racha de 3 y recuperaste 1 vida! ❤️");
+            } else {
+                alert("¡CORRECTO! +10 puntos 🎉 (Ya tienes el máximo de 3 vidas)");
+            }
+            racha = 0; // Reiniciar racha
+        } else {
+            alert("¡CORRECTO! +10 puntos 🎉");
+        }
+
+    } else {
+        vidas--;
+        racha = 0; // Se rompe la racha si falla
+        alert(`Incorrecto ❌\nEra: ${correcta}\nTe quedan ${vidas} vida(s).`);
+    }
+
+    document.getElementById("puntaje").innerText = puntaje;
+    actualizarVidasUI();
+
+    if (vidas <= 0) {
+        finalizarJuego();
+    } else {
+        const select = document.getElementById("categoria");
+        cargarCancionJSONP(select.value);
+    }
+}
+
+function finalizarJuego() {
+    audio.pause();
+    clearTimeout(timer);
+
+    document.getElementById("pantalla-juego").style.display = "none";
+    document.getElementById("pantalla-final").style.display = "block";
+    document.getElementById("puntaje-final").innerText = `Puntaje Final: ${puntaje} puntos`;
+    document.getElementById("categoria-final").innerText = `Categoría: ${categoriaTexto}`;
+}
+
+function reiniciarJuego() {
+    document.getElementById("pantalla-final").style.display = "none";
+    document.getElementById("pantalla-inicio").style.display = "block";
+}
+
+function compartirResultado() {
+    const select = document.getElementById("categoria");
+    const valCat = select.value;
+    
+    // Crear la URL con la categoría para el desafío
+    const baseUrl = window.location.href.split('?')[0];
+    const shareUrl = `${baseUrl}?cat=${encodeURIComponent(valCat)}`;
+    
+    const textoCompartir = `🎵 ¡Hice ${puntaje} puntos en "Adivina la Canción" en la categoría ${categoriaTexto}!\n\n¿Puedes superar mi puntaje? Acepta el desafío aquí: ${shareUrl}`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'Desafío Adivina la Canción',
+            text: textoCompartir,
+            url: shareUrl
+        }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(textoCompartir).then(() => {
+            alert("📋 ¡Mensaje de desafío copiado al portapapeles! Pégalo en WhatsApp o redes sociales.");
+        });
+    }
+}
+</script>
+
+</body>
+</html>
