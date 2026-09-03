@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adivina la Canción (Desafío)</title>
-    <!-- Librería para convertir la tarjeta final en imagen -->
+    <title>Adivina la Canción (Desafío 1v1)</title>
+    <!-- Librerías de conversión de imagen y Firebase Realtime Database -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #121212; color: white; padding: 20px; }
         .card { background: #1e1e1e; max-width: 520px; margin: 20px auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
@@ -13,6 +16,9 @@
         button:hover { background: #1ed760; transform: scale(1.03); }
         button:disabled { background: #444; cursor: not-allowed; transform: none; }
         
+        .btn-vs { background: #e056fd; }
+        .btn-vs:hover { background: #be2edd; }
+
         .share-group { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
         .btn-wsp { background: #25D366; }
         .btn-wsp:hover { background: #20ba5a; }
@@ -24,7 +30,6 @@
         .option-btn { display: block; width: 100%; margin: 10px 0; background: #282828; color: white; text-align: left; padding: 14px 18px; border-radius: 10px; font-size: 15px; box-sizing: border-box; transition: 0.2s; }
         .option-btn:hover:not(:disabled) { background: #3e3e3e; }
         
-        /* SELECTOR DE CATEGORÍA ULTRA LLAMATIVO */
         .select-container {
             background: linear-gradient(135deg, #1db954 0%, #128c3e 100%);
             padding: 4px;
@@ -33,18 +38,12 @@
             box-shadow: 0 4px 15px rgba(29, 185, 84, 0.4);
         }
         select { 
-            background: #181818; 
-            color: #ffffff; 
-            border: none; 
-            padding: 14px 18px; 
-            border-radius: 10px; 
-            font-size: 17px; 
-            font-weight: bold;
-            width: 100%; 
-            cursor: pointer; 
-            outline: none;
+            background: #181818; color: #ffffff; border: none; padding: 14px 18px; border-radius: 10px; font-size: 17px; font-weight: bold; width: 100%; cursor: pointer; outline: none;
         }
-        select:focus { background: #222222; }
+
+        input[type="text"] {
+            background: #282828; color: white; border: 1px solid #1db954; padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; width: 80%; margin: 10px 0; letter-spacing: 2px; text-transform: uppercase;
+        }
         
         label { display: block; text-align: left; margin-bottom: 8px; font-size: 15px; font-weight: bold; color: #1db954; }
         .status-bar { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
@@ -52,41 +51,26 @@
         .racha { color: #eccc68; font-size: 13px; }
         
         #feedback-banner {
-            display: none;
-            padding: 12px 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 15px;
-            animation: fadeIn 0.3s ease-in-out;
+            display: none; padding: 12px 15px; margin: 10px 0; border-radius: 10px; font-weight: bold; font-size: 15px; animation: fadeIn 0.3s ease-in-out;
         }
         .feedback-correcto { background: rgba(29, 185, 84, 0.2); border: 1px solid #1db954; color: #1ed760; }
         .feedback-incorrecto { background: rgba(255, 71, 87, 0.2); border: 1px solid #ff4757; color: #ff4757; }
 
+        /* Estilos del Marcador Multijugador 1v1 */
+        .scoreboard-1v1 {
+            display: flex; justify-content: space-around; background: #282828; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e056fd;
+        }
+        .player-score { font-size: 16px; font-weight: bold; }
+
         #tarjeta-resultado {
-            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-            border: 2px solid #1db954;
-            padding: 25px;
-            border-radius: 16px;
-            margin-bottom: 15px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); border: 2px solid #1db954; padding: 25px; border-radius: 16px; margin-bottom: 15px;
         }
 
         #modal-ig {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 1000; justify-content: center; align-items: center;
         }
         .modal-content {
-            background: #222;
-            padding: 25px;
-            border-radius: 16px;
-            max-width: 380px;
-            text-align: left;
-            border: 1px solid #444;
+            background: #222; padding: 25px; border-radius: 16px; max-width: 380px; text-align: left; border: 1px solid #444;
         }
 
         @keyframes fadeIn {
@@ -94,7 +78,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        #pantalla-inicio, #pantalla-juego, #pantalla-final { display: none; }
+        #pantalla-inicio, #pantalla-juego, #pantalla-final, #pantalla-lobby { display: none; }
     </style>
 </head>
 <body>
@@ -105,14 +89,13 @@
     <!-- PANTALLA DE INICIO -->
     <div id="pantalla-inicio" style="display: block;">
         <p>Adivina la canción escuchando solo 5 segundos del tema real.</p>
-        <p style="font-size: 14px; color: #1db954;">❤️ Tienes 3 vidas | 🔥 3 aciertos seguidos recuperan 1 vida</p>
+        <p style="font-size: 14px; color: #1db954;">❤️ Solitario (3 Vidas) | ⚔️ Multijugador (Carrera a 10 PTS)</p>
         
         <div style="margin-top: 25px; text-align: left;">
             <label for="categoria">👇 ELIGE TU CATEGORÍA:</label>
             <div class="select-container">
                 <select id="categoria">
                     <option value="AZAR">🎲 Al Azar / De Todo (Mezclado)</option>
-                    
                     <optgroup label="Por País">
                         <option value="CHILE">Chile 🇨🇱</option>
                         <option value="ARGENTINA">Argentina 🇦🇷 (inc. BZRP)</option>
@@ -120,7 +103,6 @@
                         <option value="MEXICO">México 🇲🇽</option>
                         <option value="USA">USA 🇺🇸</option>
                     </optgroup>
-
                     <optgroup label="Estilos & Formatos">
                         <option value="ROMANTICAS">Románticas en Español 🌹</option>
                         <option value="SOLISTAS">Solistas Famosos 🎤</option>
@@ -130,12 +112,10 @@
                         <option value="POP_LATINO">Pop Latino & Bailables 💃</option>
                         <option value="ELECTRONICA">Electrónica / EDM ⚡</option>
                     </optgroup>
-
                     <optgroup label="Cultura Pop & Banda Sonora">
                         <option value="KPOP">K-Pop 🇰🇷</option>
                         <option value="PELICULAS">Películas, Anime & Juegos 🎬🎮</option>
                     </optgroup>
-
                     <optgroup label="Por Décadas">
                         <option value="70s Rock Hits">Años 70s 🕺</option>
                         <option value="80s Hits">Años 80s 📼</option>
@@ -147,16 +127,44 @@
             </div>
         </div>
 
-        <button onclick="comenzarJuego()">🎮 Empezar Desafío</button>
+        <button onclick="comenzarJuegoSolitario()">🎮 Modo Solitario</button>
+        <button class="btn-vs" onclick="mostrarLobby1v1()">⚔️ Modo Multijugador 1v1</button>
+    </div>
+
+    <!-- PANTALLA LOBBY MULTIJUGADOR -->
+    <div id="pantalla-lobby">
+        <h2 style="color: #e056fd;">Duelo 1v1 en Tiempo Real ⚔️</h2>
+        <p>El primero en llegar a 10 puntos gana la partida.</p>
+        
+        <button onclick="crearSala1v1()">🏠 Crear Sala</button>
+        <p>- Ó -</p>
+        <input type="text" id="codigo-sala-input" placeholder="CÓDIGO (EJ: A1B2)" maxlength="4">
+        <br>
+        <button class="btn-vs" onclick="unirseASala1v1()">🔑 Unirse a Sala</button>
+        <br><br>
+        <button style="background: #444;" onclick="cancelarLobby()">⬅️ Volver al Inicio</button>
     </div>
 
     <!-- PANTALLA DE JUEGO -->
     <div id="pantalla-juego">
-        <div class="status-bar">
-            <span>Puntos: <span id="puntaje" style="color: #1db954;">0</span></span>
-            <span class="vidas" id="vidas-display">❤️❤️❤️</span>
+        <!-- Marcador Solitario -->
+        <div id="ui-solitario">
+            <div class="status-bar">
+                <span>Puntos: <span id="puntaje" style="color: #1db954;">0</span></span>
+                <span class="vidas" id="vidas-display">❤️❤️❤️</span>
+            </div>
+            <div class="racha" id="racha-display">Racha de aciertos: 0/3</div>
         </div>
-        <div class="racha" id="racha-display">Racha de aciertos: 0/3</div>
+
+        <!-- Marcador Multijugador 1v1 -->
+        <div id="ui-1v1" style="display: none;">
+            <div class="scoreboard-1v1">
+                <div class="player-score" style="color: #1db954;">Tú: <span id="pts-p1">0</span>/10</div>
+                <div style="color: #e056fd; font-size: 12px; align-self: center;" id="codigo-sala-display">SALA: ----</div>
+                <div class="player-score" style="color: #ff4757;">Rival: <span id="pts-p2">0</span>/10</div>
+            </div>
+        </div>
+
         <p id="modo-texto" style="font-size: 13px; color: #888; margin-top: 5px;"></p>
         
         <div id="feedback-banner"></div>
@@ -171,11 +179,11 @@
     <!-- PANTALLA FINAL -->
     <div id="pantalla-final">
         <div id="tarjeta-resultado">
-            <h2 style="color: #ff4757; margin-top:0;">¡JUEGO TERMINADO! 💀</h2>
+            <h2 id="titulo-final" style="color: #ff4757; margin-top:0;">¡JUEGO TERMINADO! 💀</h2>
             <p style="margin:5px 0;">Adivina la Canción 🎵</p>
             <h1 id="puntaje-final" style="color: #1db954; font-size: 38px; margin: 15px 0;">0 PUNTOS</h1>
             <p id="categoria-final" style="color: #b3b3b3; font-size: 16px; font-weight: bold; margin:0;"></p>
-            <p style="font-size: 12px; color: #888; margin-top: 15px;">¿Puedes superar mi récord?</p>
+            <p id="subtitulo-final" style="font-size: 12px; color: #888; margin-top: 15px;">¿Puedes superar mi récord?</p>
         </div>
         
         <p style="margin-top: 15px; font-weight: bold; font-size: 15px;">Desafía a tus amigos:</p>
@@ -206,6 +214,24 @@
 <audio id="audio-player" crossorigin="anonymous"></audio>
 
 <script>
+// ==========================================
+// CONFIGURACIÓN DE FIREBASE (REEMPLAZA AQUÍ)
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBmD0pEWxIAWZe9IjDp9ojiX6V8Jnq6SZs",
+  authDomain: "adivina-cancion-1v1.firebaseapp.com",
+  databaseURL: "https://adivina-cancion-1v1-default-rtdb.firebaseio.com",
+  projectId: "adivina-cancion-1v1",
+  storageBucket: "adivina-cancion-1v1.firebasestorage.app",
+  messagingSenderId: "598484808234",
+  appId: "1:598484808234:web:29fc5df30625186603c953"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Variables globales de juego
 let audio = document.getElementById("audio-player");
 let puntaje = 0;
 let vidas = 3;
@@ -216,94 +242,33 @@ let categoriaTexto = "";
 let respondiendo = false;
 let cancionesJugadas = new Set();
 
+// Variables de Multijugador
+let modoEs1v1 = false;
+let miRol = ""; // "host" o "guest"
+let miCodigoSala = "";
+let ptsP1 = 0;
+let ptsP2 = 0;
+let escuchoRonda1v1 = false;
+let tiempoInicioReproduccion = 0;
+
 const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
 
 // REPERTORIOS AMPLIADOS CON ARTISTAS FAMOSOS
-const ARTISTAS_CHILE = [
-    "Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", 
-    "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", 
-    "Chancho en Piedra", "Joe Vasconcellos", "Chico Trujillo", "Lucybell", "Javier Mena", "Kidd Voodoo",
-    "Los Jaivas", "Kudai", "Nicole", "Saiko", "Santaferia", "Villa Cariño", "El Bloque Ocho", "Movimiento Original", "Tiro de Gracia"
-];
-
-const ARTISTAS_ARGENTINA = [
-    "Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", 
-    "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", 
-    "Los Auténticos Decadentes", "Andres Calamaro", "Airbag", "Miranda!", "Babasonicos", "Vicentico",
-    "La Renga", "Los Pericos", "Vilma Palma e Vampiros", "Cazzu", "Khea", "Lit Killah", "FMK"
-];
-
-const ARTISTAS_MEXICO = [
-    "Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik", "Zoé", 
-    "Alejandro Fernandez", "Thalia", "Paulina Rubio", "Marco Antonio Solis", "Julieta Venegas", "Belinda", "Christian Nodal",
-    "Gloria Trevi", "Jesse & Joy", "Carlos Rivera", "Yuridia", "Camila", "Sin Bandera", "Ha*Ash", "Emmanuel", "Mijares", "Juan Gabriel"
-];
-
-const ARTISTAS_ROMANTICAS = [
-    "Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", "Camila", "Pablo Alboran", 
-    "Alejandro Sanz", "Reik", "Franco de Vita", "Cristian Castro", "David Bisbal", "Marco Antonio Solis", 
-    "Ha*Ash", "Laura Pausini", "Alejandro Fernandez", "Yuri", "Kany Garcia", "Fonseca", "Andres Cepeda",
-    "Rocío Dúrcal", "Ana Gabriel", "Myriam Hernández", "Luciano Pereyra", "Noel Schajris", "Axel", "Gian Marco", "Alex Ubago", "Nek"
-];
-
-const ARTISTAS_COLOMBIA = [
-    "Shakira", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "Karol G", "Sebastian Yatra", "Morat", 
-    "Camilo", "Feid", "Manuel Turizo", "Fonseca", "Andres Cepeda", "Grupo Niche", "Aterciopelados"
-];
-
-const ARTISTAS_USA = [
-    "Michael Jackson", "Madonna", "Eminem", "Taylor Swift", "Bruno Mars", "Katy Perry", "Beyonce", "Post Malone", 
-    "Billie Eilish", "Ariana Grande", "Lady Gaga", "Britney Spears", "Usher", "Justin Timberlake", "Maroon 5"
-];
-
-const ARTISTAS_SOLISTAS = [
-    "Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", "Dua Lipa", "Bruno Mars", 
-    "Adele", "Rihanna", "Eminem", "Billie Eilish", "Harry Styles", "Justin Bieber", "Lady Gaga", "Beyonce", 
-    "Shawn Mendes", "Mon Laferte", "Luis Miguel", "Rosalia", "The Weeknd", "Olivia Rodrigo", "Post Malone"
-];
-
-const GRUPOS_DUS = [
-    "Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5", "Twenty One Pilots", 
-    "The Chainsmokers", "One Direction", "Imagine Dragons", "KISS", "Bacilos", "Los Prisioneros", 
-    "Soda Stereo", "Jesse & Joy", "CNCO", "Morat", "Reik", "Maná", "Outkast", "RBD"
-];
-
-const ARTISTAS_ROCK_BANDAS = [
-    "Queen", "Metallica", "ACDC", "Guns N Roses", "Nirvana", "Red Hot Chili Peppers", "The Beatles", 
-    "Pink Floyd", "Led Zeppelin", "Aerosmith", "Bon Jovi", "Linkin Park", "Green Day", "The Rolling Stones", 
-    "Foo Fighters", "Pearl Jam", "U2", "Radiohead", "KISS", "Iron Maiden"
-];
-
-const ARTISTAS_URBANO = [
-    "Bad Bunny", "Daddy Yankee", "Karol G", "Rauw Alejandro", "J Balvin", "Maluma", "Don Omar", "Wisin & Yandel", 
-    "Ozuna", "Anuel AA", "Feid", "Myke Towers", "Arcangel", "Nicky Jam", "Zion & Lennox", "Cris Mj", "Ryan Castro"
-];
-
-const ARTISTAS_POP_LATINO = [
-    "Ricky Martin", "Shakira", "Enrique Iglesias", "Chayanne", "Thalia", "Paulina Rubio", "Carlos Vives", 
-    "Gloria Trevi", "Luis Fonsi", "Bacilos", "Sebastian Yatra", "Camilo", "Danna Paola", "Belinda", "Fonseca"
-];
-
-const ARTISTAS_ELECTRONICA = [
-    "Daft Punk", "Avicii", "David Guetta", "Calvin Harris", "Tiësto", "Martin Garrix", "Swedish House Mafia", 
-    "Skrillex", "Marshmello", "Kygo", "The Chainsmokers", "DJ Snake", "Alan Walker", "Armin van Buuren"
-];
-
-const ARTISTAS_KPOP = [
-    "BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "TAEMIN", "ITZY", "TXT", 
-    "ENHYPEN", "IVE", "LE SSERAFIM", "Red Velvet", "NCT 127", "AESPA", "IU", "Jungkook", "Agust D", "BIGBANG", "SHINee", "Super Junior"
-];
-
-const SOUNDTRACKS = [
-    "Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli",
-    "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme",
-    "Harry Potter Soundtrack", "Interstellar Soundtrack", "Marvel Studios Soundtrack"
-];
-
-const PALABRAS_AZAR = [
-    ...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, 
-    ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP
-];
+const ARTISTAS_CHILE = ["Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", "Chancho en Piedra", "Joe Vasconcellos", "Chico Trujillo", "Lucybell", "Javier Mena", "Kidd Voodoo", "Los Jaivas", "Kudai", "Nicole", "Saiko", "Santaferia", "Villa Cariño", "Movimiento Original", "Tiro de Gracia"];
+const ARTISTAS_ARGENTINA = ["Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", "Los Auténticos Decadentes", "Andres Calamaro", "Airbag", "Miranda!", "Babasonicos", "Vicentico", "La Renga", "Los Pericos", "Vilma Palma e Vampiros", "Cazzu", "Khea", "Lit Killah", "FMK"];
+const ARTISTAS_MEXICO = ["Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik", "Zoé", "Alejandro Fernandez", "Thalia", "Paulina Rubio", "Marco Antonio Solis", "Julieta Venegas", "Belinda", "Christian Nodal", "Gloria Trevi", "Jesse & Joy", "Carlos Rivera", "Yuridia", "Camila", "Sin Bandera", "Ha*Ash", "Emmanuel", "Mijares", "Juan Gabriel"];
+const ARTISTAS_ROMANTICAS = ["Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", "Camila", "Pablo Alboran", "Alejandro Sanz", "Reik", "Franco de Vita", "Cristian Castro", "David Bisbal", "Marco Antonio Solis", "Ha*Ash", "Laura Pausini", "Alejandro Fernandez", "Yuri", "Kany Garcia", "Fonseca", "Andres Cepeda", "Rocío Dúrcal", "Ana Gabriel", "Myriam Hernández", "Luciano Pereyra", "Noel Schajris", "Axel", "Gian Marco", "Alex Ubago"];
+const ARTISTAS_COLOMBIA = ["Shakira", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "Karol G", "Sebastian Yatra", "Morat", "Camilo", "Feid", "Manuel Turizo", "Fonseca", "Andres Cepeda", "Grupo Niche", "Aterciopelados"];
+const ARTISTAS_USA = ["Michael Jackson", "Madonna", "Eminem", "Taylor Swift", "Bruno Mars", "Katy Perry", "Beyonce", "Post Malone", "Billie Eilish", "Ariana Grande", "Lady Gaga", "Britney Spears", "Usher", "Justin Timberlake", "Maroon 5"];
+const ARTISTAS_SOLISTAS = ["Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", "Dua Lipa", "Bruno Mars", "Adele", "Rihanna", "Eminem", "Billie Eilish", "Harry Styles", "Justin Bieber", "Lady Gaga", "Beyonce", "Shawn Mendes", "Mon Laferte", "Luis Miguel", "Rosalia", "The Weeknd", "Olivia Rodrigo", "Post Malone"];
+const GRUPOS_DUS = ["Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5", "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons", "KISS", "Bacilos", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "CNCO", "Morat", "Reik", "Maná", "Outkast", "RBD"];
+const ARTISTAS_ROCK_BANDAS = ["Queen", "Metallica", "ACDC", "Guns N Roses", "Nirvana", "Red Hot Chili Peppers", "The Beatles", "Pink Floyd", "Led Zeppelin", "Aerosmith", "Bon Jovi", "Linkin Park", "Green Day", "The Rolling Stones", "Foo Fighters", "Pearl Jam", "U2", "Radiohead", "KISS", "Iron Maiden"];
+const ARTISTAS_URBANO = ["Bad Bunny", "Daddy Yankee", "Karol G", "Rauw Alejandro", "J Balvin", "Maluma", "Don Omar", "Wisin & Yandel", "Ozuna", "Anuel AA", "Feid", "Myke Towers", "Arcangel", "Nicky Jam", "Zion & Lennox", "Cris Mj", "Ryan Castro"];
+const ARTISTAS_POP_LATINO = ["Ricky Martin", "Shakira", "Enrique Iglesias", "Chayanne", "Thalia", "Paulina Rubio", "Carlos Vives", "Gloria Trevi", "Luis Fonsi", "Bacilos", "Sebastian Yatra", "Camilo", "Danna Paola", "Belinda", "Fonseca"];
+const ARTISTAS_ELECTRONICA = ["Daft Punk", "Avicii", "David Guetta", "Calvin Harris", "Tiësto", "Martin Garrix", "Swedish House Mafia", "Skrillex", "Marshmello", "Kygo", "The Chainsmokers", "DJ Snake", "Alan Walker", "Armin van Buuren"];
+const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "TAEMIN", "ITZY", "TXT", "ENHYPEN", "IVE", "LE SSERAFIM", "Red Velvet", "NCT 127", "AESPA", "IU", "Jungkook", "Agust D", "BIGBANG", "SHINee", "Super Junior"];
+const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli", "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme", "Harry Potter Soundtrack", "Interstellar Soundtrack", "Marvel Studios Soundtrack"];
+const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP];
 
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -327,7 +292,12 @@ function actualizarVidasUI() {
     document.getElementById("racha-display").innerText = `Racha para recuperar vida: ${racha}/3`;
 }
 
-function comenzarJuego() {
+// INICIO SOLITARIO
+function comenzarJuegoSolitario() {
+    modoEs1v1 = false;
+    document.getElementById("ui-solitario").style.display = "block";
+    document.getElementById("ui-1v1").style.display = "none";
+    
     const select = document.getElementById("categoria");
     categoriaTexto = select.options[select.selectedIndex].text;
 
@@ -336,9 +306,7 @@ function comenzarJuego() {
     document.getElementById("pantalla-final").style.display = "none";
     document.getElementById("modo-texto").innerText = `Categoría: ${categoriaTexto}`;
 
-    puntaje = 0;
-    vidas = 3;
-    racha = 0;
+    puntaje = 0; vidas = 3; racha = 0;
     cancionesJugadas.clear();
     document.getElementById("puntaje").innerText = puntaje;
     ocultarFeedback();
@@ -347,9 +315,266 @@ function comenzarJuego() {
     siguienteCancion();
 }
 
-function obtenerTerminoAleatorio(arreglo) {
-    return arreglo[Math.floor(Math.random() * arreglo.length)];
+// LOBBY Y FUNCIONES MULTIJUGADOR (1v1)
+function mostrarLobby1v1() {
+    document.getElementById("pantalla-inicio").style.display = "none";
+    document.getElementById("pantalla-lobby").style.display = "block";
 }
+
+function cancelarLobby() {
+    document.getElementById("pantalla-lobby").style.display = "none";
+    document.getElementById("pantalla-inicio").style.display = "block";
+}
+
+function generarCodigoSala() {
+    const caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let codigo = "";
+    for (let i = 0; i < 4; i++) codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    return codigo;
+}
+
+function crearSala1v1() {
+    modoEs1v1 = true;
+    miRol = "host";
+    miCodigoSala = generarCodigoSala();
+    const select = document.getElementById("categoria");
+    categoriaTexto = select.options[select.selectedIndex].text;
+
+    db.ref("salas/" + miCodigoSala).set({
+        estado: "esperando",
+        categoriaVal: select.value,
+        categoriaTxt: categoriaTexto,
+        ptsHost: 0,
+        ptsGuest: 0,
+        ronda: 1,
+        respuestasRonda: {}
+    }).then(() => {
+        document.getElementById("pantalla-lobby").style.display = "none";
+        document.getElementById("pantalla-juego").style.display = "block";
+        document.getElementById("ui-solitario").style.display = "none";
+        document.getElementById("ui-1v1").style.display = "block";
+        document.getElementById("codigo-sala-display").innerText = `SALA: ${miCodigoSala}`;
+        document.getElementById("estado").innerText = `¡Sala creada (${miCodigoSala})! Esperando que tu rival se una...`;
+        escucharCambiosSala1v1();
+    });
+}
+
+function unirseASala1v1() {
+    const cod = document.getElementById("codigo-sala-input").value.trim().toUpperCase();
+    if (cod.length !== 4) { alert("Ingresa un código válido de 4 caracteres."); return; }
+
+    db.ref("salas/" + cod).once("value").then(snapshot => {
+        if (!snapshot.exists()) { alert("La sala no existe."); return; }
+        const data = snapshot.val();
+        if (data.estado !== "esperando") { alert("La sala ya está llena o comenzó."); return; }
+
+        modoEs1v1 = true;
+        miRol = "guest";
+        miCodigoSala = cod;
+        categoriaTexto = data.categoriaTxt;
+
+        db.ref("salas/" + miCodigoSala).update({ estado: "jugando" });
+
+        document.getElementById("pantalla-lobby").style.display = "none";
+        document.getElementById("pantalla-juego").style.display = "block";
+        document.getElementById("ui-solitario").style.display = "none";
+        document.getElementById("ui-1v1").style.display = "block";
+        document.getElementById("codigo-sala-display").innerText = `SALA: ${miCodigoSala}`;
+        
+        escucharCambiosSala1v1();
+    });
+}
+
+function escucharCambiosSala1v1() {
+    db.ref("salas/" + miCodigoSala).on("value", snapshot => {
+        if (!snapshot.exists()) return;
+        const sala = snapshot.val();
+
+        ptsP1 = sala.ptsHost || 0;
+        ptsP2 = sala.ptsGuest || 0;
+
+        if (miRol === "host") {
+            document.getElementById("pts-p1").innerText = ptsP1;
+            document.getElementById("pts-p2").innerText = ptsP2;
+        } else {
+            document.getElementById("pts-p1").innerText = ptsP2;
+            document.getElementById("pts-p2").innerText = ptsHost = ptsP1;
+        }
+
+        // Verificar Victoria (Carrera a 10)
+        if (ptsP1 >= 10 || ptsP2 >= 10) {
+            finalizarJuego1v1(ptsP1, ptsP2);
+            return;
+        }
+
+        // Si se unió el segundo jugador, el Host genera la primera canción
+        if (sala.estado === "jugando" && miRol === "host" && !sala.cancionActual) {
+            prepararCancionPara1v1(sala.categoriaVal);
+        }
+
+        // Cargar canción compartida
+        if (sala.cancionActual && (!cancionActual || cancionActual.trackId !== sala.cancionActual.trackId)) {
+            cancionActual = sala.cancionActual;
+            audio.src = cancionActual.previewUrl;
+            audio.load();
+
+            document.getElementById("modo-texto").innerText = `Modo 1v1 | Categoría: ${sala.categoriaTxt}`;
+            document.getElementById("estado").innerText = "¡Canción lista! Escucha los 5 segundos.";
+            document.getElementById("btn-play").disabled = false;
+            escuchoRonda1v1 = false;
+            respondiendo = false;
+
+            renderizarOpciones1v1(sala.opcionesRonda, `${cancionActual.trackName} - ${cancionActual.artistName}`);
+        }
+
+        // Evaluar respuestas cuando ambos responden en la ronda
+        if (sala.respuestasRonda && Object.keys(sala.respuestasRonda).length === 2 && miRol === "host" && !sala.procesandoRonda) {
+            db.ref("salas/" + miCodigoSala).update({ procesandoRonda: true });
+            procesarResultadosRonda1v1(sala.respuestasRonda, sala.categoriaVal);
+        }
+    });
+}
+
+function prepararCancionPara1v1(categoriaVal) {
+    let termino = categoriaVal;
+    if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
+    else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
+    else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
+    else if (termino === "KPOP") termino = obtenerTerminoAleatorio(ARTISTAS_KPOP);
+    else if (termino === "SOLISTAS") termino = obtenerTerminoAleatorio(ARTISTAS_SOLISTAS);
+    else if (termino === "GRUPOS") termino = obtenerTerminoAleatorio(GRUPOS_DUS);
+    else if (termino === "ROCK_BANDAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROCK_BANDAS);
+    else if (termino === "URBANO") termino = obtenerTerminoAleatorio(ARTISTAS_URBANO);
+    else if (termino === "ELECTRONICA") termino = obtenerTerminoAleatorio(ARTISTAS_ELECTRONICA);
+    else if (termino === "CHILE") termino = obtenerTerminoAleatorio(ARTISTAS_CHILE);
+    else if (termino === "ARGENTINA") termino = obtenerTerminoAleatorio(ARTISTAS_ARGENTINA);
+    else if (termino === "COLOMBIA") termino = obtenerTerminoAleatorio(ARTISTAS_COLOMBIA);
+    else if (termino === "MEXICO") termino = obtenerTerminoAleatorio(ARTISTAS_MEXICO);
+    else if (termino === "USA") termino = obtenerTerminoAleatorio(ARTISTAS_USA);
+    else if (termino === "PELICULAS") termino = obtenerTerminoAleatorio(SOUNDTRACKS);
+
+    const script = document.createElement("script");
+    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=50&callback=procesarCancion1v1Host`;
+    document.body.appendChild(script);
+}
+
+window.procesarCancion1v1Host = function(data) {
+    let canciones = (data.results || []).filter(item => item.previewUrl && item.trackName && item.artistName && !cancionesJugadas.has(item.trackId));
+    if (canciones.length < 4) {
+        const select = document.getElementById("categoria");
+        prepararCancionPara1v1(select.value);
+        return;
+    }
+
+    const indiceCorrecto = Math.floor(Math.random() * canciones.length);
+    const elegida = canciones[indiceCorrecto];
+    cancionesJugadas.add(elegida.trackId);
+
+    let falsas = canciones.filter((_, idx) => idx !== indiceCorrecto).map(item => `${item.trackName} - ${item.artistName}`);
+    falsas = Array.from(new Set(falsas)).sort(() => Math.random() - 0.5).slice(0, 3);
+    const solucionCorrecta = `${elegida.trackName} - ${elegida.artistName}`;
+    let todasOpciones = [...falsas, solucionCorrecta].sort(() => Math.random() - 0.5);
+
+    db.ref("salas/" + miCodigoSala).update({
+        cancionActual: elegida,
+        opcionesRonda: todasOpciones,
+        respuestasRonda: {},
+        procesandoRonda: false
+    });
+};
+
+function renderizarOpciones1v1(opciones, solucionCorrecta) {
+    const contenedor = document.getElementById("opciones");
+    contenedor.innerHTML = "";
+    opciones.forEach(opcion => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = opcion;
+        btn.onclick = () => registrarRespuesta1v1(opcion, solucionCorrecta, btn);
+        contenedor.appendChild(btn);
+    });
+}
+
+function registrarRespuesta1v1(seleccion, correcta, elementoBoton) {
+    if (respondiendo) return;
+    respondiendo = true;
+    audio.pause();
+    clearTimeout(timer);
+
+    const tiempoRespuesta = Date.now() - tiempoInicioReproduccion;
+    const esCorrecto = (seleccion === correcta);
+
+    if (esCorrecto) elementoBoton.style.background = "#1db954";
+    else elementoBoton.style.background = "#ff4757";
+
+    const botones = document.querySelectorAll(".option-btn");
+    botones.forEach(b => b.disabled = true);
+
+    db.ref(`salas/${miCodigoSala}/respuestasRonda/${miRol}`).set({
+        esCorrecto: esCorrecto,
+        tiempo: tiempoRespuesta
+    });
+
+    mostrarFeedback("Respuesta enviada, esperando a tu rival...", true);
+}
+
+function procesarResultadosRonda1v1(respuestas, categoriaVal) {
+    const rHost = respuestas.host;
+    const rGuest = respuestas.guest;
+
+    let nuevoPtsHost = ptsP1;
+    let nuevoPtsGuest = ptsP2;
+
+    // Lógica: Si ambos aciertan, el punto es para el más rápido. Si uno solo acierta, se lleva el punto.
+    if (rHost.esCorrecto && rGuest.esCorrecto) {
+        if (rHost.tiempo <= rGuest.tiempo) nuevoPtsHost++;
+        else nuevoPtsGuest++;
+    } else if (rHost.esCorrecto) {
+        nuevoPtsHost++;
+    } else if (rGuest.esCorrecto) {
+        nuevoPtsGuest++;
+    }
+
+    db.ref("salas/" + miCodigoSala).update({
+        ptsHost: nuevoPtsHost,
+        ptsGuest: nuevoPtsGuest
+    }).then(() => {
+        setTimeout(() => {
+            if (nuevoPtsHost < 10 && nuevoPtsGuest < 10) {
+                prepararCancionPara1v1(categoriaVal);
+            }
+        }, 2000);
+    });
+}
+
+function finalizarJuego1v1(ptsH, ptsG) {
+    audio.pause();
+    clearTimeout(timer);
+    db.ref("salas/" + miCodigoSala).off();
+
+    const ganoHost = ptsH >= 10;
+    const soyGanador = (miRol === "host" && ganoHost) || (miRol === "guest" && !ganoHost);
+
+    document.getElementById("pantalla-juego").style.display = "none";
+    document.getElementById("pantalla-final").style.display = "block";
+
+    if (soyGanador) {
+        document.getElementById("titulo-final").innerText = "¡VICTORIA! 🏆";
+        document.getElementById("titulo-final").style.color = "#1db954";
+        document.getElementById("puntaje-final").innerText = "¡10 PUNTOS!";
+        document.getElementById("subtitulo-final").innerText = "¡Fuiste el primero en llegar a 10 puntos!";
+    } else {
+        document.getElementById("titulo-final").innerText = "DERROTA 💀";
+        document.getElementById("titulo-final").style.color = "#ff4757";
+        document.getElementById("puntaje-final").innerText = "TU RIVAL GANÓ";
+        document.getElementById("subtitulo-final").innerText = "Tu rival alcanzó los 10 puntos primero.";
+    }
+
+    document.getElementById("categoria-final").innerText = `Categoría: ${categoriaTexto}`;
+}
+
+// FUNCIONES AUXILIARES SOLITARIO Y REPRODUCCIÓN
+function obtenerTerminoAleatorio(arreglo) { return arreglo[Math.floor(Math.random() * arreglo.length)]; }
 
 function siguienteCancion() {
     const select = document.getElementById("categoria");
@@ -398,21 +623,15 @@ function cargarCancionJSONP(termino) {
 window.procesarRespuesta = function(data) {
     let canciones = (data.results || []).filter(item => {
         if (!item.previewUrl || !item.trackName || !item.artistName) return false;
-        
         const nombreLower = (item.trackName + " " + item.collectionName).toLowerCase();
         const esNavideno = PALABRAS_NAVISTAS.some(palabra => nombreLower.includes(palabra));
-        
         return !esNavideno && !cancionesJugadas.has(item.trackId);
     });
 
-    if (canciones.length < 4) {
-        setTimeout(siguienteCancion, 800);
-        return;
-    }
+    if (canciones.length < 4) { setTimeout(siguienteCancion, 800); return; }
 
     const indiceCorrecto = Math.floor(Math.random() * canciones.length);
     cancionActual = canciones[indiceCorrecto];
-
     cancionesJugadas.add(cancionActual.trackId);
 
     audio.src = cancionActual.previewUrl;
@@ -421,10 +640,7 @@ window.procesarRespuesta = function(data) {
     document.getElementById("estado").innerText = "¡Canción lista! Escucha los 5 segundos.";
     document.getElementById("btn-play").disabled = false;
 
-    let opcionesFalsas = canciones
-        .filter((_, idx) => idx !== indiceCorrecto)
-        .map(item => `${item.trackName} - ${item.artistName}`);
-
+    let opcionesFalsas = canciones.filter((_, idx) => idx !== indiceCorrecto).map(item => `${item.trackName} - ${item.artistName}`);
     opcionesFalsas = Array.from(new Set(opcionesFalsas)).sort(() => Math.random() - 0.5).slice(0, 3);
 
     const solucionCorrecta = `${cancionActual.trackName} - ${cancionActual.artistName}`;
@@ -444,6 +660,7 @@ function reproducir5Segundos() {
     if (respondiendo) return;
     clearTimeout(timer);
     audio.currentTime = 0;
+    tiempoInicioReproduccion = Date.now();
 
     audio.play().then(() => {
         document.getElementById("estado").innerText = "▶ Reproduciendo (5 segundos)...";
@@ -463,14 +680,11 @@ function mostrarFeedback(mensaje, esCorrecto) {
     banner.style.display = "block";
 }
 
-function ocultarFeedback() {
-    document.getElementById("feedback-banner").style.display = "none";
-}
+function ocultarFeedback() { document.getElementById("feedback-banner").style.display = "none"; }
 
 function verificarRespuesta(seleccion, correcta, elementoBoton) {
     if (respondiendo) return;
     respondiendo = true;
-
     audio.pause();
     clearTimeout(timer);
 
@@ -498,11 +712,7 @@ function verificarRespuesta(seleccion, correcta, elementoBoton) {
         vidas--;
         racha = 0;
         elementoBoton.style.background = "#ff4757";
-
-        botones.forEach(b => {
-            if (b.innerText === correcta) b.style.background = "#1db954";
-        });
-
+        botones.forEach(b => { if (b.innerText === correcta) b.style.background = "#1db954"; });
         mostrarFeedback(`Incorrecto ❌ Era: ${correcta}`, false);
     }
 
@@ -522,10 +732,12 @@ function verificarRespuesta(seleccion, correcta, elementoBoton) {
 function finalizarJuego() {
     audio.pause();
     clearTimeout(timer);
-
     document.getElementById("pantalla-juego").style.display = "none";
     document.getElementById("pantalla-final").style.display = "block";
+    document.getElementById("titulo-final").innerText = "¡JUEGO TERMINADO! 💀";
+    document.getElementById("titulo-final").style.color = "#ff4757";
     document.getElementById("puntaje-final").innerText = `${puntaje} PUNTOS`;
+    document.getElementById("subtitulo-final").innerText = "¿Puedes superar mi récord?";
     document.getElementById("categoria-final").innerText = `Categoría: ${categoriaTexto}`;
 }
 
@@ -550,7 +762,6 @@ function compartirWhatsApp() {
 function generarImagenEInstagram() {
     const shareUrl = obtenerUrlDesafio();
     const elemento = document.getElementById("tarjeta-resultado");
-
     navigator.clipboard.writeText(shareUrl);
 
     html2canvas(elemento, { backgroundColor: "#121212" }).then(canvas => {
@@ -558,7 +769,6 @@ function generarImagenEInstagram() {
         enlaceDescarga.download = `desafío-adivina-canción-${puntaje}pts.png`;
         enlaceDescarga.href = canvas.toDataURL("image/png");
         enlaceDescarga.click();
-
         document.getElementById("modal-ig").style.display = "flex";
     });
 }
