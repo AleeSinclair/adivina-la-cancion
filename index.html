@@ -56,7 +56,6 @@
         .feedback-correcto { background: rgba(29, 185, 84, 0.2); border: 1px solid #1db954; color: #1ed760; }
         .feedback-incorrecto { background: rgba(255, 71, 87, 0.2); border: 1px solid #ff4757; color: #ff4757; }
 
-        /* Estilos del Marcador Multijugador 1v1 */
         .scoreboard-1v1 {
             display: flex; justify-content: space-around; background: #282828; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e056fd;
         }
@@ -96,6 +95,11 @@
             <div class="select-container">
                 <select id="categoria">
                     <option value="AZAR">🎲 Al Azar / De Todo (Mezclado)</option>
+                    
+                    <optgroup label="Infantil & Niños">
+                        <option value="INFANTIL">Niños, Disney & Series 🎈</option>
+                    </optgroup>
+
                     <optgroup label="Por País">
                         <option value="CHILE">Chile 🇨🇱</option>
                         <option value="ARGENTINA">Argentina 🇦🇷 (inc. BZRP)</option>
@@ -244,7 +248,7 @@ let cancionesJugadas = new Set();
 
 // Variables de Multijugador
 let modoEs1v1 = false;
-let miRol = ""; // "host" o "guest"
+let miRol = ""; 
 let miCodigoSala = "";
 let ptsP1 = 0;
 let ptsP2 = 0;
@@ -253,7 +257,13 @@ let tiempoInicioReproduccion = 0;
 
 const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
 
-// REPERTORIOS AMPLIADOS CON ARTISTAS FAMOSOS
+// REPERTORIO INFANTIL & NIÑOS
+const ARTISTAS_INFANTIL = [
+    "Bluey", "Paw Patrol", "La Granja de Zenón", "El Reino Infantil", "31 Minutos",
+    "Disney Soundtrack", "Frozen Soundtrack", "Encanto Soundtrack", "Moana", "Coco Soundtrack",
+    "Pinkfong", "Cantando Aprendo a Hablar", "Luli Pampin", "Pica-Pica", "Plim Plim", "Peppa Pig"
+];
+
 const ARTISTAS_CHILE = ["Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", "Chancho en Piedra", "Joe Vasconcellos", "Chico Trujillo", "Lucybell", "Javier Mena", "Kidd Voodoo", "Los Jaivas", "Kudai", "Nicole", "Saiko", "Santaferia", "Villa Cariño", "Movimiento Original", "Tiro de Gracia"];
 const ARTISTAS_ARGENTINA = ["Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", "Los Auténticos Decadentes", "Andres Calamaro", "Airbag", "Miranda!", "Babasonicos", "Vicentico", "La Renga", "Los Pericos", "Vilma Palma e Vampiros", "Cazzu", "Khea", "Lit Killah", "FMK"];
 const ARTISTAS_MEXICO = ["Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik", "Zoé", "Alejandro Fernandez", "Thalia", "Paulina Rubio", "Marco Antonio Solis", "Julieta Venegas", "Belinda", "Christian Nodal", "Gloria Trevi", "Jesse & Joy", "Carlos Rivera", "Yuridia", "Camila", "Sin Bandera", "Ha*Ash", "Emmanuel", "Mijares", "Juan Gabriel"];
@@ -268,7 +278,7 @@ const ARTISTAS_POP_LATINO = ["Ricky Martin", "Shakira", "Enrique Iglesias", "Cha
 const ARTISTAS_ELECTRONICA = ["Daft Punk", "Avicii", "David Guetta", "Calvin Harris", "Tiësto", "Martin Garrix", "Swedish House Mafia", "Skrillex", "Marshmello", "Kygo", "The Chainsmokers", "DJ Snake", "Alan Walker", "Armin van Buuren"];
 const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "TAEMIN", "ITZY", "TXT", "ENHYPEN", "IVE", "LE SSERAFIM", "Red Velvet", "NCT 127", "AESPA", "IU", "Jungkook", "Agust D", "BIGBANG", "SHINee", "Super Junior"];
 const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli", "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme", "Harry Potter Soundtrack", "Interstellar Soundtrack", "Marvel Studios Soundtrack"];
-const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP];
+const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL];
 
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -315,7 +325,7 @@ function comenzarJuegoSolitario() {
     siguienteCancion();
 }
 
-// LOBBY Y FUNCIONES MULTIJUGADOR (1v1)
+// LOBBY Y MULTIJUGADOR 1v1
 function mostrarLobby1v1() {
     document.getElementById("pantalla-inicio").style.display = "none";
     document.getElementById("pantalla-lobby").style.display = "block";
@@ -340,7 +350,11 @@ function crearSala1v1() {
     const select = document.getElementById("categoria");
     categoriaTexto = select.options[select.selectedIndex].text;
 
-    db.ref("salas/" + miCodigoSala).set({
+    const salaRef = db.ref("salas/" + miCodigoSala);
+    // Auto-eliminación si el creador cierra la pestaña
+    salaRef.onDisconnect().remove();
+
+    salaRef.set({
         estado: "esperando",
         categoriaVal: select.value,
         categoriaTxt: categoriaTexto,
@@ -398,21 +412,18 @@ function escucharCambiosSala1v1() {
             document.getElementById("pts-p2").innerText = ptsP2;
         } else {
             document.getElementById("pts-p1").innerText = ptsP2;
-            document.getElementById("pts-p2").innerText = ptsHost = ptsP1;
+            document.getElementById("pts-p2").innerText = ptsP1;
         }
 
-        // Verificar Victoria (Carrera a 10)
         if (ptsP1 >= 10 || ptsP2 >= 10) {
             finalizarJuego1v1(ptsP1, ptsP2);
             return;
         }
 
-        // Si se unió el segundo jugador, el Host genera la primera canción
         if (sala.estado === "jugando" && miRol === "host" && !sala.cancionActual) {
             prepararCancionPara1v1(sala.categoriaVal);
         }
 
-        // Cargar canción compartida
         if (sala.cancionActual && (!cancionActual || cancionActual.trackId !== sala.cancionActual.trackId)) {
             cancionActual = sala.cancionActual;
             audio.src = cancionActual.previewUrl;
@@ -427,7 +438,6 @@ function escucharCambiosSala1v1() {
             renderizarOpciones1v1(sala.opcionesRonda, `${cancionActual.trackName} - ${cancionActual.artistName}`);
         }
 
-        // Evaluar respuestas cuando ambos responden en la ronda
         if (sala.respuestasRonda && Object.keys(sala.respuestasRonda).length === 2 && miRol === "host" && !sala.procesandoRonda) {
             db.ref("salas/" + miCodigoSala).update({ procesandoRonda: true });
             procesarResultadosRonda1v1(sala.respuestasRonda, sala.categoriaVal);
@@ -438,6 +448,7 @@ function escucharCambiosSala1v1() {
 function prepararCancionPara1v1(categoriaVal) {
     let termino = categoriaVal;
     if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
+    else if (termino === "INFANTIL") termino = obtenerTerminoAleatorio(ARTISTAS_INFANTIL);
     else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
     else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
     else if (termino === "KPOP") termino = obtenerTerminoAleatorio(ARTISTAS_KPOP);
@@ -525,7 +536,6 @@ function procesarResultadosRonda1v1(respuestas, categoriaVal) {
     let nuevoPtsHost = ptsP1;
     let nuevoPtsGuest = ptsP2;
 
-    // Lógica: Si ambos aciertan, el punto es para el más rápido. Si uno solo acierta, se lleva el punto.
     if (rHost.esCorrecto && rGuest.esCorrecto) {
         if (rHost.tiempo <= rGuest.tiempo) nuevoPtsHost++;
         else nuevoPtsGuest++;
@@ -550,7 +560,9 @@ function procesarResultadosRonda1v1(respuestas, categoriaVal) {
 function finalizarJuego1v1(ptsH, ptsG) {
     audio.pause();
     clearTimeout(timer);
-    db.ref("salas/" + miCodigoSala).off();
+    
+    // Limpieza de la sala en Firebase al terminar
+    db.ref("salas/" + miCodigoSala).remove();
 
     const ganoHost = ptsH >= 10;
     const soyGanador = (miRol === "host" && ganoHost) || (miRol === "guest" && !ganoHost);
@@ -573,7 +585,7 @@ function finalizarJuego1v1(ptsH, ptsG) {
     document.getElementById("categoria-final").innerText = `Categoría: ${categoriaTexto}`;
 }
 
-// FUNCIONES AUXILIARES SOLITARIO Y REPRODUCCIÓN
+// FUNCIONES SOLITARIO Y REPRODUCCIÓN
 function obtenerTerminoAleatorio(arreglo) { return arreglo[Math.floor(Math.random() * arreglo.length)]; }
 
 function siguienteCancion() {
@@ -581,6 +593,7 @@ function siguienteCancion() {
     let termino = select.value;
 
     if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
+    else if (termino === "INFANTIL") termino = obtenerTerminoAleatorio(ARTISTAS_INFANTIL);
     else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
     else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
     else if (termino === "KPOP") termino = obtenerTerminoAleatorio(ARTISTAS_KPOP);
