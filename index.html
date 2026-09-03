@@ -82,25 +82,26 @@
                 <option value="AZAR">🎲 Al Azar / De Todo (Mezclado)</option>
                 
                 <optgroup label="Por País">
-                    <option value="Música Chilena">Chile 🇨🇱</option>
-                    <option value="Rock Argentina Pop Argentina">Argentina 🇦🇷</option>
-                    <option value="Música Colombiana Vallenato Cumbia">Colombia 🇨🇴</option>
-                    <option value="Música Mexicana Mariachi Regional">México 🇲🇽</option>
-                    <option value="USA Top Hits Pop Rock">USA 🇺🇸</option>
+                    <option value="CHILE">Chile 🇨🇱</option>
+                    <option value="ARGENTINA">Argentina 🇦🇷</option>
+                    <option value="COLOMBIA">Colombia 🇨🇴</option>
+                    <option value="MEXICO">México 🇲🇽</option>
+                    <option value="USA">USA 🇺🇸</option>
                 </optgroup>
 
                 <optgroup label="Estilos & Formatos">
+                    <option value="ROMANTICAS">Románticas en Español 🌹</option>
                     <option value="SOLISTAS">Solistas Famosos 🎤</option>
                     <option value="GRUPOS">Grupos & Dúos Musicales 👥</option>
                     <option value="Rock Band Greatest Hits Queen Metallica">Bandas de Rock 🎸</option>
                     <option value="Reggaeton Urbano Trap Latino">Urbano & Reggaeton 🎧</option>
-                    <option value="Pop Latino Bailables">Pop Latino & Bailables 💃</option>
+                    <option value="POP_LATINO">Pop Latino & Bailables 💃</option>
                     <option value="Electronic Dance EDM DJ">Electrónica / EDM ⚡</option>
                 </optgroup>
 
                 <optgroup label="Cultura Pop & Banda Sonora">
-                    <option value="Kpop K-Pop BTS BLACKPINK">K-Pop 🇰🇷</option>
-                    <option value="Soundtrack Movie Theme Film Disney Anime">Películas, Anime & Juegos 🎬🎮</option>
+                    <option value="KPOP">K-Pop 🇰🇷</option>
+                    <option value="PELICULAS">Películas, Anime & Juegos 🎬🎮</option>
                 </optgroup>
 
                 <optgroup label="Por Décadas">
@@ -179,7 +180,31 @@ let cancionActual = null;
 let categoriaTexto = "";
 let respondiendo = false;
 
-// Banco directo para SOLISTAS
+// Set para evitar repetir canciones en la misma partida
+let cancionesJugadas = new Set();
+
+// Palabras clave para descartar villancicos/canciones navideñas
+const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
+
+// Banco exclusivo para ROMÁNTICAS EN ESPAÑOL
+const ARTISTAS_ROMANTICAS = [
+    "Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", 
+    "Camila", "Pablo Alboran", "Alejandro Sanz", "Reik", "Franco de Vita", 
+    "Cristian Castro", "David Bisbal", "Marco Antonio Solis", "Ha*Ash", "Laura Pausini"
+];
+
+// Banco exclusivo para POP LATINO
+const ARTISTAS_POP_LATINO = [
+    "Ricky Martin", "Shakira", "Enrique Iglesias", "Chayanne", "Thalia",
+    "Paulina Rubio", "Carlos Vives", "Gloria Trevi", "Luis Fonsi", "Bacilos"
+];
+
+const ARTISTAS_KPOP = [
+    "BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO",
+    "TAEMIN", "ITZY", "TXT", "ENHYPEN", "IVE", "LE SSERAFIM", "Red Velvet",
+    "NCT 127", "AESPA", "IU", "Jungkook", "Agust D", "BIGBANG"
+];
+
 const ARTISTAS_SOLISTAS = [
     "Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", 
     "Dua Lipa", "Bruno Mars", "Adele", "Rihanna", "Eminem", "Billie Eilish", 
@@ -187,20 +212,45 @@ const ARTISTAS_SOLISTAS = [
     "Mon Laferte", "Luis Miguel", "Rosalia", "The Weeknd"
 ];
 
-// Banco directo para GRUPOS Y DÚOS
 const GRUPOS_DUS = [
     "Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5",
     "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons",
     "KISS", "Bacilos", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "CNCO"
 ];
 
-// Banco directo para "AL AZAR / DE TODO"
+const ARTISTAS_CHILE = [
+    "Manuel Garcia", "Gepe", "Los Prisioneros", "Mon Laferte", "Los Tres",
+    "La Ley", "Los Bunkers", "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami"
+];
+
+const ARTISTAS_ARGENTINA = [
+    "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Bizarrap",
+    "Nicki Nicole", "Gustavo Cerati", "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK"
+];
+
+const ARTISTAS_COLOMBIA = [
+    "Shakira", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "Karol G", "Sebastian Yatra", "Morat"
+];
+
+const ARTISTAS_MEXICO = [
+    "Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik", "Zoé"
+];
+
+const ARTISTAS_USA = [
+    "Michael Jackson", "Madonna", "Eminem", "Taylor Swift", "Bruno Mars", "Katy Perry", "Beyonce", "Post Malone"
+];
+
+const SOUNDTRACKS = [
+    "Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli",
+    "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme"
+];
+
 const PALABRAS_AZAR = [
     "Rock", "Pop", "80s", "90s", "2000s", "Latino", "Reggaeton", "Disco", "Indie",
     "Queen", "Michael Jackson", "Depeche Mode", "Nirvana", "Coldplay", "Daft Punk",
     "Gorillaz", "The Beatles", "Dua Lipa", "Bruno Mars", "ACDC", "Guns N Roses",
     "The Weeknd", "Red Hot Chili Peppers", "Soda Stereo", "Manuel Garcia", "Gepe",
-    "Mon Laferte", "Los Prisioneros", "Bad Bunny", "Rosalia", "Eminem", "Rihanna"
+    "Mon Laferte", "Los Prisioneros", "Bad Bunny", "Rosalia", "Eminem", "Rihanna", "BTS", "BLACKPINK"
 ];
 
 window.onload = function() {
@@ -237,6 +287,7 @@ function comenzarJuego() {
     puntaje = 0;
     vidas = 3;
     racha = 0;
+    cancionesJugadas.clear(); // Limpiar memoria de canciones al iniciar
     document.getElementById("puntaje").innerText = puntaje;
     ocultarFeedback();
     actualizarVidasUI();
@@ -244,17 +295,26 @@ function comenzarJuego() {
     siguienteCancion();
 }
 
+function obtenerTerminoAleatorio(arreglo) {
+    return arreglo[Math.floor(Math.random() * arreglo.length)];
+}
+
 function siguienteCancion() {
     const select = document.getElementById("categoria");
     let termino = select.value;
 
-    if (termino === "AZAR") {
-        termino = PALABRAS_AZAR[Math.floor(Math.random() * PALABRAS_AZAR.length)];
-    } else if (termino === "SOLISTAS") {
-        termino = ARTISTAS_SOLISTAS[Math.floor(Math.random() * ARTISTAS_SOLISTAS.length)];
-    } else if (termino === "GRUPOS") {
-        termino = GRUPOS_DUS[Math.floor(Math.random() * GRUPOS_DUS.length)];
-    }
+    if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
+    else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
+    else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
+    else if (termino === "KPOP") termino = obtenerTerminoAleatorio(ARTISTAS_KPOP);
+    else if (termino === "SOLISTAS") termino = obtenerTerminoAleatorio(ARTISTAS_SOLISTAS);
+    else if (termino === "GRUPOS") termino = obtenerTerminoAleatorio(GRUPOS_DUS);
+    else if (termino === "CHILE") termino = obtenerTerminoAleatorio(ARTISTAS_CHILE);
+    else if (termino === "ARGENTINA") termino = obtenerTerminoAleatorio(ARTISTAS_ARGENTINA);
+    else if (termino === "COLOMBIA") termino = obtenerTerminoAleatorio(ARTISTAS_COLOMBIA);
+    else if (termino === "MEXICO") termino = obtenerTerminoAleatorio(ARTISTAS_MEXICO);
+    else if (termino === "USA") termino = obtenerTerminoAleatorio(ARTISTAS_USA);
+    else if (termino === "PELICULAS") termino = obtenerTerminoAleatorio(SOUNDTRACKS);
 
     cargarCancionJSONP(termino);
 }
@@ -281,15 +341,28 @@ function cargarCancionJSONP(termino) {
 }
 
 window.procesarRespuesta = function(data) {
-    const canciones = (data.results || []).filter(item => item.previewUrl && item.trackName && item.artistName);
+    // Filtrar canciones válidas y descartar villancicos/navideñas
+    let canciones = (data.results || []).filter(item => {
+        if (!item.previewUrl || !item.trackName || !item.artistName) return false;
+        
+        const nombreLower = (item.trackName + " " + item.collectionName).toLowerCase();
+        const esNavideno = PALABRAS_NAVISTAS.some(palabra => nombreLower.includes(palabra));
+        
+        // Excluir si es navideña O si ya se jugó en esta partida
+        return !esNavideno && !cancionesJugadas.has(item.trackId);
+    });
 
     if (canciones.length < 4) {
-        setTimeout(siguienteCancion, 1000);
+        // Si no hay suficientes canciones sin repetir en este término, intenta con otro
+        setTimeout(siguienteCancion, 800);
         return;
     }
 
     const indiceCorrecto = Math.floor(Math.random() * canciones.length);
     cancionActual = canciones[indiceCorrecto];
+
+    // Marcar esta canción como jugada para que no se repita
+    cancionesJugadas.add(cancionActual.trackId);
 
     audio.src = cancionActual.previewUrl;
     audio.load();
