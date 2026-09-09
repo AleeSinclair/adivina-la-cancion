@@ -78,12 +78,17 @@
             <div class="select-container">
                 <select id="categoria">
                     <option value="AZAR">🎲 Al Azar / De Todo (Mezclado)</option>
+                    <optgroup label="Cultura Pop & Cine">
+                        <option value="DISNEY_MUSICALES">Disney & Musicales 🏰🎬</option>
+                        <option value="PELICULAS">Películas, Anime & Juegos 🎬🎮</option>
+                        <option value="KPOP">K-Pop 🇰🇷</option>
+                    </optgroup>
                     <optgroup label="Infantil & Niños">
                         <option value="INFANTIL">Niños, Disney & Series 🎈</option>
                     </optgroup>
                     <optgroup label="Por País">
                         <option value="CHILE">Chile 🇨🇱</option>
-                        <option value="ARGENTINA">Argentina 🇦🇷</option>
+                        <option value="ARGENTINA">Argentina 🇦🇷 (inc. BZRP)</option>
                         <option value="COLOMBIA">Colombia 🇨🇴</option>
                         <option value="MEXICO">México 🇲🇽</option>
                         <option value="USA">USA 🇺🇸</option>
@@ -96,10 +101,6 @@
                         <option value="URBANO">Urbano & Reggaeton 🎧</option>
                         <option value="POP_LATINO">Pop Latino & Bailables 💃</option>
                         <option value="ELECTRONICA">Electrónica / EDM ⚡</option>
-                    </optgroup>
-                    <optgroup label="Cultura Pop & Banda Sonora">
-                        <option value="KPOP">K-Pop 🇰🇷</option>
-                        <option value="PELICULAS">Películas, Anime & Juegos 🎬🎮</option>
                     </optgroup>
                     <optgroup label="Por Décadas">
                         <option value="70s Rock Hits">Años 70s 🕺</option>
@@ -211,7 +212,7 @@
 
 <script>
 // ==========================================
-// CONFIGURACIÓN DE FIREBASE 
+// CONFIGURACIÓN DE FIREBASE
 // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBmD0pEWxIAWZe9IjDp9ojiX6V8Jnq6SZs",
@@ -222,7 +223,6 @@ const firebaseConfig = {
   messagingSenderId: "598484808234",
   appId: "1:598484808234:web:29fc5df30625186603c953"
 };
-
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
@@ -243,22 +243,64 @@ let rondaActual = 1;
 
 const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
 
-const ARTISTAS_INFANTIL = ["Gallina Pintadita", "La Granja de Zenón", "El Reino Infantil", "31 Minutos", "Cantando Aprendo a Hablar", "Encanto Banda Sonora", "Frozen en Español", "Moana en Español", "Coco Banda Sonora", "Disney en Español", "Bluey en Español", "Plim Plim", "Luli Pampin", "Pica-Pica", "Mundo Bita en Español", "Peppa Pig en Español"];
-const ARTISTAS_CHILE = ["Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", "Chancho en Piedra", "Joe Vasconcellos", "Chico Trujillo", "Lucybell", "Javier Mena", "Kidd Voodoo", "Los Jaivas", "Kudai", "Nicole", "Saiko", "Santaferia", "Villa Cariño", "Movimiento Original", "Tiro de Gracia"];
-const ARTISTAS_ARGENTINA = ["Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", "Los Auténticos Decadentes", "Andres Calamaro", "Airbag", "Miranda!", "Babasonicos", "Vicentico", "La Renga", "Los Pericos", "Vilma Palma e Vampiros", "Cazzu", "Khea", "Lit Killah", "FMK"];
-const ARTISTAS_MEXICO = ["Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik", "Zoé", "Alejandro Fernandez", "Thalia", "Paulina Rubio", "Marco Antonio Solis", "Julieta Venegas", "Belinda", "Christian Nodal", "Gloria Trevi", "Jesse & Joy", "Carlos Rivera", "Yuridia", "Camila", "Sin Bandera", "Ha*Ash", "Emmanuel", "Mijares", "Juan Gabriel"];
-const ARTISTAS_ROMANTICAS = ["Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", "Camila", "Pablo Alboran", "Alejandro Sanz", "Reik", "Franco de Vita", "Cristian Castro", "David Bisbal", "Marco Antonio Solis", "Ha*Ash", "Laura Pausini", "Alejandro Fernandez", "Yuri", "Kany Garcia", "Fonseca", "Andres Cepeda", "Rocío Dúrcal", "Ana Gabriel", "Myriam Hernández", "Luciano Pereyra", "Noel Schajris", "Axel", "Gian Marco", "Alex Ubago"];
+// REPERTORIO DISNEY & MUSICALES
+const ARTISTAS_DISNEY_MUSICALES = [
+    "High School Musical", "Camp Rock", "Descendants Cast", "Teen Beach Movie", 
+    "Hannah Montana", "Violetta", "Soy Luna", "Encanto Soundtrack", 
+    "Frozen Soundtrack", "Moana", "Coco Soundtrack", "The Lion King", 
+    "Aladdin", "Tangled", "Hercules Soundtrack", "Beauty and the Beast", 
+    "The Little Mermaid", "Phineas and Ferb"
+];
+
+// REPERTORIO INFANTIL & NIÑOS
+const ARTISTAS_INFANTIL = [
+    "Gallina Pintadita", "La Granja de Zenón", "El Reino Infantil", "31 Minutos", 
+    "Cantando Aprendo a Hablar", "Encanto Banda Sonora", "Frozen en Español", 
+    "Moana en Español", "Coco Banda Sonora", "Disney en Español", "Bluey en Español", 
+    "Paw Patrol en Español", "Plim Plim", "Luli Pampin", "Pica-Pica", 
+    "Mundo Bita en Español", "Peppa Pig en Español"
+];
+
+// BANCOS REGIONALES Y DE ESTILOS
+const ARTISTAS_CHILE = [
+    "Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", 
+    "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", 
+    "Chancho en Piedra", "Joe Vasconcellos", "Chico Trujillo", "Lucybell", "Javier Mena", "Kidd Voodoo", 
+    "Los Jaivas", "Kudai", "Nicole Chile", "Saiko Chile", "Santaferia", "Villa Cariño", "Movimiento Original", "Tiro de Gracia"
+];
+
+const ARTISTAS_ARGENTINA = [
+    "Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", 
+    "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", 
+    "Los Auténticos Decadentes", "Andres Calamaro", "Airbag Argentina", "Miranda! Argentina", "Babasonicos", 
+    "Vicentico", "La Renga", "Los Pericos", "Vilma Palma e Vampiros", "Cazzu", "Khea", "Lit Killah", "FMK"
+];
+
+const ARTISTAS_MEXICO = [
+    "Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik Pop", "Zoé", 
+    "Alejandro Fernandez", "Thalia", "Paulina Rubio", "Marco Antonio Solis", "Julieta Venegas", "Belinda", 
+    "Christian Nodal", "Gloria Trevi", "Jesse & Joy", "Carlos Rivera", "Yuridia", "Camila Pop", "Sin Bandera", 
+    "Ha*Ash", "Emmanuel", "Mijares", "Juan Gabriel"
+];
+
+const ARTISTAS_ROMANTICAS = [
+    "Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", "Camila Pop", "Pablo Alboran", 
+    "Alejandro Sanz", "Reik Pop", "Franco de Vita", "Cristian Castro", "David Bisbal", "Marco Antonio Solis", 
+    "Ha*Ash", "Laura Pausini", "Alejandro Fernandez", "Yuri", "Kany Garcia", "Fonseca", "Andres Cepeda", 
+    "Rocío Dúrcal", "Ana Gabriel", "Myriam Hernández", "Luciano Pereyra", "Noel Schajris", "Axel", "Gian Marco", "Alex Ubago"
+];
+
 const ARTISTAS_COLOMBIA = ["Shakira", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "Karol G", "Sebastian Yatra", "Morat", "Camilo", "Feid", "Manuel Turizo", "Fonseca", "Andres Cepeda", "Grupo Niche", "Aterciopelados"];
 const ARTISTAS_USA = ["Michael Jackson", "Madonna", "Eminem", "Taylor Swift", "Bruno Mars", "Katy Perry", "Beyonce", "Post Malone", "Billie Eilish", "Ariana Grande", "Lady Gaga", "Britney Spears", "Usher", "Justin Timberlake", "Maroon 5"];
 const ARTISTAS_SOLISTAS = ["Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", "Dua Lipa", "Bruno Mars", "Adele", "Rihanna", "Eminem", "Billie Eilish", "Harry Styles", "Justin Bieber", "Lady Gaga", "Beyonce", "Shawn Mendes", "Mon Laferte", "Luis Miguel", "Rosalia", "The Weeknd", "Olivia Rodrigo", "Post Malone"];
-const GRUPOS_DUS = ["Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5", "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons", "KISS", "Bacilos", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "CNCO", "Morat", "Reik", "Maná", "Outkast", "RBD"];
+const GRUPOS_DUS = ["Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5", "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons", "KISS", "Bacilos", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "CNCO", "Morat", "Reik Pop", "Maná", "Outkast", "RBD"];
 const ARTISTAS_ROCK_BANDAS = ["Queen", "Metallica", "ACDC", "Guns N Roses", "Nirvana", "Red Hot Chili Peppers", "The Beatles", "Pink Floyd", "Led Zeppelin", "Aerosmith", "Bon Jovi", "Linkin Park", "Green Day", "The Rolling Stones", "Foo Fighters", "Pearl Jam", "U2", "Radiohead", "KISS", "Iron Maiden"];
 const ARTISTAS_URBANO = ["Bad Bunny", "Daddy Yankee", "Karol G", "Rauw Alejandro", "J Balvin", "Maluma", "Don Omar", "Wisin & Yandel", "Ozuna", "Anuel AA", "Feid", "Myke Towers", "Arcangel", "Nicky Jam", "Zion & Lennox", "Cris Mj", "Ryan Castro"];
 const ARTISTAS_POP_LATINO = ["Ricky Martin", "Shakira", "Enrique Iglesias", "Chayanne", "Thalia", "Paulina Rubio", "Carlos Vives", "Gloria Trevi", "Luis Fonsi", "Bacilos", "Sebastian Yatra", "Camilo", "Danna Paola", "Belinda", "Fonseca"];
 const ARTISTAS_ELECTRONICA = ["Daft Punk", "Avicii", "David Guetta", "Calvin Harris", "Tiësto", "Martin Garrix", "Swedish House Mafia", "Skrillex", "Marshmello", "Kygo", "The Chainsmokers", "DJ Snake", "Alan Walker", "Armin van Buuren"];
 const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "TAEMIN", "ITZY", "TXT", "ENHYPEN", "IVE", "LE SSERAFIM", "Red Velvet", "NCT 127", "AESPA", "IU", "Jungkook", "Agust D", "BIGBANG", "SHINee", "Super Junior"];
 const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli", "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme", "Harry Potter Soundtrack", "Interstellar Soundtrack", "Marvel Studios Soundtrack"];
-const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL];
+const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL, ...ARTISTAS_DISNEY_MUSICALES];
 
 function obtenerNick() {
     const input = document.getElementById("player-nickname").value.trim();
@@ -406,6 +448,9 @@ function escucharSalaFirebase() {
                 document.getElementById("modo-texto").innerText = `Categoría: ${sala.categoriaTxt}`;
                 document.getElementById("estado").innerText = "¡Canción lista! Escucha los 5 segundos.";
                 document.getElementById("btn-play").disabled = false;
+                
+                // Limpieza de feedback
+                ocultarFeedback();
                 respondiendo = false;
 
                 renderizarOpcionesMulti(sala.opcionesRonda, `${cancionActual.trackName} - ${cancionActual.artistName}`);
@@ -437,6 +482,7 @@ function iniciarPartidaHost() {
 function cargarTemaRondaMulti(catVal) {
     let termino = catVal;
     if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
+    else if (termino === "DISNEY_MUSICALES") termino = obtenerTerminoAleatorio(ARTISTAS_DISNEY_MUSICALES);
     else if (termino === "INFANTIL") termino = obtenerTerminoAleatorio(ARTISTAS_INFANTIL);
     else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
     else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
@@ -518,7 +564,6 @@ function evaluarRondaMulti(sala) {
     const respuestas = sala.respuestasRonda || {};
     const tInicio = sala.tiempoInicioRonda || Date.now();
     
-    // Filtrar aciertos y ordenar por velocidad (timestamp)
     let aciertos = [];
     let fallos = [];
 
@@ -534,7 +579,6 @@ function evaluarRondaMulti(sala) {
 
     aciertos.sort((a, b) => a.timestamp - b.timestamp);
 
-    // Asignar puntos por velocidad
     let tablaResultadoRonda = [];
     let updatesJugadores = {};
 
@@ -566,7 +610,6 @@ function evaluarRondaMulti(sala) {
         });
     });
 
-    // Guardar actualización de puntos y mostrar pantalla de ranking
     db.ref("salas/" + miCodigoSala).update({
         ...updatesJugadores,
         estado: "podio_ronda",
@@ -582,7 +625,7 @@ function evaluarRondaMulti(sala) {
             } else {
                 db.ref("salas/" + miCodigoSala).update({ estado: "finalizado" });
             }
-        }, 4500); // 4.5 segundos para ver el ranking entre rondas
+        }, 4500);
     });
 }
 
@@ -650,6 +693,7 @@ function siguienteCancion() {
     let termino = select.value;
 
     if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
+    else if (termino === "DISNEY_MUSICALES") termino = obtenerTerminoAleatorio(ARTISTAS_DISNEY_MUSICALES);
     else if (termino === "INFANTIL") termino = obtenerTerminoAleatorio(ARTISTAS_INFANTIL);
     else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
     else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
