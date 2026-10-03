@@ -2,79 +2,642 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adivina la Canción (Party & Multiplayer)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Adivina la Canción 🎵 | Party & Multiplayer</title>
+    
+    <!-- Meta SEO & Social Sharing -->
+    <meta name="description" content="Juego musical interactivo: escucha 5 segundos y adivina el tema. Modos Solitario y Multijugador en tiempo real.">
+    <meta name="theme-color" content="#121212">
+
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #121212; color: white; padding: 15px; margin: 0; }
-        .card { background: #1e1e1e; max-width: 520px; margin: 10px auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
-        button { background: #1db954; color: white; border: none; padding: 14px 24px; margin: 6px; font-size: 16px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button:hover { background: #1ed760; transform: scale(1.02); }
-        button:disabled { background: #444; cursor: not-allowed; transform: none; }
-        
-        .btn-vs { background: #e056fd; }
-        .btn-vs:hover { background: #be2edd; }
-
-        .share-group { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
-        .btn-wsp { background: #25D366; }
-        .btn-wsp:hover { background: #20ba5a; }
-        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .btn-copy { background: #333; border: 1px solid #555; }
-
-        .option-btn { display: block; width: 100%; margin: 10px 0; background: #282828; color: white; text-align: left; padding: 14px 18px; border-radius: 10px; font-size: 15px; box-sizing: border-box; transition: 0.2s; }
-        .option-btn:hover:not(:disabled) { background: #3e3e3e; }
-        
-        .select-container {
-            background: linear-gradient(135deg, #1db954 0%, #128c3e 100%); padding: 4px; border-radius: 14px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(29, 185, 84, 0.4);
+        :root {
+            --bg-main: #0c0f14;
+            --bg-card: rgba(22, 27, 34, 0.88);
+            --bg-card-border: rgba(255, 255, 255, 0.08);
+            --spotify-green: #1ed760;
+            --spotify-green-hover: #22e869;
+            --spotify-green-glow: rgba(30, 215, 96, 0.35);
+            --neon-purple: #a855f7;
+            --neon-purple-hover: #c084fc;
+            --neon-purple-glow: rgba(168, 85, 247, 0.35);
+            --danger-red: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.35);
+            --amber-gold: #f59e0b;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --radius-card: 22px;
+            --radius-btn: 14px;
+            --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        select { background: #181818; color: #ffffff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; outline: none; }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient neon background glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 20% 30%, rgba(30, 215, 96, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--bg-card-border);
+            width: 100%;
+            max-width: 520px;
+            padding: 28px 24px;
+            border-radius: var(--radius-card);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Screen Transitions */
+        .screen-section {
+            display: none;
+            animation: fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .screen-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.97) translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #ffffff 40%, var(--spotify-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Inputs & Form Controls */
         input[type="text"] {
-            background: #282828; color: white; border: 1px solid #1db954; padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; width: 80%; margin: 8px 0; letter-spacing: 1px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: var(--radius-btn);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+            transition: 0.25s ease;
+            margin-bottom: 14px;
+            font-family: inherit;
         }
-        
-        label { display: block; text-align: left; margin-bottom: 6px; font-size: 14px; font-weight: bold; color: #1db954; }
-        .status-bar { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
-        .vidas { color: #ff4757; }
-        .racha { color: #eccc68; font-size: 13px; }
-        
+
+        input[type="text"]:focus {
+            border-color: var(--spotify-green);
+            box-shadow: 0 0 0 3px var(--spotify-green-glow);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .select-label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .select-container {
+            background: linear-gradient(135deg, rgba(30, 215, 96, 0.25), rgba(168, 85, 247, 0.25));
+            padding: 1.5px;
+            border-radius: var(--radius-btn);
+            margin-bottom: 20px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        }
+
+        select {
+            background: #141820;
+            color: #ffffff;
+            border: none;
+            padding: 13px 16px;
+            border-radius: calc(var(--radius-btn) - 1.5px);
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+        }
+
+        /* Buttons System */
+        button {
+            background: var(--spotify-green);
+            color: #0c0f14;
+            border: none;
+            padding: 14px 22px;
+            font-size: 15px;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px var(--spotify-green-glow);
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--spotify-green-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px var(--spotify-green-glow);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #2a2e39;
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-block {
+            width: 100%;
+            margin: 6px 0;
+        }
+
+        .btn-vs {
+            background: var(--neon-purple);
+            color: #fff;
+            box-shadow: 0 4px 14px var(--neon-purple-glow);
+        }
+
+        .btn-vs:hover:not(:disabled) {
+            background: var(--neon-purple-hover);
+            box-shadow: 0 8px 22px var(--neon-purple-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.14);
+            box-shadow: none;
+        }
+
+        .btn-wsp {
+            background: #25d366;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-wsp:hover {
+            background: #22bf5b;
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-ig {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(220, 39, 67, 0.35);
+        }
+
+        .btn-ig:hover {
+            filter: brightness(1.08);
+            box-shadow: 0 8px 22px rgba(220, 39, 67, 0.45);
+        }
+
+        /* Option buttons in Game */
+        .option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: left;
+            padding: 15px 18px;
+            border-radius: var(--radius-btn);
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .option-btn.selected-correct {
+            background: var(--spotify-green) !important;
+            color: #0c0f14 !important;
+            border-color: var(--spotify-green) !important;
+            box-shadow: 0 0 20px var(--spotify-green-glow) !important;
+        }
+
+        .option-btn.selected-wrong {
+            background: var(--danger-red) !important;
+            color: #fff !important;
+            border-color: var(--danger-red) !important;
+            box-shadow: 0 0 20px var(--danger-glow) !important;
+        }
+
+        .option-btn.show-correct {
+            border: 2px solid var(--spotify-green) !important;
+            background: rgba(30, 215, 96, 0.15) !important;
+            color: var(--spotify-green) !important;
+        }
+
+        /* Status Bar & Badges */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-btn);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .pill-green { background: rgba(30, 215, 96, 0.15); color: var(--spotify-green); }
+        .pill-purple { background: rgba(168, 85, 247, 0.15); color: var(--neon-purple); }
+        .pill-gold { background: rgba(245, 158, 11, 0.15); color: var(--amber-gold); }
+
+        .vidas {
+            letter-spacing: 2px;
+            font-size: 17px;
+        }
+
+        .racha-indicator {
+            font-size: 13px;
+            color: var(--amber-gold);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Soundwave & Audio Progress Bar */
+        .audio-playback-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: var(--radius-btn);
+            padding: 16px;
+            margin: 16px 0 12px;
+            text-align: center;
+        }
+
+        .soundwave-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            height: 32px;
+            margin-bottom: 12px;
+        }
+
+        .wave-bar {
+            width: 5px;
+            height: 8px;
+            background: var(--spotify-green);
+            border-radius: 4px;
+            transition: height 0.15s ease;
+        }
+
+        .wave-bar.animating {
+            animation: bounceWave 0.75s infinite ease-in-out alternate;
+        }
+
+        .wave-bar:nth-child(1).animating { animation-delay: 0.1s; }
+        .wave-bar:nth-child(2).animating { animation-delay: 0.25s; }
+        .wave-bar:nth-child(3).animating { animation-delay: 0.05s; }
+        .wave-bar:nth-child(4).animating { animation-delay: 0.35s; }
+        .wave-bar:nth-child(5).animating { animation-delay: 0.2s; }
+
+        @keyframes bounceWave {
+            0% { height: 6px; opacity: 0.4; }
+            100% { height: 28px; opacity: 1; box-shadow: 0 0 10px var(--spotify-green); }
+        }
+
+        .timer-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .timer-track {
+            width: 100%;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timer-progress {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--spotify-green), #10b981);
+            border-radius: 10px;
+            transform-origin: left;
+            transition: width 0.1s linear, background-color 0.3s ease;
+        }
+
+        .timer-progress.answering-phase {
+            background: linear-gradient(90deg, var(--amber-gold), var(--danger-red));
+        }
+
+        /* Feedback Banner */
         #feedback-banner {
-            display: none; padding: 12px 15px; margin: 10px 0; border-radius: 10px; font-weight: bold; font-size: 15px;
+            display: none;
+            padding: 12px 16px;
+            margin: 12px 0;
+            border-radius: var(--radius-btn);
+            font-weight: 700;
+            font-size: 14px;
+            animation: fadeInScale 0.25s ease;
         }
-        .feedback-correcto { background: rgba(29, 185, 84, 0.2); border: 1px solid #1db954; color: #1ed760; }
-        .feedback-incorrecto { background: rgba(255, 71, 87, 0.2); border: 1px solid #ff4757; color: #ff4757; }
 
-        /* Estilos de Ranking */
-        .ranking-list { list-style: none; padding: 0; margin: 15px 0; text-align: left; }
-        .ranking-item { background: #282828; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #1db954; }
-        .ranking-item.incorrecto { border-left-color: #ff4757; }
-        .ranking-time { font-size: 12px; color: #eccc68; margin-left: 8px; }
+        .feedback-correcto {
+            background: rgba(30, 215, 96, 0.15);
+            border: 1px solid var(--spotify-green);
+            color: var(--spotify-green);
+        }
 
-        .player-badge { background: #333; padding: 4px 10px; border-radius: 12px; font-size: 13px; margin: 3px; display: inline-block; }
+        .feedback-incorrecto {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger-red);
+            color: var(--danger-red);
+        }
 
-        #tarjeta-resultado { background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); border: 2px solid #1db954; padding: 25px; border-radius: 16px; margin-bottom: 15px; }
-        #modal-ig { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #222; padding: 25px; border-radius: 16px; max-width: 380px; text-align: left; border: 1px solid #444; }
+        /* Rankings & Podium UI */
+        .ranking-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+            text-align: left;
+        }
 
-        #pantalla-inicio, #pantalla-juego, #pantalla-final, #pantalla-lobby, #pantalla-ranking { display: none; }
+        .ranking-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 16px;
+            border-radius: var(--radius-btn);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--spotify-green);
+            transition: 0.2s;
+        }
+
+        .ranking-item.incorrecto {
+            border-left-color: var(--danger-red);
+            opacity: 0.8;
+        }
+
+        .ranking-time {
+            font-size: 12px;
+            color: var(--amber-gold);
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .player-badge {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Result Card (Designed for Instagram/WhatsApp html2canvas Capture) */
+        #tarjeta-resultado {
+            background: linear-gradient(145deg, #12161f 0%, #1a2230 100%);
+            border: 1.5px solid rgba(30, 215, 96, 0.4);
+            padding: 28px 24px;
+            border-radius: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(30, 215, 96, 0.05);
+            text-align: center;
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+            text-align: left;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        .share-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 18px 0;
+        }
+
+        /* Modal Instagram */
+        #modal-ig {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #181d27;
+            padding: 26px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+            animation: fadeInScale 0.3s ease;
+        }
+
+        /* Floating Toast Notification */
+        #app-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(20, 24, 33, 0.95);
+            border: 1px solid var(--spotify-green);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px var(--spotify-green-glow);
+            z-index: 9999;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #app-toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 22px 18px;
+                border-radius: 18px;
+            }
+            h1 {
+                font-size: 23px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Adivina la Canción 🎵</h1>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+        <span style="font-size: 24px;">🎵</span>
+        <h1>Adivina la Canción</h1>
+    </div>
 
-    <!-- PANTALLA DE INICIO -->
-    <div id="pantalla-inicio" style="display: block;">
-        <p>Escucha 5 segundos y adivina el tema.</p>
+    <!-- PANTALLA 1: INICIO -->
+    <div id="pantalla-inicio" class="screen-section active">
+        <p class="subtitle">Escucha 5 segundos y adivina el tema antes que nadie.</p>
         
-        <input type="text" id="player-nickname" placeholder="Tu Nickname (Ej: Ale)" maxlength="12">
+        <input type="text" id="player-nickname" placeholder="Tu Nickname (Ej: Ale)" maxlength="12" autocomplete="off" spellcheck="false">
         
-        <div style="margin-top: 15px; text-align: left;">
-            <label for="categoria">👇 ELIGE CATEGORÍA:</label>
+        <div style="margin-top: 10px;">
+            <label class="select-label" for="categoria">👇 Selecciona Categoría Musical</label>
             <div class="select-container">
                 <select id="categoria">
                     <option value="AZAR">🎲 Al Azar / De Todo (Mezclado)</option>
@@ -113,106 +676,216 @@
             </div>
         </div>
 
-        <button onclick="comenzarJuegoSolitario()">🎮 Solo (3 Vidas)</button>
-        <button class="btn-vs" onclick="mostrarLobby()">⚔️ Multijugador (Grupo)</button>
+        <button class="btn-block" onclick="comenzarJuegoSolitario()">
+            <span>🎮</span> Modo Solo (3 Vidas)
+        </button>
+        <button class="btn-block btn-vs" onclick="mostrarLobby()">
+            <span>⚔️</span> Multijugador (Sala Grupal)
+        </button>
     </div>
 
-    <!-- PANTALLA LOBBY MULTIJUGADOR -->
-    <div id="pantalla-lobby">
-        <h2 style="color: #e056fd;">Sala Multijugador ⚔️</h2>
+    <!-- PANTALLA 2: LOBBY MULTIJUGADOR -->
+    <div id="pantalla-lobby" class="screen-section">
+        <h2 style="color: var(--neon-purple); margin-bottom: 6px;">Sala Multijugador ⚔️</h2>
+        <p class="subtitle">Compite en tiempo real con amigos por velocidad y precisión.</p>
         
-        <button onclick="crearSala()">🏠 Crear Nueva Sala</button>
-        <p>- Ó -</p>
-        <input type="text" id="codigo-sala-input" placeholder="CÓDIGO (EJ: A1B2)" maxlength="4" style="text-transform: uppercase;">
-        <br>
-        <button class="btn-vs" onclick="unirseASala()">🔑 Unirse con Código</button>
-
-        <div id="lobby-wait-area" style="display:none; margin-top:20px; border-top: 1px solid #333; padding-top: 15px;">
-            <h3 style="color:#1db954; margin:0;">SALA: <span id="codigo-sala-display">----</span></h3>
-            <p style="font-size:13px; color:#aaa;">Jugadores en la sala:</p>
-            <div id="lista-jugadores-lobby"></div>
-            <br>
-            <button id="btn-iniciar-partida" style="display:none; width: 100%;" onclick="iniciarPartidaHost()">🚀 Iniciar Partida (10 Rondas)</button>
+        <div id="lobby-join-area">
+            <button class="btn-block" onclick="crearSala()">🏠 Crear Nueva Sala</button>
+            <div style="display: flex; align-items: center; gap: 10px; margin: 16px 0;">
+                <hr style="flex: 1; border: none; height: 1px; background: rgba(255,255,255,0.1);">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Ó ÚNETE</span>
+                <hr style="flex: 1; border: none; height: 1px; background: rgba(255,255,255,0.1);">
+            </div>
+            
+            <input type="text" id="codigo-sala-input" placeholder="CÓDIGO (EJ: A1B2)" maxlength="4" style="text-transform: uppercase; letter-spacing: 4px;">
+            <button class="btn-block btn-vs" onclick="unirseASala()">🔑 Unirse a Sala</button>
         </div>
 
-        <br><br>
-        <button style="background: #444;" onclick="cancelarLobby()">⬅️ Volver</button>
+        <div id="lobby-wait-area" style="display: none; margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+            <div style="background: rgba(30, 215, 96, 0.1); border: 1px solid var(--spotify-green); border-radius: var(--radius-btn); padding: 12px; margin-bottom: 14px;">
+                <div style="font-size: 12px; color: var(--spotify-green); font-weight: 700; text-transform: uppercase;">CÓDIGO DE SALA</div>
+                <div style="font-size: 32px; font-weight: 800; letter-spacing: 4px; color: #fff; margin: 4px 0;" id="codigo-sala-display">----</div>
+                <button class="btn-secondary" style="padding: 6px 14px; font-size: 12px;" onclick="copiarCodigoSala()">📋 Copiar Código</button>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">Jugadores conectados:</p>
+            <div id="lista-jugadores-lobby" style="min-height: 48px; margin-bottom: 16px;"></div>
+
+            <button id="btn-iniciar-partida" class="btn-block" style="display: none;" onclick="iniciarPartidaHost()">🚀 Iniciar Partida (10 Rondas)</button>
+            <p id="esperando-host-txt" style="display: none; font-size: 13px; color: var(--neon-purple); font-weight: 700;">Esperando que el Host inicie la partida...</p>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="btn-secondary btn-block" onclick="cancelarLobby()">⬅️ Volver al Inicio</button>
+        </div>
     </div>
 
-    <!-- PANTALLA DE JUEGO -->
-    <div id="pantalla-juego">
+    <!-- PANTALLA 3: JUEGO (SOLO & MULTI) -->
+    <div id="pantalla-juego" class="screen-section">
+        <!-- Barra de estado Solitario -->
         <div id="ui-solitario">
             <div class="status-bar">
-                <span>Puntos: <span id="puntaje" style="color: #1db954;">0</span></span>
+                <span class="status-pill pill-green">Puntos: <span id="puntaje" style="color: #fff;">0</span></span>
+                <span class="racha-indicator" id="racha-display">⚡ Racha: 0/3</span>
                 <span class="vidas" id="vidas-display">❤️❤️❤️</span>
             </div>
-            <div class="racha" id="racha-display">Racha: 0/3</div>
         </div>
 
+        <!-- Barra de estado Multijugador -->
         <div id="ui-multi" style="display: none;">
             <div class="status-bar">
-                <span style="color:#e056fd;">Ronda: <span id="ronda-actual-display">1</span>/10</span>
-                <span style="color:#1db954;">Mi Puntaje: <span id="mi-score-display">0</span> pts</span>
+                <span class="status-pill pill-purple">Ronda <span id="ronda-actual-display" style="color: #fff;">1</span>/10</span>
+                <span class="status-pill pill-green">Mis Pts: <span id="mi-score-display" style="color: #fff;">0</span></span>
             </div>
         </div>
 
-        <p id="modo-texto" style="font-size: 13px; color: #888; margin-top: 5px;"></p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 6px 0;">
+            <p id="modo-texto" style="font-size: 13px; color: var(--text-muted); font-weight: 600;"></p>
+            <span id="categoria-badge" class="status-pill pill-gold" style="font-size: 11px;">Música</span>
+        </div>
+
+        <!-- Banner de Feedback -->
         <div id="feedback-banner"></div>
 
-        <hr style="border-color: #333; margin: 15px 0;">
-        <p id="estado">Cargando...</p>
-        
-        <button id="btn-play" onclick="reproducir5Segundos()" disabled>🔊 Escuchar 5 Segundos</button>
-        <div id="opciones" style="margin-top:15px;"></div>
+        <!-- Tarjeta de Audio y Temporizador Visual -->
+        <div class="audio-playback-card">
+            <div class="soundwave-box" id="soundwave-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+
+            <div class="timer-info-row">
+                <span id="timer-phase-label">🔊 Preparando tema...</span>
+                <span id="timer-clock">05.0s</span>
+            </div>
+            <div class="timer-track">
+                <div id="timer-progress-bar" class="timer-progress" style="width: 100%;"></div>
+            </div>
+        </div>
+
+        <p id="estado" style="font-size: 14px; font-weight: 700; color: #cbd5e1; margin-bottom: 12px;">Cargando tema musical...</p>
+
+        <!-- Botón de Reproducción Manual / Desbloqueo de Audio -->
+        <button id="btn-play" class="btn-block" onclick="iniciarReproduccionManual()" disabled>
+            <span>🔊</span> Escuchar 5 Segundos
+        </button>
+
+        <!-- Opciones de Respuesta -->
+        <div id="opciones" style="margin-top: 14px;"></div>
     </div>
 
-    <!-- PANTALLA ENTRE RONDAS (RANKING EN VIVO) -->
-    <div id="pantalla-ranking">
-        <h2 style="color:#1db954; margin-bottom:5px;">Resultados de la Ronda ⏱️</h2>
-        <p style="font-size:13px; color:#aaa; margin-top:0;">Premio a la precisión y velocidad</p>
+    <!-- PANTALLA 4: RANKING EN VIVO ENTRE RONDAS -->
+    <div id="pantalla-ranking" class="screen-section">
+        <h2 style="color: var(--spotify-green); margin-bottom: 4px;">Resultados de la Ronda ⏱️</h2>
+        <p class="subtitle" style="margin-bottom: 14px;">Bonificación por velocidad y precisión</p>
+
+        <div style="background: rgba(0,0,0,0.25); border-radius: var(--radius-btn); padding: 6px 12px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Canción anterior:</div>
+            <div id="cancion-anterior-txt" style="font-size: 14px; font-weight: 700; color: #fff; margin-top: 2px;">-</div>
+        </div>
 
         <ul class="ranking-list" id="lista-ranking-ronda"></ul>
 
-        <p id="esperando-siguiente-texto" style="font-size:13px; color:#e056fd; font-weight:bold;">Siguiente canción en breve...</p>
+        <div class="audio-playback-card" style="padding: 10px 14px; margin: 12px 0;">
+            <div class="timer-info-row">
+                <span style="color: var(--neon-purple); font-weight: 700;">Próxima canción en...</span>
+                <span id="ranking-countdown-txt" style="color: #fff; font-weight: 800;">4s</span>
+            </div>
+            <div class="timer-track">
+                <div id="ranking-progress-bar" class="timer-progress" style="background: var(--neon-purple); width: 100%;"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- PANTALLA FINAL -->
-    <div id="pantalla-final">
+    <!-- PANTALLA 5: FINAL / PODIO -->
+    <div id="pantalla-final" class="screen-section">
         <div id="tarjeta-resultado">
-            <h2 id="titulo-final" style="color: #ff4757; margin-top:0;">¡JUEGO TERMINADO! 💀</h2>
-            <p style="margin:5px 0;">Adivina la Canción 🎵</p>
-            <h1 id="puntaje-final" style="color: #1db954; font-size: 34px; margin: 15px 0;">0 PUNTOS</h1>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                <span style="font-size: 22px;">🎵</span>
+                <span style="font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase;">Adivina la Canción</span>
+            </div>
+
+            <h2 id="titulo-final" style="color: var(--danger-red); font-size: 24px; font-weight: 800; margin: 6px 0;">¡JUEGO TERMINADO! 💀</h2>
+            <h1 id="puntaje-final" style="color: var(--spotify-green); font-size: 38px; margin: 8px 0; font-weight: 800;">0 PTS</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Aciertos</div>
+                    <div class="stat-value" id="stat-aciertos">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Racha Máx</div>
+                    <div class="stat-value" id="stat-racha">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Precisión</div>
+                    <div class="stat-value" id="stat-precision">0%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Mejor Tiempo</div>
+                    <div class="stat-value" id="stat-tiempo">-</div>
+                </div>
+            </div>
+
             <div id="podio-final-area"></div>
-            <p id="categoria-final" style="color: #b3b3b3; font-size: 14px; font-weight: bold; margin-top:10px;"></p>
+            <p id="categoria-final" style="color: var(--text-muted); font-size: 13px; font-weight: 700; margin-top: 10px;"></p>
         </div>
         
         <div class="share-group">
-            <button class="btn-wsp" onclick="compartirWhatsApp()">📲 Enviar por WhatsApp</button>
-            <button class="btn-ig" onclick="generarImagenEInstagram()">📸 Foto para Instagram</button>
-            <button class="btn-copy" onclick="copiarEnlaceDirecto()">🔗 Copiar Enlace</button>
+            <button class="btn-wsp" onclick="compartirWhatsApp()">
+                <span>📲</span> Retar por WhatsApp
+            </button>
+            <button class="btn-ig" onclick="generarImagenEInstagram()">
+                <span>📸</span> Historia de Instagram
+            </button>
+            <button class="btn-secondary" onclick="copiarEnlaceDirecto()">
+                <span>🔗</span> Copiar Enlace del Desafío
+            </button>
         </div>
 
-        <button onclick="reiniciarJuego()">🔄 Jugar de Nuevo</button>
+        <button class="btn-block" onclick="reiniciarJuego()">
+            <span>🔄</span> Jugar de Nuevo
+        </button>
     </div>
 </div>
 
+<!-- Modal para Instagram Story -->
 <div id="modal-ig">
     <div class="modal-content">
-        <h3 style="margin-top: 0; color: #E1306C;">📸 ¡Foto Descargada!</h3>
-        <p style="font-size: 14px; color: #ddd; line-height: 1.5;">
-            1. Foto guardada en tu dispositivo 🖼️<br>
-            2. Enlace copiado al portapapeles 📋<br>
-            3. Pégalo en tu Historia de Instagram.
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 28px;">📸</span>
+            <h3 style="color: #e1306c; font-size: 18px; font-weight: 800; margin: 0;">¡Tarjeta Guardada!</h3>
+        </div>
+        <p style="font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px;">
+            1. La imagen se ha descargado en tu dispositivo 🖼️<br>
+            2. El enlace fue copiado automáticamente al portapapeles 📋<br>
+            3. Pégalo en tu Historia de Instagram para retar a tus seguidores 🔥
         </p>
-        <button style="width: 100%; margin-top: 15px;" onclick="cerrarModalInstagram()">¡Abrir Instagram!</button>
+        <button class="btn-block btn-ig" onclick="cerrarModalInstagram()">¡Abrir Instagram!</button>
+        <button class="btn-block btn-secondary" style="margin-top: 8px;" onclick="cerrarSoloModal()">Cerrar</button>
     </div>
 </div>
 
-<audio id="audio-player" crossorigin="anonymous"></audio>
+<!-- Toast flotante para mensajes y feedback -->
+<div id="app-toast"><span>🔔</span> <span id="toast-text">Mensaje</span></div>
+
+<!-- Audio Players (Principal y Preloader) -->
+<audio id="audio-player" preload="auto" crossorigin="anonymous"></audio>
+<audio id="audio-preloader" preload="auto" crossorigin="anonymous" muted></audio>
 
 <script>
+/**
+ * ====================================================================
+ * ADIVINA LA CANCIÓN 🎵 - REFACTORIZACIÓN INTEGRAL
+ * Arquitectura modular: Audio, iTunes API, Firebase Sync, UI Controller
+ * ====================================================================
+ */
+
 // ==========================================
-// CONFIGURACIÓN DE FIREBASE
+// 1. CONFIGURACIÓN Y CONSTANTES
 // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBmD0pEWxIAWZe9IjDp9ojiX6V8Jnq6SZs",
@@ -224,26 +897,13 @@ const firebaseConfig = {
   appId: "1:598484808234:web:29fc5df30625186603c953"
 };
 
+// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let audio = document.getElementById("audio-player");
-let puntaje = 0; let vidas = 3; let racha = 0; let timer = null;
-let cancionActual = null; let categoriaTexto = ""; let respondiendo = false;
-let cancionesJugadas = new Set();
-
-// Variables Multijugador Grupo
-let modoMulti = false;
-let miNickname = "Jugador";
-let miPlayerId = "";
-let miCodigoSala = "";
-let esHost = false;
-let tiempoInicioAudio = 0;
-let rondaActual = 1;
-
+// Repertorio y Filtros
 const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
 
-// REPERTORIO DISNEY & MUSICALES
 const ARTISTAS_DISNEY_MUSICALES = [
     "High School Musical", "Camp Rock", "Descendants Cast", "Teen Beach Movie", 
     "Hannah Montana", "Violetta", "Soy Luna", "Encanto Soundtrack", 
@@ -252,7 +912,6 @@ const ARTISTAS_DISNEY_MUSICALES = [
     "The Little Mermaid", "Phineas and Ferb"
 ];
 
-// REPERTORIO INFANTIL & NIÑOS
 const ARTISTAS_INFANTIL = [
     "Gallina Pintadita", "La Granja de Zenón", "El Reino Infantil", "31 Minutos", 
     "Cantando Aprendo a Hablar", "Encanto Banda Sonora", "Frozen en Español", 
@@ -261,7 +920,6 @@ const ARTISTAS_INFANTIL = [
     "Mundo Bita en Español", "Peppa Pig en Español"
 ];
 
-// BANCOS REGIONALES Y DE ESTILOS
 const ARTISTAS_CHILE = [
     "Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", 
     "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", 
@@ -302,549 +960,1209 @@ const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "S
 const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli", "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme", "Harry Potter Soundtrack", "Interstellar Soundtrack", "Marvel Studios Soundtrack"];
 const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL, ...ARTISTAS_DISNEY_MUSICALES];
 
-function obtenerNick() {
-    const input = document.getElementById("player-nickname").value.trim();
-    return input ? input : "Jugador" + Math.floor(Math.random() * 90 + 10);
-}
+// ==========================================
+// 2. ESTADO GLOBAL DE LA APLICACIÓN
+// ==========================================
+const AppState = {
+    // Modo Solo
+    puntaje: 0,
+    vidas: 3,
+    racha: 0,
+    maxRacha: 0,
+    aciertosTotales: 0,
+    preguntasTotales: 0,
+    mejorTiempoReaccion: null,
+    
+    // Canción actual y reproductor
+    cancionActual: null,
+    categoriaSeleccionada: "AZAR",
+    categoriaTexto: "Al Azar / De Todo",
+    respondiendo: false,
+    cancionesJugadas: new Set(),
+    proximaCancionCache: null, // Pre-carga de la siguiente canción
 
-// MODO SOLITARIO
+    // Multijugador
+    modoMulti: false,
+    miNickname: "Jugador",
+    miPlayerId: "",
+    miCodigoSala: "",
+    esHost: false,
+    rondaActual: 1,
+    isEvaluatingLocal: false,
+    tiempoInicioRondaLocal: 0,
+    salaListener: null
+};
+
+// Elementos de Audio
+const audio = document.getElementById("audio-player");
+const audioPreloader = document.getElementById("audio-preloader");
+
+// ==========================================
+// 3. CONTROLADOR DE AUDIO Y PRE-CARGA (UX/UI Audio)
+// ==========================================
+const AudioController = {
+    timerAudio5s: null,
+    timerRespuestaMax: null,
+    animFrameId: null,
+    tiempoInicioAudio: 0,
+    duracionAudioSegundos: 5,
+    duracionRespuestaSegundos: 10,
+    desbloqueado: false,
+
+    // Desbloquear audio en el primer gesto de usuario (click/tap)
+    desbloquearContexto() {
+        if (this.desbloqueado) return;
+        audio.play().then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+            this.desbloqueado = true;
+        }).catch(() => {
+            // Se desbloqueará en el siguiente clic
+        });
+    },
+
+    detenerTodo() {
+        clearTimeout(this.timerAudio5s);
+        clearTimeout(this.timerRespuestaMax);
+        if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
+        
+        audio.pause();
+        audio.currentTime = 0;
+        UIController.setSoundwaveActive(false);
+    },
+
+    // Reproduce los 5 segundos con Promise handling seguro
+    reproducir5Segundos(onCompleteAudio, onTimeoutTotal) {
+        this.detenerTodo();
+        audio.currentTime = 0;
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                this.tiempoInicioAudio = performance.now();
+                UIController.setSoundwaveActive(true);
+                UIController.setEstadoTexto("▶️ Escuchando la canción...");
+                document.getElementById("btn-play").disabled = true;
+
+                // Animación fluida de la barra de progreso
+                this.iniciarAnimacionProgreso(onCompleteAudio, onTimeoutTotal);
+            }).catch(err => {
+                console.warn("Autoplay prevenido por el navegador:", err);
+                UIController.setSoundwaveActive(false);
+                UIController.setEstadoTexto("🔊 Toca 'Escuchar 5 Segundos' para reproducir");
+                document.getElementById("btn-play").disabled = false;
+                UIController.mostrarToast("Toca el botón para escuchar el audio 🎵");
+            });
+        }
+    },
+
+    iniciarAnimacionProgreso(onCompleteAudio, onTimeoutTotal) {
+        const totalAudioMs = this.duracionAudioSegundos * 1000;
+        const totalRespMs = this.duracionRespuestaSegundos * 1000;
+        let audioFinalizado = false;
+
+        const loop = (timestamp) => {
+            if (AppState.respondiendo) return;
+
+            const tiempoTranscurrido = timestamp - this.tiempoInicioAudio;
+
+            if (tiempoTranscurrido < totalAudioMs) {
+                // Fase 1: Escuchando 5 segundos
+                const restante = Math.max(0, (totalAudioMs - tiempoTranscurrido) / 1000);
+                const porcentaje = (1 - (tiempoTranscurrido / totalAudioMs)) * 100;
+                
+                UIController.actualizarBarraTimer(porcentaje, `0${restante.toFixed(1)}s`, "🔊 Escuchando tema...", false);
+                this.animFrameId = requestAnimationFrame(loop);
+            } else if (!audioFinalizado) {
+                // Fin de los 5 segundos de audio
+                audioFinalizado = true;
+                audio.pause();
+                UIController.setSoundwaveActive(false);
+                UIController.setEstadoTexto("⏹️ ¡Tiempo de audio terminado! Elige una opción.");
+
+                if (onCompleteAudio) onCompleteAudio();
+
+                this.animFrameId = requestAnimationFrame(loop);
+            } else if (tiempoTranscurrido < (totalAudioMs + totalRespMs)) {
+                // Fase 2: Tiempo para responder (cuenta regresiva)
+                const tiempoEnFase2 = tiempoTranscurrido - totalAudioMs;
+                const restanteResp = Math.max(0, (totalRespMs - tiempoEnFase2) / 1000);
+                const porcentajeResp = (1 - (tiempoEnFase2 / totalRespMs)) * 100;
+
+                UIController.actualizarBarraTimer(porcentajeResp, `0${restanteResp.toFixed(1)}s`, "⏱️ ¡Tiempo para responder!", true);
+                this.animFrameId = requestAnimationFrame(loop);
+            } else {
+                // Tiempo total agotado
+                UIController.actualizarBarraTimer(0, "00.0s", "❌ ¡Tiempo agotado!", true);
+                if (onTimeoutTotal) onTimeoutTotal();
+            }
+        };
+
+        this.animFrameId = requestAnimationFrame(loop);
+    },
+
+    // Pre-carga silenciosa del archivo de audio para eliminar latencia en la próxima ronda
+    preCargarAudio(url) {
+        if (!url) return;
+        try {
+            audioPreloader.src = url;
+            audioPreloader.load();
+        } catch (e) {
+            console.warn("Fallo al precargar audio:", e);
+        }
+    }
+};
+
+// ==========================================
+// 4. SERVICIO API ITUNES (JSONP CON TIMEOUT Y DEDUPLICACIÓN)
+// ==========================================
+const ItunesService = {
+    activeScript: null,
+
+    // Limpia y normaliza el título para evitar duplicados como "(Remix)", "(Live)", "(feat...)"
+    normalizarTitulo(str) {
+        if (!str) return "";
+        return str
+            .replace(/\s*[\(\[\{](?:feat|ft|remix|version|versión|live|en vivo|remastered|remaster|radio edit|acústico|acoustic|deluxe|soundtrack|official|video|audio)[\s\S]*?[\)\]\}]/gi, '')
+            .replace(/\s*-\s*(?:feat|ft|remix|live|en vivo|remastered|remaster|radio edit|acoustic).*$/gi, '')
+            .replace(/\s*\([^)]*\)/g, '')
+            .replace(/[^\w\s\u00C0-\u00FF]/gi, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+    },
+
+    obtenerTerminoDeCategoria(catVal) {
+        switch (catVal) {
+            case "AZAR": return this.elegirAleatorio(PALABRAS_AZAR);
+            case "DISNEY_MUSICALES": return this.elegirAleatorio(ARTISTAS_DISNEY_MUSICALES);
+            case "INFANTIL": return this.elegirAleatorio(ARTISTAS_INFANTIL);
+            case "ROMANTICAS": return this.elegirAleatorio(ARTISTAS_ROMANTICAS);
+            case "POP_LATINO": return this.elegirAleatorio(ARTISTAS_POP_LATINO);
+            case "KPOP": return this.elegirAleatorio(ARTISTAS_KPOP);
+            case "SOLISTAS": return this.elegirAleatorio(ARTISTAS_SOLISTAS);
+            case "GRUPOS": return this.elegirAleatorio(GRUPOS_DUS);
+            case "ROCK_BANDAS": return this.elegirAleatorio(ARTISTAS_ROCK_BANDAS);
+            case "URBANO": return this.elegirAleatorio(ARTISTAS_URBANO);
+            case "ELECTRONICA": return this.elegirAleatorio(ARTISTAS_ELECTRONICA);
+            case "CHILE": return this.elegirAleatorio(ARTISTAS_CHILE);
+            case "ARGENTINA": return this.elegirAleatorio(ARTISTAS_ARGENTINA);
+            case "COLOMBIA": return this.elegirAleatorio(ARTISTAS_COLOMBIA);
+            case "MEXICO": return this.elegirAleatorio(ARTISTAS_MEXICO);
+            case "USA": return this.elegirAleatorio(ARTISTAS_USA);
+            case "PELICULAS": return this.elegirAleatorio(SOUNDTRACKS);
+            default: return catVal; // 70s, 80s, etc.
+        }
+    },
+
+    elegirAleatorio(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    },
+
+    // Búsqueda robusta con JSONP, timeout de 4.5 segundos y reintentos automáticos
+    buscarCanciones(termino, callbackExito, intentosRestantes = 3) {
+        const callbackName = `itunes_cb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+        let script = document.createElement("script");
+        let timeoutTriggered = false;
+
+        const limpiar = () => {
+            if (window[callbackName]) delete window[callbackName];
+            if (script && script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        const timeoutId = setTimeout(() => {
+            timeoutTriggered = true;
+            limpiar();
+            console.warn(`Timeout de iTunes buscando: "${termino}". Reintentos: ${intentosRestantes}`);
+            if (intentosRestantes > 0) {
+                const nuevoTermino = this.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+                this.buscarCanciones(nuevoTermino, callbackExito, intentosRestantes - 1);
+            } else {
+                // Fallback universal a Pop Hits
+                this.buscarCanciones("Pop Hits", callbackExito, 0);
+            }
+        }, 4500);
+
+        window[callbackName] = (data) => {
+            if (timeoutTriggered) return;
+            clearTimeout(timeoutId);
+            limpiar();
+
+            if (!data || !data.results || data.results.length === 0) {
+                if (intentosRestantes > 0) {
+                    const fallbackTermino = this.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+                    this.buscarCanciones(fallbackTermino, callbackExito, intentosRestantes - 1);
+                } else {
+                    this.buscarCanciones("Hits", callbackExito, 0);
+                }
+                return;
+            }
+
+            this.procesarCanciones(data.results, callbackExito, intentosRestantes);
+        };
+
+        script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=50&callback=${callbackName}`;
+        script.onerror = () => {
+            clearTimeout(timeoutId);
+            limpiar();
+            if (intentosRestantes > 0) {
+                const fallbackTermino = this.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+                this.buscarCanciones(fallbackTermino, callbackExito, intentosRestantes - 1);
+            }
+        };
+
+        document.body.appendChild(script);
+    },
+
+    // Filtra duplicados, navideños, karaoke y versiones similares
+    procesarCanciones(rawResults, callbackExito, intentosRestantes) {
+        const esCatNavidad = AppState.categoriaSeleccionada.toLowerCase().includes("navid");
+
+        const cancionesValidas = rawResults.filter(item => {
+            if (!item.previewUrl || !item.trackName || !item.artistName) return false;
+            
+            // Excluir canciones ya jugadas
+            if (AppState.cancionesJugadas.has(item.trackId)) return false;
+
+            const trackLower = (item.trackName + " " + (item.collectionName || "")).toLowerCase();
+            
+            // Filtro navideño si la categoría no es de navidad
+            if (!esCatNavidad && PALABRAS_NAVISTAS.some(p => trackLower.includes(p))) return false;
+
+            // Filtro de karaoke / tributos / covers de baja calidad
+            if (trackLower.includes("karaoke") || trackLower.includes("tribute") || trackLower.includes("instrumental version")) return false;
+
+            return true;
+        });
+
+        if (cancionesValidas.length < 4) {
+            if (intentosRestantes > 0) {
+                const nuevoTermino = this.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+                this.buscarCanciones(nuevoTermino, callbackExito, intentosRestantes - 1);
+            } else {
+                this.buscarCanciones("Pop", callbackExito, 0);
+            }
+            return;
+        }
+
+        // Selección de la canción ganadora
+        const idx = Math.floor(Math.random() * cancionesValidas.length);
+        const elegida = cancionesValidas[idx];
+        const tituloNormElegida = this.normalizarTitulo(elegida.trackName);
+
+        // Selección de 3 opciones falsas distintas (evitando duplicados de título o artista idéntico)
+        const candidatosFalsos = cancionesValidas.filter((c, i) => {
+            if (i === idx) return false;
+            const tituloNorm = this.normalizarTitulo(c.trackName);
+            return tituloNorm !== tituloNormElegida && tituloNorm.length > 1;
+        });
+
+        // Agrupar por títulos únicos normalizados
+        const opcionesUnicasMap = new Map();
+        for (const item of candidatosFalsos) {
+            const norm = this.normalizarTitulo(item.trackName);
+            const claveVisible = `${item.trackName} - ${item.artistName}`;
+            if (!opcionesUnicasMap.has(norm)) {
+                opcionesUnicasMap.set(norm, claveVisible);
+            }
+            if (opcionesUnicasMap.size >= 10) break;
+        }
+
+        let opcionesFalsas = Array.from(opcionesUnicasMap.values()).sort(() => Math.random() - 0.5).slice(0, 3);
+
+        // Si faltan opciones falsas, reintentar con otro término
+        if (opcionesFalsas.length < 3) {
+            const nuevoTermino = this.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+            this.buscarCanciones(nuevoTermino, callbackExito, intentosRestantes - 1);
+            return;
+        }
+
+        const solucion = `${elegida.trackName} - ${elegida.artistName}`;
+        const todasOpciones = [...opcionesFalsas, solucion].sort(() => Math.random() - 0.5);
+
+        callbackExito({
+            cancion: elegida,
+            opciones: todasOpciones,
+            solucion: solucion
+        });
+    }
+};
+
+// ==========================================
+// 5. CONTROLADOR MODO SOLITARIO
+// ==========================================
 function comenzarJuegoSolitario() {
-    modoMulti = false;
+    AudioController.desbloquearContexto();
+    AppState.modoMulti = false;
+    AppState.puntaje = 0;
+    AppState.vidas = 3;
+    AppState.racha = 0;
+    AppState.maxRacha = 0;
+    AppState.aciertosTotales = 0;
+    AppState.preguntasTotales = 0;
+    AppState.mejorTiempoReaccion = null;
+    AppState.cancionesJugadas.clear();
+    AppState.proximaCancionCache = null;
+
+    const select = document.getElementById("categoria");
+    AppState.categoriaSeleccionada = select.value;
+    AppState.categoriaTexto = select.options[select.selectedIndex].text;
+
     document.getElementById("ui-solitario").style.display = "block";
     document.getElementById("ui-multi").style.display = "none";
-    
-    const select = document.getElementById("categoria");
-    categoriaTexto = select.options[select.selectedIndex].text;
+    document.getElementById("modo-texto").innerText = `Modo Solo • 3 Vidas`;
+    document.getElementById("categoria-badge").innerText = AppState.categoriaTexto.split(" ")[0];
+    document.getElementById("puntaje").innerText = "0";
 
-    document.getElementById("pantalla-inicio").style.display = "none";
-    document.getElementById("pantalla-juego").style.display = "block";
-    document.getElementById("pantalla-final").style.display = "none";
-    document.getElementById("modo-texto").innerText = `Categoría: ${categoriaTexto}`;
+    UIController.actualizarVidasUI();
+    UIController.ocultarFeedback();
+    UIController.mostrarPantalla("pantalla-juego");
 
-    puntaje = 0; vidas = 3; racha = 0;
-    cancionesJugadas.clear();
-    document.getElementById("puntaje").innerText = puntaje;
-    ocultarFeedback();
-    actualizarVidasUI();
-    siguienteCancion();
+    siguienteCancionSolitario();
 }
 
-// LOBBY Y MULTIJUGADOR GRUPAL
-function mostrarLobby() {
-    miNickname = obtenerNick();
-    document.getElementById("pantalla-inicio").style.display = "none";
-    document.getElementById("pantalla-lobby").style.display = "block";
-}
+function siguienteCancionSolitario() {
+    AppState.respondiendo = false;
+    UIController.ocultarFeedback();
+    UIController.setEstadoTexto("🔍 Buscando canción...");
+    UIController.limpiarOpciones();
+    document.getElementById("btn-play").disabled = true;
 
-function cancelarLobby() {
-    document.getElementById("pantalla-lobby").style.display = "none";
-    document.getElementById("pantalla-inicio").style.display = "block";
-}
-
-function generarCodigo() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let c = ""; for (let i = 0; i < 4; i++) c += chars.charAt(Math.floor(Math.random() * chars.length));
-    return c;
-}
-
-function crearSala() {
-    modoMulti = true; esHost = true;
-    miCodigoSala = generarCodigo();
-    miPlayerId = "p_" + Date.now();
-    const select = document.getElementById("categoria");
-    categoriaTexto = select.options[select.selectedIndex].text;
-
-    const salaRef = db.ref("salas/" + miCodigoSala);
-    salaRef.onDisconnect().remove();
-
-    let jugData = {};
-    jugData[miPlayerId] = { nick: miNickname, puntaje: 0, host: true };
-
-    salaRef.set({
-        estado: "esperando",
-        categoriaVal: select.value,
-        categoriaTxt: categoriaTexto,
-        ronda: 1,
-        jugadores: jugData
-    }).then(() => {
-        prepararVistaLobby();
-        escucharSalaFirebase();
-    });
-}
-
-function unirseASala() {
-    const cod = document.getElementById("codigo-sala-input").value.trim().toUpperCase();
-    if (cod.length !== 4) { alert("Ingresa un código de 4 caracteres."); return; }
-
-    db.ref("salas/" + cod).once("value").then(snap => {
-        if (!snap.exists()) { alert("La sala no existe."); return; }
-        const sala = snap.val();
-        if (sala.estado !== "esperando") { alert("La partida ya comenzó."); return; }
-
-        modoMulti = true; esHost = false;
-        miCodigoSala = cod;
-        miPlayerId = "p_" + Date.now();
-        categoriaTexto = sala.categoriaTxt;
-
-        db.ref(`salas/${miCodigoSala}/jugadores/${miPlayerId}`).set({
-            nick: miNickname,
-            puntaje: 0,
-            host: false
-        }).then(() => {
-            prepararVistaLobby();
-            escucharSalaFirebase();
-        });
-    });
-}
-
-function prepararVistaLobby() {
-    document.getElementById("lobby-wait-area").style.display = "block";
-    document.getElementById("codigo-sala-display").innerText = miCodigoSala;
-    if (esHost) document.getElementById("btn-iniciar-partida").style.display = "block";
-}
-
-function escucharSalaFirebase() {
-    db.ref("salas/" + miCodigoSala).on("value", snap => {
-        if (!snap.exists()) return;
-        const sala = snap.val();
-
-        // Renderizar lista de jugadores en lobby
-        if (sala.estado === "esperando") {
-            let html = "";
-            Object.values(sala.jugadores || {}).forEach(j => {
-                html += `<span class="player-badge">👤 ${j.nick} ${j.host ? '👑' : ''}</span>`;
-            });
-            document.getElementById("lista-jugadores-lobby").innerHTML = html;
-        }
-
-        // Transición a jugando
-        if (sala.estado === "jugando") {
-            rondaActual = sala.ronda || 1;
-            document.getElementById("ronda-actual-display").innerText = rondaActual;
-            
-            let miP = (sala.jugadores && sala.jugadores[miPlayerId]) ? sala.jugadores[miPlayerId].puntaje : 0;
-            document.getElementById("mi-score-display").innerText = miP;
-
-            if (document.getElementById("pantalla-juego").style.display !== "block" && document.getElementById("pantalla-ranking").style.display !== "block") {
-                document.getElementById("pantalla-lobby").style.display = "none";
-                document.getElementById("pantalla-juego").style.display = "block";
-                document.getElementById("ui-solitario").style.display = "none";
-                document.getElementById("ui-multi").style.display = "block";
-            }
-
-            // Host carga canción para todos
-            if (esHost && !sala.cancionActual) {
-                cargarTemaRondaMulti(sala.categoriaVal);
-            }
-
-            // Sincronizar canción
-            if (sala.cancionActual && (!cancionActual || cancionActual.trackId !== sala.cancionActual.trackId)) {
-                cancionActual = sala.cancionActual;
-                audio.src = cancionActual.previewUrl;
-                audio.load();
-
-                document.getElementById("pantalla-ranking").style.display = "none";
-                document.getElementById("pantalla-juego").style.display = "block";
-                document.getElementById("modo-texto").innerText = `Categoría: ${sala.categoriaTxt}`;
-                document.getElementById("estado").innerText = "¡Canción lista! Escucha los 5 segundos.";
-                document.getElementById("btn-play").disabled = false;
-                
-                // Limpieza de feedback
-                ocultarFeedback();
-                respondiendo = false;
-
-                renderizarOpcionesMulti(sala.opcionesRonda, `${cancionActual.trackName} - ${cancionActual.artistName}`);
-            }
-
-            // Evaluar al responder todos
-            if (sala.respuestasRonda && Object.keys(sala.respuestasRonda).length === Object.keys(sala.jugadores).length && esHost && !sala.evaluandoRonda) {
-                db.ref("salas/" + miCodigoSala).update({ evaluandoRonda: true });
-                evaluarRondaMulti(sala);
-            }
-        }
-
-        // Pantalla de ranking entre rondas
-        if (sala.estado === "podio_ronda" && sala.resultadoRonda) {
-            mostrarPantallaRankingRonda(sala.resultadoRonda, sala.jugadores);
-        }
-
-        // Fin de partida
-        if (sala.estado === "finalizado" && sala.jugadores) {
-            mostrarFinJuegoMulti(sala.jugadores);
-        }
-    });
-}
-
-function iniciarPartidaHost() {
-    db.ref("salas/" + miCodigoSala).update({ estado: "jugando" });
-}
-
-function cargarTemaRondaMulti(catVal) {
-    let termino = catVal;
-    if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
-    else if (termino === "DISNEY_MUSICALES") termino = obtenerTerminoAleatorio(ARTISTAS_DISNEY_MUSICALES);
-    else if (termino === "INFANTIL") termino = obtenerTerminoAleatorio(ARTISTAS_INFANTIL);
-    else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
-    else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
-    else if (termino === "KPOP") termino = obtenerTerminoAleatorio(ARTISTAS_KPOP);
-    else if (termino === "SOLISTAS") termino = obtenerTerminoAleatorio(ARTISTAS_SOLISTAS);
-    else if (termino === "GRUPOS") termino = obtenerTerminoAleatorio(GRUPOS_DUS);
-    else if (termino === "ROCK_BANDAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROCK_BANDAS);
-    else if (termino === "URBANO") termino = obtenerTerminoAleatorio(ARTISTAS_URBANO);
-    else if (termino === "ELECTRONICA") termino = obtenerTerminoAleatorio(ARTISTAS_ELECTRONICA);
-    else if (termino === "CHILE") termino = obtenerTerminoAleatorio(ARTISTAS_CHILE);
-    else if (termino === "ARGENTINA") termino = obtenerTerminoAleatorio(ARTISTAS_ARGENTINA);
-    else if (termino === "COLOMBIA") termino = obtenerTerminoAleatorio(ARTISTAS_COLOMBIA);
-    else if (termino === "MEXICO") termino = obtenerTerminoAleatorio(ARTISTAS_MEXICO);
-    else if (termino === "USA") termino = obtenerTerminoAleatorio(ARTISTAS_USA);
-    else if (termino === "PELICULAS") termino = obtenerTerminoAleatorio(SOUNDTRACKS);
-
-    const script = document.createElement("script");
-    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=50&callback=procesarTemaMulti`;
-    document.body.appendChild(script);
-}
-
-window.procesarTemaMulti = function(data) {
-    let canciones = (data.results || []).filter(item => item.previewUrl && item.trackName && item.artistName && !cancionesJugadas.has(item.trackId));
-    if (canciones.length < 4) {
-        const select = document.getElementById("categoria");
-        cargarTemaRondaMulti(select.value);
+    // Si ya teníamos una canción precargada en caché, usarla inmediatamente
+    if (AppState.proximaCancionCache) {
+        const data = AppState.proximaCancionCache;
+        AppState.proximaCancionCache = null;
+        configurarRondaSolitario(data);
+        // Empezar a precargar la siguiente de fondo
+        precargarSiguienteSolitario();
         return;
     }
 
-    const idx = Math.floor(Math.random() * canciones.length);
-    const elegida = canciones[idx];
-    cancionesJugadas.add(elegida.trackId);
-
-    let falsas = canciones.filter((_, i) => i !== idx).map(item => `${item.trackName} - ${item.artistName}`);
-    falsas = Array.from(new Set(falsas)).sort(() => Math.random() - 0.5).slice(0, 3);
-    const sol = `${elegida.trackName} - ${elegida.artistName}`;
-    let todas = [...falsas, sol].sort(() => Math.random() - 0.5);
-
-    db.ref("salas/" + miCodigoSala).update({
-        cancionActual: elegida,
-        opcionesRonda: todas,
-        respuestasRonda: {},
-        evaluandoRonda: false,
-        tiempoInicioRonda: firebase.database.ServerValue.TIMESTAMP
-    });
-};
-
-function renderizarOpcionesMulti(opciones, correcta) {
-    const cont = document.getElementById("opciones");
-    cont.innerHTML = "";
-    opciones.forEach(op => {
-        const btn = document.createElement("button");
-        btn.className = "option-btn";
-        btn.innerText = op;
-        btn.onclick = () => responderMulti(op, correcta, btn);
-        cont.appendChild(btn);
+    const termino = ItunesService.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+    ItunesService.buscarCanciones(termino, (resultado) => {
+        configurarRondaSolitario(resultado);
+        // Iniciar pre-carga en segundo plano para la próxima ronda
+        precargarSiguienteSolitario();
     });
 }
 
-function responderMulti(seleccion, correcta, btn) {
-    if (respondiendo) return;
-    respondiendo = true;
-    audio.pause(); clearTimeout(timer);
+function configurarRondaSolitario(resultado) {
+    AppState.cancionActual = resultado.cancion;
+    AppState.cancionesJugadas.add(resultado.cancion.trackId);
+
+    audio.src = resultado.cancion.previewUrl;
+    audio.load();
+
+    UIController.setEstadoTexto("¡Canción lista! Escucha los 5 segundos.");
+    document.getElementById("btn-play").disabled = false;
+    UIController.renderizarOpciones(resultado.opciones, (opcionSeleccionada, btn) => {
+        verificarRespuestaSolitario(opcionSeleccionada, resultado.solucion, btn);
+    });
+
+    // Intentar reproducir automáticamente si el usuario ya interactuó
+    AudioController.reproducir5Segundos(
+        () => { /* Audio terminó */ },
+        () => {
+            // Timeout total sin responder
+            if (!AppState.respondiendo) {
+                verificarRespuestaSolitario("__TIMEOUT__", resultado.solucion, null);
+            }
+        }
+    );
+}
+
+function precargarSiguienteSolitario() {
+    const termino = ItunesService.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+    ItunesService.buscarCanciones(termino, (resultado) => {
+        AppState.proximaCancionCache = resultado;
+        AudioController.preCargarAudio(resultado.cancion.previewUrl);
+    });
+}
+
+function verificarRespuestaSolitario(seleccion, correcta, btn) {
+    if (AppState.respondiendo) return;
+    AppState.respondiendo = true;
+    AppState.preguntasTotales++;
+
+    AudioController.detenerTodo();
+    document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
 
     const esCorrecto = (seleccion === correcta);
-    btn.style.background = esCorrecto ? "#1db954" : "#ff4757";
-    document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+    const tiempoReaccion = Math.max(0.1, (performance.now() - AudioController.tiempoInicioAudio) / 1000).toFixed(2);
 
-    db.ref(`salas/${miCodigoSala}/respuestasRonda/${miPlayerId}`).set({
-        nick: miNickname,
-        esCorrecto: esCorrecto,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    });
+    if (esCorrecto) {
+        AppState.puntaje += 10;
+        AppState.racha++;
+        AppState.aciertosTotales++;
+        if (AppState.racha > AppState.maxRacha) AppState.maxRacha = AppState.racha;
 
-    mostrarFeedback("Respuesta enviada. Esperando al resto...", true);
-}
-
-function evaluarRondaMulti(sala) {
-    const respuestas = sala.respuestasRonda || {};
-    const tInicio = sala.tiempoInicioRonda || Date.now();
-    
-    let aciertos = [];
-    let fallos = [];
-
-    Object.keys(respuestas).forEach(pid => {
-        const r = respuestas[pid];
-        const segs = Math.max(0.1, ((r.timestamp - tInicio) / 1000)).toFixed(2);
-        if (r.esCorrecto) {
-            aciertos.push({ pid: pid, nick: r.nick, segs: parseFloat(segs), timestamp: r.timestamp });
-        } else {
-            fallos.push({ pid: pid, nick: r.nick, segs: parseFloat(segs) });
+        if (!AppState.mejorTiempoReaccion || parseFloat(tiempoReaccion) < AppState.mejorTiempoReaccion) {
+            AppState.mejorTiempoReaccion = parseFloat(tiempoReaccion);
         }
-    });
 
-    aciertos.sort((a, b) => a.timestamp - b.timestamp);
+        if (btn) btn.classList.add("selected-correct");
 
-    let tablaResultadoRonda = [];
-    let updatesJugadores = {};
-
-    aciertos.forEach((item, index) => {
-        let ptsGanados = 40;
-        if (index === 0) ptsGanados = 100;
-        else if (index === 1) ptsGanados = 80;
-        else if (index === 2) ptsGanados = 60;
-
-        let prevScore = (sala.jugadores[item.pid] ? sala.jugadores[item.pid].puntaje : 0);
-        updatesJugadores[`jugadores/${item.pid}/puntaje`] = prevScore + ptsGanados;
-
-        tablaResultadoRonda.push({
-            nick: item.nick,
-            correcto: true,
-            segs: item.segs,
-            ptsGanados: ptsGanados,
-            posicion: index + 1
-        });
-    });
-
-    fallos.forEach(item => {
-        tablaResultadoRonda.push({
-            nick: item.nick,
-            correcto: false,
-            segs: item.segs,
-            ptsGanados: 0,
-            posicion: '-'
-        });
-    });
-
-    db.ref("salas/" + miCodigoSala).update({
-        ...updatesJugadores,
-        estado: "podio_ronda",
-        resultadoRonda: tablaResultadoRonda
-    }).then(() => {
-        setTimeout(() => {
-            if (sala.ronda < 10) {
-                db.ref("salas/" + miCodigoSala).update({
-                    estado: "jugando",
-                    ronda: sala.ronda + 1,
-                    cancionActual: null
-                });
+        if (AppState.racha === 3) {
+            if (AppState.vidas < 3) {
+                AppState.vidas++;
+                UIController.mostrarFeedback("¡CORRECTO! 🎉 ¡Recuperas 1 vida por tu racha! ❤️", true);
             } else {
-                db.ref("salas/" + miCodigoSala).update({ estado: "finalizado" });
+                AppState.puntaje += 10; // Bono de racha
+                UIController.mostrarFeedback("¡CORRECTO! 🔥 ¡Racha de 3 (+10 pts bonus)! 🎉", true);
             }
-        }, 4500);
-    });
-}
-
-function mostrarPantallaRankingRonda(resultados, jugadores) {
-    audio.pause();
-    document.getElementById("pantalla-juego").style.display = "none";
-    document.getElementById("pantalla-ranking").style.display = "block";
-
-    let html = "";
-    resultados.forEach(res => {
-        if (res.correcto) {
-            html += `<li class="ranking-item">
-                <div><b>#${res.posicion} ${res.nick}</b> <span class="ranking-time">⏱️ ${res.segs}s</span></div>
-                <div style="color:#1db954; font-weight:bold;">+${res.ptsGanados} pts</div>
-            </li>`;
+            AppState.racha = 0;
         } else {
-            html += `<li class="ranking-item incorrecto">
-                <div><b>❌ ${res.nick}</b> <span class="ranking-time">⏱️ ${res.segs}s</span></div>
-                <div style="color:#ff4757; font-weight:bold;">+0 pts</div>
-            </li>`;
+            UIController.mostrarFeedback(`¡CORRECTO! (+10 pts) ⚡ ${tiempoReaccion}s`, true);
         }
-    });
-
-    document.getElementById("lista-ranking-ronda").innerHTML = html;
-}
-
-function mostrarFinJuegoMulti(jugadores) {
-    audio.pause();
-    document.getElementById("pantalla-juego").style.display = "none";
-    document.getElementById("pantalla-ranking").style.display = "none";
-    document.getElementById("pantalla-final").style.display = "block";
-
-    let lista = Object.values(jugadores).sort((a, b) => b.puntaje - a.puntaje);
-    
-    document.getElementById("titulo-final").innerText = "¡PODIO FINAL! 🏆";
-    document.getElementById("titulo-final").style.color = "#1db954";
-    document.getElementById("puntaje-final").innerText = `Ganador: ${lista[0].nick}`;
-
-    let podioHtml = "<div style='text-align:left; margin-top:15px;'>";
-    lista.forEach((j, idx) => {
-        let medalla = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '👤'));
-        podioHtml += `<p style="font-size:16px; margin:6px 0;">${medalla} <b>${j.nick}</b>: ${j.puntaje} pts</p>`;
-    });
-    podioHtml += "</div>";
-
-    document.getElementById("podio-final-area").innerHTML = podioHtml;
-    document.getElementById("categoria-final").innerText = `Categoría: ${categoriaTexto}`;
-
-    if (esHost) db.ref("salas/" + miCodigoSala).remove();
-}
-
-// SOLITARIO & GENERAL
-function actualizarVidasUI() {
-    let corazones = "";
-    for (let i = 0; i < vidas; i++) corazones += "❤️";
-    for (let i = vidas; i < 3; i++) corazones += "🖤";
-    document.getElementById("vidas-display").innerText = corazones;
-    document.getElementById("racha-display").innerText = `Racha: ${racha}/3`;
-}
-
-function obtenerTerminoAleatorio(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function siguienteCancion() {
-    const select = document.getElementById("categoria");
-    let termino = select.value;
-
-    if (termino === "AZAR") termino = obtenerTerminoAleatorio(PALABRAS_AZAR);
-    else if (termino === "DISNEY_MUSICALES") termino = obtenerTerminoAleatorio(ARTISTAS_DISNEY_MUSICALES);
-    else if (termino === "INFANTIL") termino = obtenerTerminoAleatorio(ARTISTAS_INFANTIL);
-    else if (termino === "ROMANTICAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROMANTICAS);
-    else if (termino === "POP_LATINO") termino = obtenerTerminoAleatorio(ARTISTAS_POP_LATINO);
-    else if (termino === "KPOP") termino = obtenerTerminoAleatorio(ARTISTAS_KPOP);
-    else if (termino === "SOLISTAS") termino = obtenerTerminoAleatorio(ARTISTAS_SOLISTAS);
-    else if (termino === "GRUPOS") termino = obtenerTerminoAleatorio(GRUPOS_DUS);
-    else if (termino === "ROCK_BANDAS") termino = obtenerTerminoAleatorio(ARTISTAS_ROCK_BANDAS);
-    else if (termino === "URBANO") termino = obtenerTerminoAleatorio(ARTISTAS_URBANO);
-    else if (termino === "ELECTRONICA") termino = obtenerTerminoAleatorio(ARTISTAS_ELECTRONICA);
-    else if (termino === "CHILE") termino = obtenerTerminoAleatorio(ARTISTAS_CHILE);
-    else if (termino === "ARGENTINA") termino = obtenerTerminoAleatorio(ARTISTAS_ARGENTINA);
-    else if (termino === "COLOMBIA") termino = obtenerTerminoAleatorio(ARTISTAS_COLOMBIA);
-    else if (termino === "MEXICO") termino = obtenerTerminoAleatorio(ARTISTAS_MEXICO);
-    else if (termino === "USA") termino = obtenerTerminoAleatorio(ARTISTAS_USA);
-    else if (termino === "PELICULAS") termino = obtenerTerminoAleatorio(SOUNDTRACKS);
-
-    cargarCancionJSONP(termino);
-}
-
-function cargarCancionJSONP(termino) {
-    respondiendo = false;
-    document.getElementById("btn-play").disabled = true;
-    document.getElementById("estado").innerText = `Buscando tema...`;
-    document.getElementById("opciones").innerHTML = "";
-
-    const scriptAntiguo = document.getElementById("jsonp-script");
-    if (scriptAntiguo) scriptAntiguo.remove();
-
-    const script = document.createElement("script");
-    script.id = "jsonp-script";
-    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=50&callback=procesarRespuesta`;
-    document.body.appendChild(script);
-}
-
-window.procesarRespuesta = function(data) {
-    let canciones = (data.results || []).filter(item => {
-        if (!item.previewUrl || !item.trackName || !item.artistName) return false;
-        const nombreLower = (item.trackName + " " + item.collectionName).toLowerCase();
-        const esNavideno = PALABRAS_NAVISTAS.some(p => nombreLower.includes(p));
-        return !esNavideno && !cancionesJugadas.has(item.trackId);
-    });
-
-    if (canciones.length < 4) { setTimeout(siguienteCancion, 800); return; }
-
-    const idx = Math.floor(Math.random() * canciones.length);
-    cancionActual = canciones[idx];
-    cancionesJugadas.add(cancionActual.trackId);
-
-    audio.src = cancionActual.previewUrl; audio.load();
-    document.getElementById("estado").innerText = "¡Canción lista! Escucha los 5 segundos.";
-    document.getElementById("btn-play").disabled = false;
-
-    let falsas = canciones.filter((_, i) => i !== idx).map(item => `${item.trackName} - ${item.artistName}`);
-    falsas = Array.from(new Set(falsas)).sort(() => Math.random() - 0.5).slice(0, 3);
-
-    const sol = `${cancionActual.trackName} - ${cancionActual.artistName}`;
-    let todas = [...falsas, sol].sort(() => Math.random() - 0.5);
-
-    const cont = document.getElementById("opciones");
-    todas.forEach(op => {
-        const btn = document.createElement("button");
-        btn.className = "option-btn"; btn.innerText = op;
-        btn.onclick = () => verificarRespuesta(op, sol, btn);
-        cont.appendChild(btn);
-    });
-};
-
-function reproducir5Segundos() {
-    if (respondiendo) return;
-    clearTimeout(timer); audio.currentTime = 0;
-    audio.play().then(() => {
-        document.getElementById("estado").innerText = "▶ Reproduciendo (5 segundos)...";
-        timer = setTimeout(() => {
-            audio.pause();
-            document.getElementById("estado").innerText = "⏹ ¡Tiempo agotado! Selecciona respuesta.";
-        }, 5000);
-    }).catch(() => mostrarFeedback("Haz clic en la pantalla antes de reproducir.", false));
-}
-
-function mostrarFeedback(msg, esOk) {
-    const b = document.getElementById("feedback-banner");
-    b.innerText = msg; b.className = esOk ? "feedback-correcto" : "feedback-incorrecto";
-    b.style.display = "block";
-}
-
-function ocultarFeedback() { document.getElementById("feedback-banner").style.display = "none"; }
-
-function verificarRespuesta(seleccion, correcta, btn) {
-    if (respondiendo) return;
-    respondiendo = true; audio.pause(); clearTimeout(timer);
-    document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
-
-    if (seleccion === correcta) {
-        puntaje += 10; racha++; btn.style.background = "#1db954";
-        if (racha === 3) {
-            if (vidas < 3) { vidas++; mostrarFeedback("¡CORRECTO! 🎉 ¡Recuperas 1 vida! ❤️", true); }
-            else mostrarFeedback("¡CORRECTO! +10 puntos 🎉", true);
-            racha = 0;
-        } else mostrarFeedback("¡CORRECTO! +10 puntos 🎉", true);
     } else {
-        vidas--; racha = 0; btn.style.background = "#ff4757";
-        document.querySelectorAll(".option-btn").forEach(b => { if (b.innerText === correcta) b.style.background = "#1db954"; });
-        mostrarFeedback(`Incorrecto ❌ Era: ${correcta}`, false);
+        AppState.vidas--;
+        AppState.racha = 0;
+        if (btn) btn.classList.add("selected-wrong");
+
+        // Resaltar la correcta
+        document.querySelectorAll(".option-btn").forEach(b => {
+            if (b.innerText === correcta) b.classList.add("show-correct");
+        });
+
+        if (seleccion === "__TIMEOUT__") {
+            UIController.mostrarFeedback(`¡Tiempo Agotado! ❌ Era: ${correcta}`, false);
+        } else {
+            UIController.mostrarFeedback(`Incorrecto ❌ Era: ${correcta}`, false);
+        }
     }
 
-    document.getElementById("puntaje").innerText = puntaje;
-    actualizarVidasUI();
+    document.getElementById("puntaje").innerText = AppState.puntaje;
+    UIController.actualizarVidasUI();
 
     setTimeout(() => {
-        if (vidas <= 0) finalizarJuego();
-        else { ocultarFeedback(); siguienteCancion(); }
+        if (AppState.vidas <= 0) {
+            finalizarJuegoSolitario();
+        } else {
+            siguienteCancionSolitario();
+        }
     }, 1800);
 }
 
-function finalizarJuego() {
-    audio.pause(); clearTimeout(timer);
-    document.getElementById("pantalla-juego").style.display = "none";
-    document.getElementById("pantalla-final").style.display = "block";
+function finalizarJuegoSolitario() {
+    AudioController.detenerTodo();
+    UIController.mostrarPantalla("pantalla-final");
+
     document.getElementById("titulo-final").innerText = "¡JUEGO TERMINADO! 💀";
-    document.getElementById("puntaje-final").innerText = `${puntaje} PUNTOS`;
+    document.getElementById("titulo-final").style.color = "var(--danger-red)";
+    document.getElementById("puntaje-final").innerText = `${AppState.puntaje} PTS`;
+    
+    document.getElementById("stat-aciertos").innerText = `${AppState.aciertosTotales}/${AppState.preguntasTotales}`;
+    document.getElementById("stat-racha").innerText = `${AppState.maxRacha} 🔥`;
+    
+    const precision = AppState.preguntasTotales > 0 ? Math.round((AppState.aciertosTotales / AppState.preguntasTotales) * 100) : 0;
+    document.getElementById("stat-precision").innerText = `${precision}%`;
+    document.getElementById("stat-tiempo").innerText = AppState.mejorTiempoReaccion ? `${AppState.mejorTiempoReaccion}s` : "-";
+
     document.getElementById("podio-final-area").innerHTML = "";
-    document.getElementById("categoria-final").innerText = `Categoría: ${categoriaTexto}`;
+    document.getElementById("categoria-final").innerText = `Categoría: ${AppState.categoriaTexto}`;
+}
+
+// ==========================================
+// 6. MÓDULO MULTIJUGADOR (FIREBASE COMPAT)
+// ==========================================
+const MultiplayerManager = {
+    timerEvaluacionFallback: null,
+
+    generarCodigo() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let c = "";
+        for (let i = 0; i < 4; i++) c += chars.charAt(Math.floor(Math.random() * chars.length));
+        return c;
+    },
+
+    limpiarSalasInactivas() {
+        // Mecanismo de Garbage Collection: limpia salas de más de 2 horas o salas huérfanas
+        db.ref("salas").once("value").then(snap => {
+            if (!snap.exists()) return;
+            const salas = snap.val();
+            const ahora = Date.now();
+            Object.keys(salas).forEach(cod => {
+                const s = salas[cod];
+                const tiempoCreacion = s.creadaEn || 0;
+                const sinJugadores = !s.jugadores || Object.keys(s.jugadores).length === 0;
+                if ((ahora - tiempoCreacion > 7200000) || (sinJugadores && ahora - tiempoCreacion > 300000)) {
+                    db.ref("salas/" + cod).remove().catch(() => {});
+                }
+            });
+        }).catch(() => {});
+    },
+
+    crearSala() {
+        AudioController.desbloquearContexto();
+        AppState.modoMulti = true;
+        AppState.esHost = true;
+        AppState.miCodigoSala = this.generarCodigo();
+        AppState.miPlayerId = "p_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        AppState.miNickname = UIController.obtenerNickname();
+
+        const select = document.getElementById("categoria");
+        AppState.categoriaSeleccionada = select.value;
+        AppState.categoriaTexto = select.options[select.selectedIndex].text;
+
+        const salaRef = db.ref("salas/" + AppState.miCodigoSala);
+
+        // Desconexión limpia del Host: marca la sala como abandonada y la elimina
+        salaRef.onDisconnect().remove();
+
+        const datosJugador = {};
+        datosJugador[AppState.miPlayerId] = {
+            nick: AppState.miNickname,
+            puntaje: 0,
+            host: true,
+            conectado: true
+        };
+
+        salaRef.set({
+            estado: "esperando",
+            categoriaVal: AppState.categoriaSeleccionada,
+            categoriaTxt: AppState.categoriaTexto,
+            ronda: 1,
+            creadaEn: firebase.database.ServerValue.TIMESTAMP,
+            evaluandoRonda: false,
+            jugadores: datosJugador
+        }).then(() => {
+            this.prepararVistaLobby();
+            this.escucharSala();
+            UIController.mostrarToast(`¡Sala ${AppState.miCodigoSala} creada! Comparte el código.`);
+        }).catch(err => {
+            alert("Error al conectar con Firebase: " + err.message);
+        });
+
+        this.limpiarSalasInactivas();
+    },
+
+    unirseASala() {
+        AudioController.desbloquearContexto();
+        const cod = document.getElementById("codigo-sala-input").value.trim().toUpperCase();
+        if (cod.length !== 4) {
+            alert("Ingresa un código de 4 caracteres.");
+            return;
+        }
+
+        AppState.miNickname = UIController.obtenerNickname();
+        AppState.miPlayerId = "p_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+        db.ref("salas/" + cod).once("value").then(snap => {
+            if (!snap.exists()) {
+                alert("La sala ingresada no existe o ya expiró.");
+                return;
+            }
+            const sala = snap.val();
+            if (sala.estado !== "esperando") {
+                alert("La partida ya comenzó o la sala está cerrada.");
+                return;
+            }
+
+            AppState.modoMulti = true;
+            AppState.esHost = false;
+            AppState.miCodigoSala = cod;
+            AppState.categoriaSeleccionada = sala.categoriaVal;
+            AppState.categoriaTexto = sala.categoriaTxt;
+
+            const jugadorRef = db.ref(`salas/${cod}/jugadores/${AppState.miPlayerId}`);
+            
+            // Si el jugador se desconecta, se elimina su registro para no trabar la ronda
+            jugadorRef.onDisconnect().remove();
+
+            jugadorRef.set({
+                nick: AppState.miNickname,
+                puntaje: 0,
+                host: false,
+                conectado: true
+            }).then(() => {
+                this.prepararVistaLobby();
+                this.escucharSala();
+                UIController.mostrarToast(`Te uniste a la sala ${cod} ✅`);
+            });
+        });
+    },
+
+    prepararVistaLobby() {
+        document.getElementById("lobby-join-area").style.display = "none";
+        document.getElementById("lobby-wait-area").style.display = "block";
+        document.getElementById("codigo-sala-display").innerText = AppState.miCodigoSala;
+        
+        if (AppState.esHost) {
+            document.getElementById("btn-iniciar-partida").style.display = "block";
+            document.getElementById("esperando-host-txt").style.display = "none";
+        } else {
+            document.getElementById("btn-iniciar-partida").style.display = "none";
+            document.getElementById("esperando-host-txt").style.display = "block";
+        }
+    },
+
+    escucharSala() {
+        if (AppState.salaListener) {
+            db.ref("salas/" + AppState.miCodigoSala).off("value", AppState.salaListener);
+        }
+
+        AppState.salaListener = db.ref("salas/" + AppState.miCodigoSala).on("value", snap => {
+            if (!snap.exists()) {
+                if (AppState.modoMulti) {
+                    alert("La sala fue cerrada o el Host se ha desconectado.");
+                    this.salirDeSalaLobby();
+                }
+                return;
+            }
+
+            const sala = snap.val();
+
+            // 1. Estado Esperando en Lobby
+            if (sala.estado === "esperando") {
+                let html = "";
+                const jugadores = sala.jugadores || {};
+                Object.values(jugadores).forEach(j => {
+                    html += `<span class="player-badge">👤 ${j.nick} ${j.host ? '👑' : ''}</span>`;
+                });
+                document.getElementById("lista-jugadores-lobby").innerHTML = html;
+            }
+
+            // 2. Estado Jugando
+            if (sala.estado === "jugando") {
+                AppState.rondaActual = sala.ronda || 1;
+                document.getElementById("ronda-actual-display").innerText = AppState.rondaActual;
+                
+                const miPuntaje = (sala.jugadores && sala.jugadores[AppState.miPlayerId]) ? sala.jugadores[AppState.miPlayerId].puntaje : 0;
+                document.getElementById("mi-score-display").innerText = miPuntaje;
+
+                // Transición a pantalla de juego
+                document.getElementById("ui-solitario").style.display = "none";
+                document.getElementById("ui-multi").style.display = "block";
+                document.getElementById("modo-texto").innerText = `Modo Multijugador • Ronda ${AppState.rondaActual}/10`;
+                document.getElementById("categoria-badge").innerText = (sala.categoriaTxt || "Música").split(" ")[0];
+                UIController.mostrarPantalla("pantalla-juego");
+
+                // Host: Si no hay canción para esta ronda, cargarla
+                if (AppState.esHost && !sala.cancionActual && !AppState.isEvaluatingLocal) {
+                    this.cargarTemaRondaHost(sala.categoriaVal);
+                }
+
+                // Sincronizar canción recibida
+                if (sala.cancionActual && (!AppState.cancionActual || AppState.cancionActual.trackId !== sala.cancionActual.trackId)) {
+                    AppState.cancionActual = sala.cancionActual;
+                    AppState.respondiendo = false;
+                    UIController.ocultarFeedback();
+
+                    audio.src = AppState.cancionActual.previewUrl;
+                    audio.load();
+
+                    UIController.setEstadoTexto("¡Canción lista! Escucha los 5 segundos.");
+                    document.getElementById("btn-play").disabled = false;
+
+                    const correctaTexto = `${AppState.cancionActual.trackName} - ${AppState.cancionActual.artistName}`;
+                    UIController.renderizarOpciones(sala.opcionesRonda || [], (opcion, btn) => {
+                        this.enviarRespuestaMulti(opcion, correctaTexto, btn);
+                    });
+
+                    // Reproducir audio sincronizado
+                    AudioController.reproducir5Segundos(
+                        () => { /* Fin de 5s */ },
+                        () => {
+                            if (!AppState.respondiendo) {
+                                this.enviarRespuestaMulti("__TIMEOUT__", correctaTexto, null);
+                            }
+                        }
+                    );
+                }
+
+                // Validación de Respuestas completas en Host (Previene Race Conditions)
+                if (AppState.esHost && sala.cancionActual && !sala.evaluandoRonda && !AppState.isEvaluatingLocal) {
+                    const cantJugadores = Object.keys(sala.jugadores || {}).length;
+                    const cantRespuestas = Object.keys(sala.respuestasRonda || {}).length;
+
+                    if (cantJugadores > 0 && cantRespuestas >= cantJugadores) {
+                        this.iniciarTransaccionEvaluacion(sala);
+                    }
+                }
+            }
+
+            // 3. Estado Podio de la Ronda
+            if (sala.estado === "podio_ronda" && sala.resultadoRonda) {
+                this.mostrarPodioRonda(sala.resultadoRonda, sala.cancionAnterior);
+            }
+
+            // 4. Estado Finalizado
+            if (sala.estado === "finalizado" && sala.jugadores) {
+                this.mostrarPodioFinal(sala.jugadores);
+            }
+        });
+    },
+
+    iniciarPartidaHost() {
+        if (!AppState.esHost) return;
+        db.ref("salas/" + AppState.miCodigoSala).update({
+            estado: "jugando",
+            ronda: 1,
+            cancionActual: null
+        });
+    },
+
+    cargarTemaRondaHost(catVal) {
+        UIController.setEstadoTexto("Host buscando canción...");
+        const termino = ItunesService.obtenerTerminoDeCategoria(catVal);
+
+        ItunesService.buscarCanciones(termino, (resultado) => {
+            // Pre-cargar la canción en el preloader
+            AudioController.preCargarAudio(resultado.cancion.previewUrl);
+
+            db.ref("salas/" + AppState.miCodigoSala).update({
+                cancionActual: resultado.cancion,
+                opcionesRonda: resultado.opciones,
+                respuestasRonda: {},
+                evaluandoRonda: false,
+                tiempoInicioRonda: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Fallback de tiempo en Host: si pasan 18 segundos y no todos respondieron, evaluar forzosamente
+            clearTimeout(this.timerEvaluacionFallback);
+            this.timerEvaluacionFallback = setTimeout(() => {
+                if (AppState.esHost && !AppState.isEvaluatingLocal) {
+                    db.ref("salas/" + AppState.miCodigoSala).once("value").then(s => {
+                        if (s.exists() && s.val().estado === "jugando") {
+                            this.iniciarTransaccionEvaluacion(s.val());
+                        }
+                    });
+                }
+            }, 18000);
+        });
+    },
+
+    enviarRespuestaMulti(seleccion, correcta, btn) {
+        if (AppState.respondiendo) return;
+        AppState.respondiendo = true;
+
+        AudioController.detenerTodo();
+        document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+
+        const esCorrecto = (seleccion === correcta);
+        if (btn) {
+            btn.classList.add(esCorrecto ? "selected-correct" : "selected-wrong");
+        }
+
+        // Enviar respuesta atómica a Firebase
+        db.ref(`salas/${AppState.miCodigoSala}/respuestasRonda/${AppState.miPlayerId}`).set({
+            nick: AppState.miNickname,
+            esCorrecto: esCorrecto,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        UIController.mostrarFeedback(esCorrecto ? "¡Respuesta registrada! Esperando a los demás..." : `Incorrecto ❌ Era: ${correcta}`, esCorrecto);
+    },
+
+    // Transacción atómica para evitar race condition al evaluar la ronda
+    iniciarTransaccionEvaluacion(sala) {
+        if (AppState.isEvaluatingLocal) return;
+        AppState.isEvaluatingLocal = true;
+
+        const evalRef = db.ref(`salas/${AppState.miCodigoSala}/evaluandoRonda`);
+        evalRef.transaction((currentVal) => {
+            if (currentVal === true) {
+                return; // Abortar transacción si ya fue bloqueada
+            }
+            return true; // Asignar bloqueo atómico
+        }, (error, committed) => {
+            if (error || !committed) {
+                AppState.isEvaluatingLocal = false;
+                return;
+            }
+            // Transacción exitosa: el Host tiene la exclusividad para calcular puntos
+            this.ejecutarEvaluacionRonda(sala);
+        });
+    },
+
+    ejecutarEvaluacionRonda(sala) {
+        clearTimeout(this.timerEvaluacionFallback);
+
+        // Obtener respuestas frescas de la base de datos
+        db.ref(`salas/${AppState.miCodigoSala}`).once("value").then(snap => {
+            const salaFresca = snap.val();
+            const respuestas = salaFresca.respuestasRonda || {};
+            const jugadores = salaFresca.jugadores || {};
+            const tInicio = salaFresca.tiempoInicioRonda || Date.now();
+
+            let aciertos = [];
+            let fallos = [];
+
+            Object.keys(jugadores).forEach(pid => {
+                const r = respuestas[pid];
+                if (r) {
+                    const segs = Math.max(0.1, ((r.timestamp - tInicio) / 1000)).toFixed(2);
+                    if (r.esCorrecto) {
+                        aciertos.push({ pid: pid, nick: r.nick, segs: parseFloat(segs), timestamp: r.timestamp });
+                    } else {
+                        fallos.push({ pid: pid, nick: r.nick, segs: parseFloat(segs) });
+                    }
+                } else {
+                    // Jugador no respondió a tiempo
+                    fallos.push({ pid: pid, nick: jugadores[pid].nick, segs: 15.0 });
+                }
+            });
+
+            // Ordenar aciertos por velocidad (menor timestamp = más rápido)
+            aciertos.sort((a, b) => a.timestamp - b.timestamp);
+
+            const tablaResultados = [];
+            const updates = {};
+
+            aciertos.forEach((item, index) => {
+                let ptsGanados = 40;
+                if (index === 0) ptsGanados = 100;
+                else if (index === 1) ptsGanados = 80;
+                else if (index === 2) ptsGanados = 60;
+
+                const scorePrevio = (jugadores[item.pid] ? jugadores[item.pid].puntaje : 0);
+                updates[`jugadores/${item.pid}/puntaje`] = scorePrevio + ptsGanados;
+
+                tablaResultados.push({
+                    nick: item.nick,
+                    correcto: true,
+                    segs: item.segs,
+                    ptsGanados: ptsGanados,
+                    posicion: index + 1
+                });
+            });
+
+            fallos.forEach(item => {
+                tablaResultados.push({
+                    nick: item.nick,
+                    correcto: false,
+                    segs: item.segs,
+                    ptsGanados: 0,
+                    posicion: '-'
+                });
+            });
+
+            // Nombre de la canción para mostrar en el podio
+            const cancionNombre = salaFresca.cancionActual ? `${salaFresca.cancionActual.trackName} - ${salaFresca.cancionActual.artistName}` : "";
+
+            // Actualización atómica de podio y puntajes
+            db.ref(`salas/${AppState.miCodigoSala}`).update({
+                ...updates,
+                estado: "podio_ronda",
+                resultadoRonda: tablaResultados,
+                cancionAnterior: cancionNombre
+            }).then(() => {
+                // Durante los 4.5 segundos del podio, el host pre-carga la próxima canción
+                if (salaFresca.ronda < 10) {
+                    const termino = ItunesService.obtenerTerminoDeCategoria(salaFresca.categoriaVal);
+                    ItunesService.buscarCanciones(termino, (proxTema) => {
+                        AppState.proximaCancionCache = proxTema;
+                    });
+                }
+
+                // Temporizador de avance a la siguiente ronda
+                setTimeout(() => {
+                    AppState.isEvaluatingLocal = false;
+                    if (salaFresca.ronda < 10) {
+                        const nuevaRonda = salaFresca.ronda + 1;
+                        if (AppState.proximaCancionCache) {
+                            const temaListo = AppState.proximaCancionCache;
+                            AppState.proximaCancionCache = null;
+                            db.ref(`salas/${AppState.miCodigoSala}`).update({
+                                estado: "jugando",
+                                ronda: nuevaRonda,
+                                cancionActual: temaListo.cancion,
+                                opcionesRonda: temaListo.opciones,
+                                respuestasRonda: {},
+                                evaluandoRonda: false,
+                                tiempoInicioRonda: firebase.database.ServerValue.TIMESTAMP
+                            });
+                        } else {
+                            db.ref(`salas/${AppState.miCodigoSala}`).update({
+                                estado: "jugando",
+                                ronda: nuevaRonda,
+                                cancionActual: null,
+                                respuestasRonda: {},
+                                evaluandoRonda: false
+                            });
+                        }
+                    } else {
+                        db.ref(`salas/${AppState.miCodigoSala}`).update({
+                            estado: "finalizado"
+                        });
+                    }
+                }, 4500);
+            });
+        });
+    },
+
+    mostrarPodioRonda(resultados, cancionAnterior) {
+        AudioController.detenerTodo();
+        UIController.mostrarPantalla("pantalla-ranking");
+        document.getElementById("cancion-anterior-txt").innerText = cancionAnterior || "Canción";
+
+        let html = "";
+        resultados.forEach(res => {
+            if (res.correcto) {
+                html += `
+                <li class="ranking-item">
+                    <div>
+                        <b>#${res.posicion} ${res.nick}</b>
+                        <span class="ranking-time">⏱️ ${res.segs}s</span>
+                    </div>
+                    <div style="color: var(--spotify-green); font-weight: 800;">+${res.ptsGanados} pts</div>
+                </li>`;
+            } else {
+                html += `
+                <li class="ranking-item incorrecto">
+                    <div>
+                        <b>❌ ${res.nick}</b>
+                        <span class="ranking-time">⏱️ ${res.segs}s</span>
+                    </div>
+                    <div style="color: var(--danger-red); font-weight: 700;">+0 pts</div>
+                </li>`;
+            }
+        });
+
+        document.getElementById("lista-ranking-ronda").innerHTML = html;
+
+        // Barra animada de cuenta regresiva para la siguiente ronda (4.5s)
+        const bar = document.getElementById("ranking-progress-bar");
+        const txt = document.getElementById("ranking-countdown-txt");
+        let inicio = performance.now();
+        const total = 4500;
+
+        const animPodio = (time) => {
+            const transcurrido = time - inicio;
+            const pct = Math.max(0, (1 - (transcurrido / total)) * 100);
+            const segsRest = Math.max(0, (total - transcurrido) / 1000).toFixed(0);
+            
+            bar.style.width = pct + "%";
+            txt.innerText = `${segsRest}s`;
+
+            if (transcurrido < total) {
+                requestAnimationFrame(animPodio);
+            }
+        };
+        requestAnimationFrame(animPodio);
+    },
+
+    mostrarPodioFinal(jugadores) {
+        AudioController.detenerTodo();
+        UIController.mostrarPantalla("pantalla-final");
+
+        const lista = Object.values(jugadores).sort((a, b) => b.puntaje - a.puntaje);
+        const ganador = lista[0];
+
+        document.getElementById("titulo-final").innerText = "¡PODIO FINAL! 🏆";
+        document.getElementById("titulo-final").style.color = "var(--spotify-green)";
+        document.getElementById("puntaje-final").innerText = `${ganador.nick} GANA`;
+
+        let podioHtml = "<div style='text-align: left; margin-top: 14px;'>";
+        lista.forEach((j, idx) => {
+            const medalla = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '👤'));
+            podioHtml += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; margin-bottom: 6px;">
+                <span>${medalla} <b>${j.nick}</b></span>
+                <span style="color: var(--spotify-green); font-weight: 800;">${j.puntaje} pts</span>
+            </div>`;
+        });
+        podioHtml += "</div>";
+
+        document.getElementById("podio-final-area").innerHTML = podioHtml;
+        document.getElementById("categoria-final").innerText = `Categoría: ${AppState.categoriaTexto}`;
+
+        // Llenar estadísticas del jugador actual
+        const miData = jugadores[AppState.miPlayerId];
+        document.getElementById("stat-aciertos").innerText = miData ? `${miData.puntaje} pts` : "-";
+        document.getElementById("stat-racha").innerText = "10 Rondas";
+        document.getElementById("stat-precision").innerText = "Multijugador";
+        document.getElementById("stat-tiempo").innerText = "Fin";
+
+        if (AppState.esHost) {
+            // Eliminar la sala de Firebase 1 minuto después de finalizada
+            setTimeout(() => {
+                db.ref("salas/" + AppState.miCodigoSala).remove().catch(() => {});
+            }, 60000);
+        }
+    },
+
+    salirDeSalaLobby() {
+        if (AppState.miCodigoSala && AppState.salaListener) {
+            db.ref("salas/" + AppState.miCodigoSala).off("value", AppState.salaListener);
+        }
+        AppState.modoMulti = false;
+        AppState.esHost = false;
+        AppState.miCodigoSala = "";
+        UIController.mostrarPantalla("pantalla-inicio");
+    }
+};
+
+// ==========================================
+// 7. CONTROLADOR DE INTERFAZ (UI/UX)
+// ==========================================
+const UIController = {
+    mostrarPantalla(id) {
+        document.querySelectorAll(".screen-section").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById(id);
+        if (target) target.classList.add("active");
+    },
+
+    obtenerNickname() {
+        const input = document.getElementById("player-nickname").value.trim();
+        return input ? input : "Jugador" + Math.floor(Math.random() * 90 + 10);
+    },
+
+    setEstadoTexto(txt) {
+        document.getElementById("estado").innerText = txt;
+    },
+
+    setSoundwaveActive(activo) {
+        const bars = document.querySelectorAll(".wave-bar");
+        bars.forEach(b => {
+            if (activo) b.classList.add("animating");
+            else b.classList.remove("animating");
+        });
+    },
+
+    actualizarBarraTimer(porcentaje, clockTexto, phaseLabel, esFaseRespuesta) {
+        const bar = document.getElementById("timer-progress-bar");
+        const clock = document.getElementById("timer-clock");
+        const label = document.getElementById("timer-phase-label");
+
+        bar.style.width = Math.max(0, Math.min(100, porcentaje)) + "%";
+        clock.innerText = clockTexto;
+        label.innerText = phaseLabel;
+
+        if (esFaseRespuesta) {
+            bar.classList.add("answering-phase");
+        } else {
+            bar.classList.remove("answering-phase");
+        }
+    },
+
+    mostrarFeedback(mensaje, esOk) {
+        const banner = document.getElementById("feedback-banner");
+        banner.innerText = mensaje;
+        banner.className = esOk ? "feedback-correcto" : "feedback-incorrecto";
+        banner.style.display = "block";
+    },
+
+    ocultarFeedback() {
+        document.getElementById("feedback-banner").style.display = "none";
+    },
+
+    actualizarVidasUI() {
+        let corazones = "";
+        for (let i = 0; i < AppState.vidas; i++) corazones += "❤️";
+        for (let i = AppState.vidas; i < 3; i++) corazones += "🖤";
+        document.getElementById("vidas-display").innerText = corazones;
+        document.getElementById("racha-display").innerText = `⚡ Racha: ${AppState.racha}/3`;
+    },
+
+    limpiarOpciones() {
+        document.getElementById("opciones").innerHTML = "";
+    },
+
+    renderizarOpciones(opciones, onSelect) {
+        const cont = document.getElementById("opciones");
+        cont.innerHTML = "";
+        opciones.forEach(op => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerHTML = `<span>${op}</span> <span>🎵</span>`;
+            btn.onclick = () => onSelect(op, btn);
+            cont.appendChild(btn);
+        });
+    },
+
+    mostrarToast(mensaje) {
+        const toast = document.getElementById("app-toast");
+        document.getElementById("toast-text").innerText = mensaje;
+        toast.classList.add("visible");
+        setTimeout(() => toast.classList.remove("visible"), 3200);
+    }
+};
+
+// ==========================================
+// 8. FUNCIONES GLOBALES / COMPATIBILIDAD HTML
+// ==========================================
+function mostrarLobby() {
+    AudioController.desbloquearContexto();
+    AppState.miNickname = UIController.obtenerNickname();
+    UIController.mostrarPantalla("pantalla-lobby");
+    document.getElementById("lobby-join-area").style.display = "block";
+    document.getElementById("lobby-wait-area").style.display = "none";
+}
+
+function cancelarLobby() {
+    MultiplayerManager.salirDeSalaLobby();
+}
+
+function crearSala() {
+    MultiplayerManager.crearSala();
+}
+
+function unirseASala() {
+    MultiplayerManager.unirseASala();
+}
+
+function iniciarPartidaHost() {
+    MultiplayerManager.iniciarPartidaHost();
+}
+
+function copiarCodigoSala() {
+    if (!AppState.miCodigoSala) return;
+    navigator.clipboard.writeText(AppState.miCodigoSala).then(() => {
+        UIController.mostrarToast("¡Código copiado al portapapeles! 📋");
+    });
+}
+
+function iniciarReproduccionManual() {
+    AudioController.reproducir5Segundos();
 }
 
 function reiniciarJuego() {
-    document.getElementById("pantalla-final").style.display = "none";
-    document.getElementById("pantalla-inicio").style.display = "block";
+    AudioController.detenerTodo();
+    if (AppState.modoMulti) {
+        MultiplayerManager.salirDeSalaLobby();
+    } else {
+        UIController.mostrarPantalla("pantalla-inicio");
+    }
 }
 
+// Compartir y Redes Sociales
 function obtenerUrlDesafio() {
     const sel = document.getElementById("categoria");
-    return `${window.location.href.split('?')[0]}?cat=${encodeURIComponent(sel.value)}`;
+    const baseUrl = window.location.href.split('?')[0];
+    return `${baseUrl}?cat=${encodeURIComponent(sel.value)}`;
 }
 
 function compartirWhatsApp() {
     const shareUrl = obtenerUrlDesafio();
-    const msg = `🔥 ¡Hice ${puntaje} puntos en "Adivina la Canción" (${categoriaTexto})!\n\n¿Te crees capaz de ganarme? Juega aquí: ${shareUrl}`;
+    const puntos = AppState.modoMulti ? "varias rondas" : `${AppState.puntaje} puntos`;
+    const msg = `🔥 ¡Hice ${puntos} en "Adivina la Canción 🎵" (${AppState.categoriaTexto})!\n\n¿Te atreves a superarme? Juega gratis aquí:\n${shareUrl}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function generarImagenEInstagram() {
     const shareUrl = obtenerUrlDesafio();
     const el = document.getElementById("tarjeta-resultado");
+    
+    // Copiar enlace al portapapeles preventivamente
     navigator.clipboard.writeText(shareUrl);
 
-    html2canvas(el, { backgroundColor: "#121212" }).then(canvas => {
+    // Captura optimizada en alta definición con html2canvas
+    html2canvas(el, {
+        backgroundColor: "#0c0f14",
+        scale: 2,
+        useCORS: true,
+        logging: false
+    }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `desafío-adivina-canción-${puntaje}pts.png`;
+        link.download = `desafio-adivina-cancion-${AppState.puntaje}pts.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
+        
         document.getElementById("modal-ig").style.display = "flex";
+    }).catch(err => {
+        console.error("Error al generar imagen:", err);
+        UIController.mostrarToast("Enlace copiado al portapapeles 📋");
     });
 }
 
@@ -853,9 +2171,36 @@ function cerrarModalInstagram() {
     window.location.href = "instagram://story-camera";
 }
 
-function copiarEnlaceDirecto() {
-    navigator.clipboard.writeText(obtenerUrlDesafio()).then(() => mostrarFeedback("🔗 ¡Enlace copiado!", true));
+function cerrarSoloModal() {
+    document.getElementById("modal-ig").style.display = "none";
 }
+
+function copiarEnlaceDirecto() {
+    navigator.clipboard.writeText(obtenerUrlDesafio()).then(() => {
+        UIController.mostrarToast("🔗 ¡Enlace del desafío copiado!");
+    });
+}
+
+// Inicialización de Parámetros URL (deep linking de categorías)
+window.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const catParam = params.get("cat");
+    if (catParam) {
+        const select = document.getElementById("categoria");
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === catParam) {
+                select.selectedIndex = i;
+                UIController.mostrarToast(`Categoría seleccionada: ${select.options[i].text}`);
+                break;
+            }
+        }
+    }
+
+    // Desbloquear audio con el primer toque en pantalla
+    document.addEventListener("click", () => {
+        AudioController.desbloquearContexto();
+    }, { once: true });
+});
 </script>
 
 </body>
