@@ -744,7 +744,6 @@
             Escucha 5 segundos y adivina el título y artista antes que nadie.
         </p>
         
-        <!-- Apodo sugerido actualizado a un ejemplo neutral no personal -->
         <input type="text" id="player-nickname" placeholder="Tu Nickname (Ej: Leo)" maxlength="12" autocomplete="off" spellcheck="false">
         
         <div style="margin-top: 8px;">
@@ -769,7 +768,7 @@
             <span id="lobby-mode-badge" class="status-pill pill-purple">Modo: 🎵 Adivina</span>
         </div>
         <p class="subtitle" id="lobby-subtitulo">Compite en tiempo real con amigos por velocidad y precisión.</p>
-        
+
         <div id="lobby-join-area">
             <button class="btn-block" onclick="crearSala()">🏠 Crear Nueva Sala</button>
             <div style="display: flex; align-items: center; gap: 10px; margin: 16px 0;">
@@ -862,7 +861,7 @@
 
     <!-- PANTALLA 4: RANKING EN VIVO ENTRE RONDAS -->
     <div id="pantalla-ranking" class="screen-section">
-        <h2 style="color: var(--spotify-green); margin-bottom: 4px;">Resultados de la Ronda ⏱️️</h2>
+        <h2 style="color: var(--spotify-green); margin-bottom: 4px;">Resultados de la Ronda ⏱️</h2>
         <p class="subtitle" style="margin-bottom: 14px;">Bonificación por velocidad y precisión</p>
 
         <div style="background: rgba(0,0,0,0.25); border-radius: var(--radius-btn); padding: 8px 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.06); text-align: left;">
@@ -1001,8 +1000,6 @@ const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COL
 // ==========================================
 // 3. BASE DE DATOS CON TIMESTAMP EXACTO (startTime)
 // ==========================================
-// La propiedad startTime indica el segundo exacto en la vista previa de iTunes
-// donde suena el verso inicial de la trivia.
 const BANCO_COMPLETA_LETRA = [
     {
         id: "dia_de_enero",
@@ -1235,7 +1232,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Chayanne",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Chayanne Torero",
-        startTime: 11.5,
+        startTime: 0.0, // 👈 Se ajusta a 0.0s para sincronizar exactamente con "De lunes a domingo..."
         verso: "De lunes a domingo voy desesperado...",
         correcta: "El corazón bombeando al ritmo de un motor",
         falsas: [
@@ -1530,12 +1527,10 @@ const AudioController = {
         UIController.setSoundwaveActive(false);
     },
 
-    // Acepta startTimeSegs para iniciar el audio en la posición exacta del verso
     reproducirConControl(duracionSegs, startTimeSegs = 0, onCorteAudio, onTimeoutTotal) {
         this.detenerTodo();
         this.duracionAudioSegundos = duracionSegs || 5;
         
-        // Ajuste de inicio
         audio.currentTime = startTimeSegs || 0;
 
         const playPromise = audio.play();
@@ -1930,7 +1925,6 @@ function configurarRondaSolitario(data) {
         verificarRespuestaSolitario(opcionSeleccionada, data.solucion, btn);
     });
 
-    // Pasa startTime para posicionar el audio exactamente donde suena la letra
     AudioController.reproducirConControl(
         data.duracionSegs || 5,
         data.startTime || 0,
@@ -2615,7 +2609,6 @@ const UIController = {
         if (target) target.classList.add("active");
     },
 
-    // Generador neutral de nickname por defecto
     obtenerNickname() {
         const input = document.getElementById("player-nickname").value.trim();
         return input ? input : "Jugador" + Math.floor(Math.random() * 90 + 10);
