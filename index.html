@@ -62,7 +62,6 @@
             overflow-x: hidden;
         }
 
-        /* Ambient neon background glow */
         body::before {
             content: '';
             position: fixed;
@@ -92,7 +91,6 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Mode Selector Tabs (Adivina Canción vs Completa la Letra) */
         .mode-selector-tabs {
             display: flex;
             background: rgba(255, 255, 255, 0.05);
@@ -140,7 +138,6 @@
             box-shadow: 0 4px 15px var(--neon-purple-glow);
         }
 
-        /* Screen Transitions */
         .screen-section {
             display: none;
             animation: fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -161,7 +158,6 @@
             }
         }
 
-        /* Typography */
         h1 {
             font-size: 26px;
             font-weight: 800;
@@ -185,7 +181,6 @@
             line-height: 1.45;
         }
 
-        /* Inputs & Form Controls */
         input[type="text"] {
             width: 100%;
             background: rgba(255, 255, 255, 0.05);
@@ -241,7 +236,6 @@
             font-family: inherit;
         }
 
-        /* Buttons System */
         button {
             background: var(--spotify-green);
             color: #0c0f14;
@@ -328,7 +322,6 @@
             box-shadow: 0 8px 22px rgba(220, 39, 67, 0.45);
         }
 
-        /* Option buttons in Game */
         .option-btn {
             display: flex;
             align-items: center;
@@ -377,7 +370,6 @@
             font-weight: 700;
         }
 
-        /* Status Bar & Badges */
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -420,7 +412,6 @@
             gap: 4px;
         }
 
-        /* Lyric Cutoff Box (Nuevo para Completa la Letra) */
         .lyric-box {
             background: linear-gradient(145deg, rgba(168, 85, 247, 0.12), rgba(6, 182, 212, 0.08));
             border: 1px solid rgba(168, 85, 247, 0.3);
@@ -470,7 +461,6 @@
             100% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 12px rgba(239, 68, 68, 0.5); }
         }
 
-        /* Soundwave & Audio Progress Bar */
         .audio-playback-card {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.07);
@@ -548,7 +538,6 @@
             background: linear-gradient(90deg, var(--amber-gold), var(--danger-red));
         }
 
-        /* Feedback Banner */
         #feedback-banner {
             display: none;
             padding: 12px 16px;
@@ -571,7 +560,6 @@
             color: var(--danger-red);
         }
 
-        /* Rankings & Podium UI */
         .ranking-list {
             list-style: none;
             padding: 0;
@@ -617,7 +605,6 @@
             gap: 6px;
         }
 
-        /* Result Card (Designed for Instagram/WhatsApp html2canvas Capture) */
         #tarjeta-resultado {
             background: linear-gradient(145deg, #12161f 0%, #1a2230 100%);
             border: 1.5px solid rgba(30, 215, 96, 0.4);
@@ -665,7 +652,6 @@
             margin: 18px 0;
         }
 
-        /* Modal Instagram */
         #modal-ig {
             display: none;
             position: fixed;
@@ -693,7 +679,6 @@
             animation: fadeInScale 0.3s ease;
         }
 
-        /* Floating Toast Notification */
         #app-toast {
             position: fixed;
             bottom: 24px;
@@ -746,7 +731,6 @@
 
     <!-- PANTALLA 1: INICIO -->
     <div id="pantalla-inicio" class="screen-section active">
-        <!-- Selector de Modo de Juego -->
         <div class="mode-selector-tabs">
             <button id="tab-mode-cancion" class="mode-tab active" onclick="cambiarModoJuegoPrincipal('adivinar_cancion')">
                 <span>🎵</span> Adivinar Tema
@@ -760,14 +744,13 @@
             Escucha 5 segundos y adivina el título y artista antes que nadie.
         </p>
         
-        <input type="text" id="player-nickname" placeholder="Tu Nickname (Ej: Ale)" maxlength="12" autocomplete="off" spellcheck="false">
+        <!-- Apodo sugerido actualizado a un ejemplo neutral no personal -->
+        <input type="text" id="player-nickname" placeholder="Tu Nickname (Ej: Leo)" maxlength="12" autocomplete="off" spellcheck="false">
         
         <div style="margin-top: 8px;">
             <label class="select-label" for="categoria" id="categoria-label">👇 Selecciona Categoría Musical</label>
             <div class="select-container">
-                <select id="categoria">
-                    <!-- Se llena dinámicamente según el modo seleccionado -->
-                </select>
+                <select id="categoria"></select>
             </div>
         </div>
 
@@ -820,7 +803,6 @@
 
     <!-- PANTALLA 3: JUEGO (SOLO & MULTI) -->
     <div id="pantalla-juego" class="screen-section">
-        <!-- Barra de estado Solitario -->
         <div id="ui-solitario">
             <div class="status-bar">
                 <span class="status-pill pill-green">Puntos: <span id="puntaje" style="color: #fff;">0</span></span>
@@ -829,7 +811,6 @@
             </div>
         </div>
 
-        <!-- Barra de estado Multijugador -->
         <div id="ui-multi" style="display: none;">
             <div class="status-bar">
                 <span class="status-pill pill-purple">Ronda <span id="ronda-actual-display" style="color: #fff;">1</span>/10</span>
@@ -842,10 +823,8 @@
             <span id="categoria-badge" class="status-pill pill-gold" style="font-size: 11px;">Música</span>
         </div>
 
-        <!-- Banner de Feedback -->
         <div id="feedback-banner"></div>
 
-        <!-- Caja de Letra Cortada (Exclusiva para el modo Completa la Letra) -->
         <div id="box-letra-container" class="lyric-box" style="display: none;">
             <div class="lyric-tag" id="lyric-status-tag">🎙️ ESCUCHA ATENTAMENTE...</div>
             <div class="lyric-snippet" id="lyric-snippet-txt">"..."</div>
@@ -854,7 +833,6 @@
             </div>
         </div>
 
-        <!-- Tarjeta de Audio y Temporizador Visual -->
         <div class="audio-playback-card">
             <div class="soundwave-box" id="soundwave-container">
                 <div class="wave-bar"></div>
@@ -875,18 +853,16 @@
 
         <p id="estado" style="font-size: 14px; font-weight: 700; color: #cbd5e1; margin-bottom: 12px;">Cargando tema musical...</p>
 
-        <!-- Botón de Reproducción Manual / Desbloqueo de Audio -->
         <button id="btn-play" class="btn-block" onclick="iniciarReproduccionManual()" disabled>
             <span>🔊</span> Escuchar Audio
         </button>
 
-        <!-- Opciones de Respuesta -->
         <div id="opciones" style="margin-top: 14px;"></div>
     </div>
 
     <!-- PANTALLA 4: RANKING EN VIVO ENTRE RONDAS -->
     <div id="pantalla-ranking" class="screen-section">
-        <h2 style="color: var(--spotify-green); margin-bottom: 4px;">Resultados de la Ronda ⏱️</h2>
+        <h2 style="color: var(--spotify-green); margin-bottom: 4px;">Resultados de la Ronda ⏱️️</h2>
         <p class="subtitle" style="margin-bottom: 14px;">Bonificación por velocidad y precisión</p>
 
         <div style="background: rgba(0,0,0,0.25); border-radius: var(--radius-btn); padding: 8px 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.06); text-align: left;">
@@ -977,21 +953,12 @@
     </div>
 </div>
 
-<!-- Toast flotante para mensajes y feedback -->
 <div id="app-toast"><span>🔔</span> <span id="toast-text">Mensaje</span></div>
 
-<!-- Audio Players (Principal y Preloader) -->
 <audio id="audio-player" preload="auto" crossorigin="anonymous"></audio>
 <audio id="audio-preloader" preload="auto" crossorigin="anonymous" muted></audio>
 
 <script>
-/**
- * ====================================================================
- * ADIVINA LA CANCIÓN & COMPLETA LA LETRA 🎵🎤
- * Modos: Adivinar Canción | Completa la Letra (Solo y Multijugador)
- * ====================================================================
- */
-
 // ==========================================
 // 1. CONFIGURACIÓN FIREBASE
 // ==========================================
@@ -1013,72 +980,52 @@ const db = firebase.database();
 // ==========================================
 const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
 
-const ARTISTAS_DISNEY_MUSICALES = [
-    "High School Musical", "Camp Rock", "Descendants Cast", "Teen Beach Movie", 
-    "Hannah Montana", "Violetta", "Soy Luna", "Encanto Soundtrack", 
-    "Frozen Soundtrack", "Moana", "Coco Soundtrack", "The Lion King", 
-    "Aladdin", "Tangled", "Hercules Soundtrack", "Beauty and the Beast", 
-    "The Little Mermaid", "Phineas and Ferb"
-];
-
-const ARTISTAS_INFANTIL = [
-    "Gallina Pintadita", "La Granja de Zenón", "El Reino Infantil", "31 Minutos", 
-    "Cantando Aprendo a Hablar", "Encanto Banda Sonora", "Frozen en Español", 
-    "Moana en Español", "Coco Banda Sonora", "Disney en Español", "Bluey en Español", 
-    "Paw Patrol en Español", "Plim Plim", "Luli Pampin", "Pica-Pica", 
-    "Mundo Bita en Español", "Peppa Pig en Español"
-];
-
-const ARTISTAS_CHILE = [
-    "Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", 
-    "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", 
-    "Chancho en Piedra", "Joe Vasconcellos", "Chico Trujillo", "Lucybell", "Javier Mena", "Kidd Voodoo", 
-    "Los Jaivas", "Kudai", "Nicole Chile", "Saiko Chile", "Santaferia", "Villa Cariño", "Movimiento Original", "Tiro de Gracia"
-];
-
-const ARTISTAS_ARGENTINA = [
-    "Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", 
-    "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", 
-    "Los Auténticos Decadentes", "Andres Calamaro", "Airbag Argentina", "Miranda! Argentina", "Babasonicos", 
-    "Vicentico", "La Renga", "Los Pericos", "Vilma Palma e Vampiros", "Cazzu", "Khea", "Lit Killah", "FMK"
-];
-
-const ARTISTAS_MEXICO = [
-    "Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik Pop", "Zoé", 
-    "Alejandro Fernandez", "Thalia", "Paulina Rubio", "Marco Antonio Solis", "Julieta Venegas", "Belinda", 
-    "Christian Nodal", "Gloria Trevi", "Jesse & Joy", "Carlos Rivera", "Yuridia", "Camila Pop", "Sin Bandera", 
-    "Ha*Ash", "Emmanuel", "Mijares", "Juan Gabriel"
-];
-
-const ARTISTAS_ROMANTICAS = [
-    "Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", "Camila Pop", "Pablo Alboran", 
-    "Alejandro Sanz", "Reik Pop", "Franco de Vita", "Cristian Castro", "David Bisbal", "Marco Antonio Solis", 
-    "Ha*Ash", "Laura Pausini", "Alejandro Fernandez", "Yuri", "Kany Garcia", "Fonseca", "Andres Cepeda", 
-    "Rocío Dúrcal", "Ana Gabriel", "Myriam Hernández", "Luciano Pereyra", "Noel Schajris", "Axel", "Gian Marco", "Alex Ubago"
-];
-
-const ARTISTAS_COLOMBIA = ["Shakira", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "Karol G", "Sebastian Yatra", "Morat", "Camilo", "Feid", "Manuel Turizo", "Fonseca", "Andres Cepeda", "Grupo Niche", "Aterciopelados"];
-const ARTISTAS_USA = ["Michael Jackson", "Madonna", "Eminem", "Taylor Swift", "Bruno Mars", "Katy Perry", "Beyonce", "Post Malone", "Billie Eilish", "Ariana Grande", "Lady Gaga", "Britney Spears", "Usher", "Justin Timberlake", "Maroon 5"];
-const ARTISTAS_SOLISTAS = ["Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", "Dua Lipa", "Bruno Mars", "Adele", "Rihanna", "Eminem", "Billie Eilish", "Harry Styles", "Justin Bieber", "Lady Gaga", "Beyonce", "Shawn Mendes", "Mon Laferte", "Luis Miguel", "Rosalia", "The Weeknd", "Olivia Rodrigo", "Post Malone"];
-const GRUPOS_DUS = ["Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5", "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons", "KISS", "Bacilos", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "CNCO", "Morat", "Reik Pop", "Maná", "Outkast", "RBD"];
-const ARTISTAS_ROCK_BANDAS = ["Queen", "Metallica", "ACDC", "Guns N Roses", "Nirvana", "Red Hot Chili Peppers", "The Beatles", "Pink Floyd", "Led Zeppelin", "Aerosmith", "Bon Jovi", "Linkin Park", "Green Day", "The Rolling Stones", "Foo Fighters", "Pearl Jam", "U2", "Radiohead", "KISS", "Iron Maiden"];
-const ARTISTAS_URBANO = ["Bad Bunny", "Daddy Yankee", "Karol G", "Rauw Alejandro", "J Balvin", "Maluma", "Don Omar", "Wisin & Yandel", "Ozuna", "Anuel AA", "Feid", "Myke Towers", "Arcangel", "Nicky Jam", "Zion & Lennox", "Cris Mj", "Ryan Castro"];
-const ARTISTAS_POP_LATINO = ["Ricky Martin", "Shakira", "Enrique Iglesias", "Chayanne", "Thalia", "Paulina Rubio", "Carlos Vives", "Gloria Trevi", "Luis Fonsi", "Bacilos", "Sebastian Yatra", "Camilo", "Danna Paola", "Belinda", "Fonseca"];
-const ARTISTAS_ELECTRONICA = ["Daft Punk", "Avicii", "David Guetta", "Calvin Harris", "Tiësto", "Martin Garrix", "Swedish House Mafia", "Skrillex", "Marshmello", "Kygo", "The Chainsmokers", "DJ Snake", "Alan Walker", "Armin van Buuren"];
-const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "TAEMIN", "ITZY", "TXT", "ENHYPEN", "IVE", "LE SSERAFIM", "Red Velvet", "NCT 127", "AESPA", "IU", "Jungkook", "Agust D", "BIGBANG", "SHINee", "Super Junior"];
-const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Joe Hisaishi", "Ghibli", "Attack on Titan Original Soundtrack", "Naruto Original Soundtrack", "Super Mario Bros Theme", "The Legend of Zelda Theme", "Harry Potter Soundtrack", "Interstellar Soundtrack", "Marvel Studios Soundtrack"];
-const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL, ...ARTISTAS_DISNEY_MUSICALES];
+const ARTISTAS_DISNEY_MUSICALES = ["High School Musical", "Camp Rock", "Descendants Cast", "Teen Beach Movie", "Hannah Montana", "Violetta", "Soy Luna", "Encanto Soundtrack", "Frozen Soundtrack", "Moana", "Coco Soundtrack", "The Lion King", "Aladdin", "Tangled", "Beauty and the Beast"];
+const ARTISTAS_INFANTIL = ["Gallina Pintadita", "La Granja de Zenón", "El Reino Infantil", "31 Minutos", "Cantando Aprendo a Hablar", "Encanto Banda Sonora", "Frozen en Español", "Disney en Español"];
+const ARTISTAS_CHILE = ["Los Prisioneros", "Los Bunkers", "Mon Laferte", "Manuel Garcia", "Gepe", "Los Tres", "La Ley", "Gondwana", "Cris Mj", "Polimá Westcoast", "Paloma Mami", "Jere Klein", "Pailita", "Young Cister", "Los Jaivas", "Kudai"];
+const ARTISTAS_ARGENTINA = ["Bizarrap", "BZRP", "Soda Stereo", "Fito Paez", "Charly Garcia", "Duki", "Nicki Nicole", "Gustavo Cerati", "Enanitos Verdes", "Los Fabulosos Cadillacs", "Tiago PZK", "Maria Becerra", "Emilia", "TINI", "Trueno", "Miranda! Argentina"];
+const ARTISTAS_MEXICO = ["Maná", "Luis Miguel", "RBD", "Natalia Lafourcade", "Peso Pluma", "Vicente Fernandez", "Reik Pop", "Zoé", "Alejandro Fernandez", "Julieta Venegas", "Belinda", "Christian Nodal", "Jesse & Joy"];
+const ARTISTAS_ROMANTICAS = ["Luis Miguel", "Chayanne", "Sin Bandera", "Ricardo Arjona", "Mon Laferte", "Camila Pop", "Pablo Alboran", "Alejandro Sanz", "Reik Pop", "Franco de Vita", "Cristian Castro", "David Bisbal", "Laura Pausini"];
+const ARTISTAS_COLOMBIA = ["Shakira", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "Karol G", "Sebastian Yatra", "Morat", "Camilo", "Feid", "Manuel Turizo"];
+const ARTISTAS_USA = ["Michael Jackson", "Madonna", "Eminem", "Taylor Swift", "Bruno Mars", "Katy Perry", "Beyonce", "Post Malone", "Billie Eilish", "Ariana Grande", "Lady Gaga", "Britney Spears"];
+const ARTISTAS_SOLISTAS = ["Ed Sheeran", "Taylor Swift", "Bad Bunny", "Shakira", "Michael Jackson", "Dua Lipa", "Bruno Mars", "Adele", "Rihanna", "Eminem", "Billie Eilish", "Harry Styles", "Justin Bieber"];
+const GRUPOS_DUS = ["Daft Punk", "Coldplay", "Gorillaz", "The Black Eyed Peas", "Maroon 5", "Twenty One Pilots", "The Chainsmokers", "One Direction", "Imagine Dragons", "Los Prisioneros", "Soda Stereo", "Jesse & Joy", "Morat", "Maná"];
+const ARTISTAS_ROCK_BANDAS = ["Queen", "Metallica", "ACDC", "Guns N Roses", "Nirvana", "Red Hot Chili Peppers", "The Beatles", "Pink Floyd", "Led Zeppelin", "Aerosmith", "Bon Jovi", "Linkin Park", "Green Day"];
+const ARTISTAS_URBANO = ["Bad Bunny", "Daddy Yankee", "Karol G", "Rauw Alejandro", "J Balvin", "Maluma", "Don Omar", "Wisin & Yandel", "Ozuna", "Anuel AA", "Feid", "Myke Towers", "Cris Mj"];
+const ARTISTAS_POP_LATINO = ["Ricky Martin", "Shakira", "Enrique Iglesias", "Chayanne", "Thalia", "Paulina Rubio", "Carlos Vives", "Luis Fonsi", "Sebastian Yatra", "Camilo"];
+const ARTISTAS_ELECTRONICA = ["Daft Punk", "Avicii", "David Guetta", "Calvin Harris", "Tiësto", "Martin Garrix", "Skrillex", "Marshmello", "The Chainsmokers"];
+const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "ITZY", "TXT", "ENHYPEN", "IVE", "AESPA"];
+const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Ghibli", "Super Mario Bros Theme", "Harry Potter Soundtrack"];
+const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL];
 
 // ==========================================
-// 3. BASE DE DATOS CURADA: COMPLETA LA LETRA 🎤
+// 3. BASE DE DATOS CON TIMESTAMP EXACTO (startTime)
 // ==========================================
+// La propiedad startTime indica el segundo exacto en la vista previa de iTunes
+// donde suena el verso inicial de la trivia.
 const BANCO_COMPLETA_LETRA = [
+    {
+        id: "dia_de_enero",
+        titulo: "Día de Enero",
+        artista: "Shakira",
+        categoria: "LETRA_POP_LATINO",
+        busqueda: "Shakira Dia de Enero",
+        startTime: 11.5,
+        verso: "Y ahora que andamos por el mundo como Eneas y Benitín...",
+        correcta: "Ya te encontré varios rasguños que te hicieron por ahí",
+        falsas: [
+            "Ya vas a ver cómo van sanando poco a poco tus heridas",
+            "Y si entre todos los errores desafías la razón",
+            "Con tal de verte sonreír y no verte llorar jamás"
+        ]
+    },
     {
         id: "lamento_boliviano",
         titulo: "Lamento Boliviano",
         artista: "Los Enanitos Verdes",
         categoria: "LETRA_ROCK",
         busqueda: "Enanitos Verdes Lamento Boliviano",
+        startTime: 14.0,
         verso: "Y hoy estoy aquí, borracho y loco...",
         correcta: "Y mi corazón idiota siempre brillará",
         falsas: [
@@ -1093,6 +1040,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Luis Fonsi ft. Daddy Yankee",
         categoria: "LETRA_URBANO",
         busqueda: "Luis Fonsi Despacito",
+        startTime: 12.0,
         verso: "Quiero respirar tu cuello despacito...",
         correcta: "Deja que te diga cosas al oído",
         falsas: [
@@ -1107,6 +1055,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Soda Stereo",
         categoria: "LETRA_ROCK",
         busqueda: "Soda Stereo De Musica Ligera",
+        startTime: 10.0,
         verso: "Ella durmió al calor de las masas...",
         correcta: "Y yo desperté queriendo soñarla",
         falsas: [
@@ -1121,6 +1070,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Bizarrap & Shakira",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Bizarrap Shakira Bzrp Music Sessions",
+        startTime: 15.0,
         verso: "Una loba como yo no está pa' novatos...",
         correcta: "Una loba como yo no está pa' tipos como tú",
         falsas: [
@@ -1135,6 +1085,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Daddy Yankee",
         categoria: "LETRA_URBANO",
         busqueda: "Daddy Yankee Gasolina",
+        startTime: 8.0,
         verso: "¿A ella le gusta la gasolina?...",
         correcta: "¡Dame más gasolina!",
         falsas: [
@@ -1149,6 +1100,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Mon Laferte",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Mon Laferte Tu Falta de Querer",
+        startTime: 13.5,
         verso: "Ven y cuéntame la verdad...",
         correcta: "Ten piedad y dime por qué, cómo fue que me dejaste de amar",
         falsas: [
@@ -1163,6 +1115,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Farruko",
         categoria: "LETRA_URBANO",
         busqueda: "Farruko Pepas",
+        startTime: 10.0,
         verso: "No me importa lo que de mí se diga...",
         correcta: "Viva usted su vida, que yo vivo la mía",
         falsas: [
@@ -1177,6 +1130,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Luis Miguel",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Luis Miguel La Incondicional",
+        startTime: 12.0,
         verso: "Tú, la misma siempre tú...",
         correcta: "Amistad, ternura, ¡qué sé yo!",
         falsas: [
@@ -1191,6 +1145,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Los Prisioneros",
         categoria: "LETRA_ROCK",
         busqueda: "Los Prisioneros Tren al Sur",
+        startTime: 9.0,
         verso: "Siento el vapor de un humo que me hace...",
         correcta: "Volver a escapar, y siento el silbato de un tren al sur",
         falsas: [
@@ -1205,6 +1160,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Peso Pluma & Eslabón Armado",
         categoria: "LETRA_URBANO",
         busqueda: "Eslabon Armado Peso Pluma Ella Baila Sola",
+        startTime: 11.0,
         verso: "Compa, ¿qué le parece esa morra?...",
         correcta: "La que anda bailando sola me gusta pa' mí",
         falsas: [
@@ -1219,6 +1175,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Karol G",
         categoria: "LETRA_URBANO",
         busqueda: "Karol G Provenza",
+        startTime: 10.5,
         verso: "Baby, ¿qué más? Hace rato que no sé na' de ti...",
         correcta: "Estaba con alguien pero ya estoy free",
         falsas: [
@@ -1233,6 +1190,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Queen",
         categoria: "LETRA_INGLES",
         busqueda: "Queen Bohemian Rhapsody",
+        startTime: 15.0,
         verso: "Mama, just killed a man...",
         correcta: "Put a gun against his head, pulled my trigger, now he's dead",
         falsas: [
@@ -1247,6 +1205,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Andrés Calamaro",
         categoria: "LETRA_ROCK",
         busqueda: "Andres Calamaro Flaca",
+        startTime: 12.0,
         verso: "Flaca, no me claves tus puñales...",
         correcta: "Por la espalda, tan profundo, no me duelen, no me hacen mal",
         falsas: [
@@ -1261,6 +1220,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Maná",
         categoria: "LETRA_ROCK",
         busqueda: "Mana Rayando el Sol",
+        startTime: 10.0,
         verso: "Rayando el sol, desesperación...",
         correcta: "Es más fácil llegar al sol que a tu corazón",
         falsas: [
@@ -1275,6 +1235,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Chayanne",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Chayanne Torero",
+        startTime: 11.5,
         verso: "De lunes a domingo voy desesperado...",
         correcta: "El corazón bombeando al ritmo de un motor",
         falsas: [
@@ -1289,6 +1250,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Don Omar & Lucenzo",
         categoria: "LETRA_URBANO",
         busqueda: "Don Omar Danza Kuduro",
+        startTime: 14.0,
         verso: "La mano arriba, cintura sola...",
         correcta: "Da media vuelta, danza kuduro",
         falsas: [
@@ -1303,6 +1265,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Los Ángeles Azules",
         categoria: "LETRA_FIESTA",
         busqueda: "Los Angeles Azules 17 Anos",
+        startTime: 13.0,
         verso: "Amigo, ¿sabes qué? Ella tiene sólo...",
         correcta: "17 años, es callada, tímida, inocente y tiene la mirada",
         falsas: [
@@ -1317,6 +1280,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Soda Stereo",
         categoria: "LETRA_ROCK",
         busqueda: "Soda Stereo Persiana Americana",
+        startTime: 12.0,
         verso: "No voy a parar...",
         correcta: "Hasta verla bailar entre sombras y luz de neón",
         falsas: [
@@ -1331,6 +1295,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Disney Frozen",
         categoria: "LETRA_DISNEY",
         busqueda: "Libre Soy Frozen Espanol",
+        startTime: 10.0,
         verso: "Libre soy, libre soy...",
         correcta: "No puedo ocultarlo más",
         falsas: [
@@ -1345,6 +1310,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Disney Aladdín",
         categoria: "LETRA_DISNEY",
         busqueda: "Un Mundo Ideal Aladdin Espanol",
+        startTime: 11.0,
         verso: "Un mundo ideal...",
         correcta: "Un mundo en el que tú y yo podamos decidir cómo vivir",
         falsas: [
@@ -1359,6 +1325,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Disney Encanto",
         categoria: "LETRA_DISNEY",
         busqueda: "No Se Habla de Bruno Encanto Espanol",
+        startTime: 9.0,
         verso: "No se habla de Bruno, no, no, no...",
         correcta: "¡No se habla de Bruno!",
         falsas: [
@@ -1373,6 +1340,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Las Ketchup",
         categoria: "LETRA_FIESTA",
         busqueda: "Las Ketchup Asereje",
+        startTime: 12.0,
         verso: "Y donde más no cabe un alma, ahí se mete a darse caña...",
         correcta: "Poseído por el ritmo ragatanga",
         falsas: [
@@ -1387,6 +1355,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Backstreet Boys",
         categoria: "LETRA_INGLES",
         busqueda: "Backstreet Boys I Want It That Way",
+        startTime: 10.0,
         verso: "Tell me why...",
         correcta: "Ain't nothin' but a heartache",
         falsas: [
@@ -1401,6 +1370,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Michael Jackson",
         categoria: "LETRA_INGLES",
         busqueda: "Michael Jackson Billie Jean",
+        startTime: 14.0,
         verso: "Billie Jean is not my lover...",
         correcta: "She's just a girl who claims that I am the one",
         falsas: [
@@ -1415,6 +1385,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Journey",
         categoria: "LETRA_INGLES",
         busqueda: "Journey Dont Stop Believin",
+        startTime: 11.0,
         verso: "Just a small town girl, livin' in a lonely world...",
         correcta: "She took the midnight train goin' anywhere",
         falsas: [
@@ -1429,6 +1400,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Carlos Vives & Shakira",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Carlos Vives Shakira La Bicicleta",
+        startTime: 12.0,
         verso: "Que si a Piqué tú le muestras el Tayrona...",
         correcta: "Después no va a querer irse pa' Barcelona",
         falsas: [
@@ -1439,7 +1411,6 @@ const BANCO_COMPLETA_LETRA = [
     }
 ];
 
-// Categorías según el modo de juego
 const CATEGORIAS_ADIVINAR = [
     { value: "AZAR", label: "🎲 Al Azar / De Todo (Mezclado)" },
     { group: "Cultura Pop & Cine", options: [
@@ -1465,13 +1436,6 @@ const CATEGORIAS_ADIVINAR = [
         { value: "URBANO", label: "Urbano & Reggaeton 🎧" },
         { value: "POP_LATINO", label: "Pop Latino & Bailables 💃" },
         { value: "ELECTRONICA", label: "Electrónica / EDM ⚡" }
-    ]},
-    { group: "Por Décadas", options: [
-        { value: "70s Rock Hits", label: "Años 70s 🕺" },
-        { value: "80s Hits", label: "Años 80s 📼" },
-        { value: "90s Hits", label: "Años 90s 📻" },
-        { value: "2000s Hits", label: "Años 2000s 🎧" },
-        { value: "2010s Hits", label: "Años 2010s 📱" }
     ]}
 ];
 
@@ -1489,10 +1453,7 @@ const CATEGORIAS_COMPLETA_LETRA = [
 // 4. ESTADO GLOBAL DE LA APLICACIÓN
 // ==========================================
 const AppState = {
-    // Tipo de juego actual: "adivinar_cancion" | "completa_letra"
     tipoJuego: "adivinar_cancion",
-
-    // Modo Solo
     puntaje: 0,
     vidas: 3,
     racha: 0,
@@ -1500,17 +1461,13 @@ const AppState = {
     aciertosTotales: 0,
     preguntasTotales: 0,
     mejorTiempoReaccion: null,
-    
-    // Canción / Letra actual
     cancionActual: null,
     itemLetraActual: null,
     categoriaSeleccionada: "AZAR",
     categoriaTexto: "Al Azar / De Todo",
     respondiendo: false,
     cancionesJugadas: new Set(),
-    proximaCancionCache: null, // Pre-carga para cero latencia
-
-    // Multijugador
+    proximaCancionCache: null,
     modoMulti: false,
     miNickname: "Jugador",
     miPlayerId: "",
@@ -1522,7 +1479,6 @@ const AppState = {
     salaListener: null
 };
 
-// Elementos de Audio
 const audio = document.getElementById("audio-player");
 const audioPreloader = document.getElementById("audio-preloader");
 
@@ -1545,7 +1501,6 @@ const AudioController = {
         }).catch(() => {});
     },
 
-    // Efecto de corte dramático de vinilo/cinta (Tape Stop) con Web Audio API
     reproducirEfectoCorte() {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1565,9 +1520,7 @@ const AudioController = {
             gain.connect(ctx.destination);
             osc.start();
             osc.stop(ctx.currentTime + 0.36);
-        } catch (e) {
-            // Fallback silencioso si no hay soporte
-        }
+        } catch (e) {}
     },
 
     detenerTodo() {
@@ -1577,10 +1530,13 @@ const AudioController = {
         UIController.setSoundwaveActive(false);
     },
 
-    reproducirConControl(duracionSegs, onCorteAudio, onTimeoutTotal) {
+    // Acepta startTimeSegs para iniciar el audio en la posición exacta del verso
+    reproducirConControl(duracionSegs, startTimeSegs = 0, onCorteAudio, onTimeoutTotal) {
         this.detenerTodo();
         this.duracionAudioSegundos = duracionSegs || 5;
-        audio.currentTime = 0;
+        
+        // Ajuste de inicio
+        audio.currentTime = startTimeSegs || 0;
 
         const playPromise = audio.play();
         if (playPromise !== undefined) {
@@ -1612,7 +1568,6 @@ const AudioController = {
             const tiempoTranscurrido = timestamp - this.tiempoInicioAudio;
 
             if (tiempoTranscurrido < totalAudioMs) {
-                // Fase 1: Escuchando audio
                 const restante = Math.max(0, (totalAudioMs - tiempoTranscurrido) / 1000);
                 const porcentaje = (1 - (tiempoTranscurrido / totalAudioMs)) * 100;
                 
@@ -1620,7 +1575,6 @@ const AudioController = {
                 UIController.actualizarBarraTimer(porcentaje, `0${restante.toFixed(1)}s`, label, false);
                 this.animFrameId = requestAnimationFrame(loop);
             } else if (!audioFinalizado) {
-                // Fin del audio: Corte dramático
                 audioFinalizado = true;
                 audio.pause();
                 this.reproducirEfectoCorte();
@@ -1636,7 +1590,6 @@ const AudioController = {
                 if (onCorteAudio) onCorteAudio();
                 this.animFrameId = requestAnimationFrame(loop);
             } else if (tiempoTranscurrido < (totalAudioMs + totalRespMs)) {
-                // Fase 2: Cuenta regresiva para responder
                 const tiempoEnFase2 = tiempoTranscurrido - totalAudioMs;
                 const restanteResp = Math.max(0, (totalRespMs - tiempoEnFase2) / 1000);
                 const porcentajeResp = (1 - (tiempoEnFase2 / totalRespMs)) * 100;
@@ -1644,7 +1597,6 @@ const AudioController = {
                 UIController.actualizarBarraTimer(porcentajeResp, `0${restanteResp.toFixed(1)}s`, "⏱️ ¡Tiempo para responder!", true);
                 this.animFrameId = requestAnimationFrame(loop);
             } else {
-                // Tiempo agotado
                 UIController.actualizarBarraTimer(0, "00.0s", "❌ ¡Tiempo agotado!", true);
                 if (onTimeoutTotal) onTimeoutTotal();
             }
@@ -1678,7 +1630,6 @@ const MusicService = {
             .toLowerCase();
     },
 
-    // --- MODO: ADIVINA LA CANCIÓN ---
     obtenerTerminoDeCategoria(catVal) {
         switch (catVal) {
             case "AZAR": return this.elegirAleatorio(PALABRAS_AZAR);
@@ -1815,11 +1766,11 @@ const MusicService = {
             cancion: elegida,
             opciones: todasOpciones,
             solucion: solucion,
+            startTime: 0,
             duracionSegs: 5
         });
     },
 
-    // --- MODO: COMPLETA LA LETRA ---
     obtenerPreguntaCompletaLetra(categoriaVal, callbackExito) {
         let pool = BANCO_COMPLETA_LETRA.filter(item => !AppState.cancionesJugadas.has(item.id));
         if (categoriaVal !== "LETRA_TODAS") {
@@ -1827,7 +1778,6 @@ const MusicService = {
             if (poolCat.length > 0) pool = poolCat;
         }
 
-        // Si se agotaron, reiniciar el set
         if (pool.length === 0) {
             AppState.cancionesJugadas.clear();
             pool = BANCO_COMPLETA_LETRA;
@@ -1836,7 +1786,6 @@ const MusicService = {
         const elegido = this.elegirAleatorio(pool);
         AppState.cancionesJugadas.add(elegido.id);
 
-        // Buscar el preview real en iTunes para sincronizar el audio
         this.obtenerAudioPreviewDeLetra(elegido.busqueda, (previewUrl) => {
             const todasOpciones = [...elegido.falsas, elegido.correcta].sort(() => Math.random() - 0.5);
 
@@ -1852,6 +1801,7 @@ const MusicService = {
                 verso: elegido.verso,
                 opciones: todasOpciones,
                 solucion: elegido.correcta,
+                startTime: elegido.startTime || 0,
                 duracionSegs: 5.5
             });
         });
@@ -1868,7 +1818,6 @@ const MusicService = {
 
         const timeout = setTimeout(() => {
             limpiar();
-            // Fallback con audio placeholder si falla la red
             onPreviewListo("");
         }, 4000);
 
@@ -1933,7 +1882,6 @@ function siguienteRondaSolitario() {
     UIController.activarCorteLetraUI(false);
     document.getElementById("btn-play").disabled = true;
 
-    // Si había una pregunta en caché precargada, usarla de inmediato
     if (AppState.proximaCancionCache) {
         const cacheData = AppState.proximaCancionCache;
         AppState.proximaCancionCache = null;
@@ -1961,7 +1909,6 @@ function configurarRondaSolitario(data) {
     AppState.itemLetraActual = data.itemLetra || null;
     if (data.cancion.trackId) AppState.cancionesJugadas.add(data.cancion.trackId);
 
-    // Configurar caja de letra si estamos en "completa_letra"
     if (AppState.tipoJuego === "completa_letra") {
         document.getElementById("box-letra-container").style.display = "block";
         document.getElementById("lyric-status-tag").innerText = `🎙️ ${data.cancion.artistName} - ${data.cancion.trackName}`;
@@ -1983,10 +1930,11 @@ function configurarRondaSolitario(data) {
         verificarRespuestaSolitario(opcionSeleccionada, data.solucion, btn);
     });
 
-    // Reproducción automática de la porción de audio
+    // Pasa startTime para posicionar el audio exactamente donde suena la letra
     AudioController.reproducirConControl(
         data.duracionSegs || 5,
-        () => { /* Audio finalizado / cortado */ },
+        data.startTime || 0,
+        () => { },
         () => {
             if (!AppState.respondiendo) {
                 verificarRespuestaSolitario("__TIMEOUT__", data.solucion, null);
@@ -2148,7 +2096,7 @@ const MultiplayerManager = {
 
         salaRef.set({
             estado: "esperando",
-            tipoJuego: AppState.tipoJuego, // "adivinar_cancion" o "completa_letra"
+            tipoJuego: AppState.tipoJuego,
             categoriaVal: AppState.categoriaSeleccionada,
             categoriaTxt: AppState.categoriaTexto,
             ronda: 1,
@@ -2243,7 +2191,6 @@ const MultiplayerManager = {
             const sala = snap.val();
             AppState.tipoJuego = sala.tipoJuego || "adivinar_cancion";
 
-            // 1. Esperando en Lobby
             if (sala.estado === "esperando") {
                 let html = "";
                 Object.values(sala.jugadores || {}).forEach(j => {
@@ -2252,7 +2199,6 @@ const MultiplayerManager = {
                 document.getElementById("lista-jugadores-lobby").innerHTML = html;
             }
 
-            // 2. Jugando
             if (sala.estado === "jugando") {
                 AppState.rondaActual = sala.ronda || 1;
                 document.getElementById("ronda-actual-display").innerText = AppState.rondaActual;
@@ -2268,12 +2214,10 @@ const MultiplayerManager = {
                 document.getElementById("categoria-badge").innerText = (sala.categoriaTxt || "Música").split(" ")[0];
                 UIController.mostrarPantalla("pantalla-juego");
 
-                // Host: Si no hay tema cargado en la ronda, cargarlo
                 if (AppState.esHost && !sala.cancionActual && !AppState.isEvaluatingLocal) {
                     this.cargarTemaRondaHost(sala);
                 }
 
-                // Sincronizar canción o letra recibida
                 if (sala.cancionActual && (!AppState.cancionActual || AppState.cancionActual.trackId !== sala.cancionActual.trackId)) {
                     AppState.cancionActual = sala.cancionActual;
                     AppState.respondiendo = false;
@@ -2304,7 +2248,8 @@ const MultiplayerManager = {
 
                     AudioController.reproducirConControl(
                         sala.duracionSegs || 5,
-                        () => { /* Corte */ },
+                        sala.startTime || 0,
+                        () => { },
                         () => {
                             if (!AppState.respondiendo) {
                                 this.enviarRespuestaMulti("__TIMEOUT__", correctaTexto, null);
@@ -2313,7 +2258,6 @@ const MultiplayerManager = {
                     );
                 }
 
-                // Validación de Respuestas completas en Host (Previene Race Conditions)
                 if (AppState.esHost && sala.cancionActual && !sala.evaluandoRonda && !AppState.isEvaluatingLocal) {
                     const cantJugadores = Object.keys(sala.jugadores || {}).length;
                     const cantRespuestas = Object.keys(sala.respuestasRonda || {}).length;
@@ -2324,12 +2268,10 @@ const MultiplayerManager = {
                 }
             }
 
-            // 3. Podio de Ronda
             if (sala.estado === "podio_ronda" && sala.resultadoRonda) {
                 this.mostrarPodioRonda(sala);
             }
 
-            // 4. Finalizado
             if (sala.estado === "finalizado" && sala.jugadores) {
                 this.mostrarPodioFinal(sala.jugadores);
             }
@@ -2357,6 +2299,7 @@ const MultiplayerManager = {
                     verso: resultado.verso,
                     solucionCorrecta: resultado.solucion,
                     opcionesRonda: resultado.opciones,
+                    startTime: resultado.startTime || 0,
                     duracionSegs: resultado.duracionSegs,
                     respuestasRonda: {},
                     evaluandoRonda: false,
@@ -2374,6 +2317,7 @@ const MultiplayerManager = {
                     cancionActual: resultado.cancion,
                     solucionCorrecta: resultado.solucion,
                     opcionesRonda: resultado.opciones,
+                    startTime: 0,
                     duracionSegs: resultado.duracionSegs,
                     respuestasRonda: {},
                     evaluandoRonda: false,
@@ -2502,7 +2446,6 @@ const MultiplayerManager = {
                 cancionAnterior: cancionNombre,
                 letraAnteriorSolucion: salaFresca.solucionCorrecta || ""
             }).then(() => {
-                // Durante el podio de 4.5 segundos, pre-cargar la próxima canción
                 if (salaFresca.ronda < 10) {
                     if (AppState.tipoJuego === "completa_letra") {
                         MusicService.obtenerPreguntaCompletaLetra(salaFresca.categoriaVal, (prox) => {
@@ -2530,6 +2473,7 @@ const MultiplayerManager = {
                                 verso: temaListo.verso || "",
                                 solucionCorrecta: temaListo.solucion,
                                 opcionesRonda: temaListo.opciones,
+                                startTime: temaListo.startTime || 0,
                                 duracionSegs: temaListo.duracionSegs,
                                 respuestasRonda: {},
                                 evaluandoRonda: false,
@@ -2671,6 +2615,7 @@ const UIController = {
         if (target) target.classList.add("active");
     },
 
+    // Generador neutral de nickname por defecto
     obtenerNickname() {
         const input = document.getElementById("player-nickname").value.trim();
         return input ? input : "Jugador" + Math.floor(Math.random() * 90 + 10);
@@ -2856,7 +2801,8 @@ function copiarCodigoSala() {
 
 function iniciarReproduccionManual() {
     const duracion = AppState.tipoJuego === "completa_letra" ? 5.5 : 5;
-    AudioController.reproducirConControl(duracion);
+    const startTime = AppState.itemLetraActual ? AppState.itemLetraActual.startTime : 0;
+    AudioController.reproducirConControl(duracion, startTime);
 }
 
 function reiniciarJuego() {
@@ -2868,7 +2814,6 @@ function reiniciarJuego() {
     }
 }
 
-// Compartir y Redes Sociales
 function obtenerUrlDesafio() {
     const sel = document.getElementById("categoria");
     const baseUrl = window.location.href.split('?')[0];
@@ -2919,12 +2864,9 @@ function copiarEnlaceDirecto() {
     });
 }
 
-// Inicialización de la aplicación
 window.addEventListener("DOMContentLoaded", () => {
-    // Inicializar categorías de inicio
     UIController.poblarCategorias("adivinar_cancion");
 
-    // Deep linking: leer parámetros URL
     const params = new URLSearchParams(window.location.search);
     const modoParam = params.get("modo");
     const catParam = params.get("cat");
@@ -2943,7 +2885,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Desbloqueo de audio en el primer clic de la página
     document.addEventListener("click", () => {
         AudioController.desbloquearContexto();
     }, { once: true });
