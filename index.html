@@ -1232,7 +1232,7 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Chayanne",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Chayanne Torero",
-        startTime: 0.0, // 👈 Se ajusta a 0.0s para sincronizar exactamente con "De lunes a domingo..."
+        startTime: 0.0,
         verso: "De lunes a domingo voy desesperado...",
         correcta: "El corazón bombeando al ritmo de un motor",
         falsas: [
@@ -1411,6 +1411,7 @@ const BANCO_COMPLETA_LETRA = [
 const CATEGORIAS_ADIVINAR = [
     { value: "AZAR", label: "🎲 Al Azar / De Todo (Mezclado)" },
     { group: "Cultura Pop & Cine", options: [
+        { value: "HAMILTON", label: "Hamilton (El Musical) ⭐️🎭" },
         { value: "DISNEY_MUSICALES", label: "Disney & Musicales 🏰🎬" },
         { value: "PELICULAS", label: "Películas, Anime & Juegos 🎬🎮" },
         { value: "KPOP", label: "K-Pop 🇰🇷" }
@@ -1628,6 +1629,7 @@ const MusicService = {
     obtenerTerminoDeCategoria(catVal) {
         switch (catVal) {
             case "AZAR": return this.elegirAleatorio(PALABRAS_AZAR);
+            case "HAMILTON": return "Hamilton Original Broadway Cast Recording";
             case "DISNEY_MUSICALES": return this.elegirAleatorio(ARTISTAS_DISNEY_MUSICALES);
             case "INFANTIL": return this.elegirAleatorio(ARTISTAS_INFANTIL);
             case "ROMANTICAS": return this.elegirAleatorio(ARTISTAS_ROMANTICAS);
@@ -1691,7 +1693,12 @@ const MusicService = {
             this.procesarCancionesAdivinar(data.results, callbackExito, intentosRestantes);
         };
 
-        script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=50&callback=${callbackName}`;
+        // Si la categoría seleccionada es Hamilton o de bandas/musicales, no restringir estrictamente attribute=artistTerm
+        const attributeFilter = (AppState.categoriaSeleccionada === "HAMILTON" || AppState.categoriaSeleccionada === "PELICULAS") 
+            ? "" 
+            : "&attribute=artistTerm";
+
+        script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}${attributeFilter}&entity=song&limit=50&callback=${callbackName}`;
         script.onerror = () => {
             clearTimeout(timeoutId);
             limpiar();
