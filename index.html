@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adivina la Canción, Completa la Letra & Tic Tac Toe 🎵🎤❌⭕</title>
+    <title>Adivina la Canción & Tic Tac Toe 🎵❌⭕</title>
     
     <!-- Meta SEO & Social Sharing -->
-    <meta name="description" content="Juego interactivo: Adivina el tema, Completa la letra sincronizada o juega Tic Tac Toe en tiempo real con tus amigos.">
+    <meta name="description" content="Juego interactivo: Adivina el tema o juega Tic Tac Toe en tiempo real con tus amigos.">
     <meta name="theme-color" content="#0c0f14">
 
     <!-- External Libraries -->
@@ -107,7 +107,7 @@
             color: var(--text-muted);
             border: none;
             padding: 10px 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             border-radius: 10px;
             cursor: pointer;
@@ -116,7 +116,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
         }
 
         .mode-tab:hover {
@@ -130,12 +130,6 @@
             background: linear-gradient(135deg, var(--spotify-green), #10b981);
             color: #0c0f14;
             box-shadow: 0 4px 15px var(--spotify-green-glow);
-        }
-
-        .mode-tab.active.tab-letra {
-            background: linear-gradient(135deg, var(--neon-purple), #d946ef);
-            color: #fff;
-            box-shadow: 0 4px 15px var(--neon-purple-glow);
         }
 
         .mode-tab.active.tab-tictactoe {
@@ -418,55 +412,6 @@
             gap: 4px;
         }
 
-        .lyric-box {
-            background: linear-gradient(145deg, rgba(168, 85, 247, 0.12), rgba(6, 182, 212, 0.08));
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: var(--radius-btn);
-            padding: 16px;
-            margin: 12px 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInScale 0.3s ease;
-        }
-
-        .lyric-tag {
-            font-size: 11px;
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: var(--neon-purple);
-            margin-bottom: 6px;
-        }
-
-        .lyric-snippet {
-            font-size: 17px;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.4;
-            font-style: italic;
-        }
-
-        .lyric-cutoff-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid var(--danger-red);
-            color: #fca5a5;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
-            margin-top: 10px;
-            animation: pulseCutoff 1.2s infinite alternate ease-in-out;
-        }
-
-        @keyframes pulseCutoff {
-            0% { transform: scale(0.97); opacity: 0.85; }
-            100% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 12px rgba(239, 68, 68, 0.5); }
-        }
-
         .audio-playback-card {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.07);
@@ -491,10 +436,6 @@
             background: var(--spotify-green);
             border-radius: 4px;
             transition: height 0.15s ease;
-        }
-
-        .wave-bar.wave-purple {
-            background: var(--neon-purple);
         }
 
         .wave-bar.animating {
@@ -608,6 +549,11 @@
             background: rgba(30, 215, 96, 0.2) !important;
             border-color: var(--spotify-green) !important;
             animation: pulseCutoff 0.8s infinite alternate;
+        }
+
+        @keyframes pulseCutoff {
+            0% { transform: scale(0.97); opacity: 0.85; }
+            100% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 12px rgba(239, 68, 68, 0.5); }
         }
 
         .ttt-turn-box {
@@ -794,10 +740,7 @@
     <div id="pantalla-inicio" class="screen-section active">
         <div class="mode-selector-tabs">
             <button id="tab-mode-cancion" class="mode-tab active" onclick="cambiarModoJuegoPrincipal('adivinar_cancion')">
-                <span>🎵</span> Adivinar
-            </button>
-            <button id="tab-mode-letra" class="mode-tab" onclick="cambiarModoJuegoPrincipal('completa_letra')">
-                <span>🎤</span> Letra
+                <span>🎵</span> Adivinar Canción
             </button>
             <button id="tab-mode-tictactoe" class="mode-tab" onclick="cambiarModoJuegoPrincipal('tic_tac_toe')">
                 <span>❌⭕</span> Tic Tac Toe
@@ -864,7 +807,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA 3: JUEGO MUSICAL (SOLO & MULTI) -->
+    <!-- PANTALLA 3: JUEGO MUSICAL -->
     <div id="pantalla-juego" class="screen-section">
         <div id="ui-solitario">
             <div class="status-bar">
@@ -887,14 +830,6 @@
         </div>
 
         <div id="feedback-banner"></div>
-
-        <div id="box-letra-container" class="lyric-box" style="display: none;">
-            <div class="lyric-tag" id="lyric-status-tag">🎙️ ESCUCHA ATENTAMENTE...</div>
-            <div class="lyric-snippet" id="lyric-snippet-txt">"..."</div>
-            <div id="lyric-cutoff-indicator" class="lyric-cutoff-badge" style="display: none;">
-                <span>🛑</span> ¡Se cortó la música! ¿Qué frase continúa?
-            </div>
-        </div>
 
         <div class="audio-playback-card">
             <div class="soundwave-box" id="soundwave-container">
@@ -950,7 +885,7 @@
             <span>🔄</span> Reiniciar Tablero
         </button>
         <button class="btn-block btn-secondary" style="margin-top: 6px;" onclick="reiniciarJuego()">
-            <span>⬅️</span> Salir al Menú
+            <span>⬅️️</span> Salir al Menú
         </button>
     </div>
 
@@ -960,9 +895,8 @@
         <p class="subtitle" style="margin-bottom: 14px;">Bonificación por velocidad y precisión</p>
 
         <div style="background: rgba(0,0,0,0.25); border-radius: var(--radius-btn); padding: 8px 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.06); text-align: left;">
-            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Canción / Letra Correcta:</div>
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Canción Correcta:</div>
             <div id="cancion-anterior-txt" style="font-size: 14px; font-weight: 800; color: #fff; margin-top: 2px;">-</div>
-            <div id="letra-correcta-ronda-txt" style="font-size: 13px; color: var(--spotify-green); margin-top: 4px; display: none;"></div>
         </div>
 
         <ul class="ranking-list" id="lista-ranking-ronda"></ul>
@@ -982,8 +916,8 @@
     <div id="pantalla-final" class="screen-section">
         <div id="tarjeta-resultado">
             <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
-                <span style="font-size: 22px;" id="tarjeta-icono-modo">🎵</span>
-                <span style="font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase;" id="tarjeta-modo-nombre">Adivina la Canción</span>
+                <span style="font-size: 22px;">🎵</span>
+                <span style="font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase;">ADIVINA LA CANCIÓN</span>
             </div>
 
             <h2 id="titulo-final" style="color: var(--danger-red); font-size: 24px; font-weight: 800; margin: 6px 0;">¡JUEGO TERMINADO! 💀</h2>
@@ -1121,16 +1055,6 @@ const CATEGORIAS_ADIVINAR = [
     ]}
 ];
 
-const CATEGORIAS_COMPLETA_LETRA = [
-    { value: "LETRA_TODAS", label: "🌟 De Todo / Grandes Éxitos (Mezclado)" },
-    { value: "LETRA_URBANO", label: "🎧 Urbano, Trap & Reggaeton" },
-    { value: "LETRA_ROCK", label: "🎸 Rock en Español & Clásicos" },
-    { value: "LETRA_POP_LATINO", label: "💃 Pop Latino & Románticas" },
-    { value: "LETRA_FIESTA", label: "🎉 Cumbia, Pachanga & Fiesta" },
-    { value: "LETRA_DISNEY", label: "🏰 Disney & Películas" },
-    { value: "LETRA_INGLES", label: "🌎 Hits en Inglés (Internacional)" }
-];
-
 // ==========================================
 // 3. ESTADO GLOBAL DE LA APLICACIÓN
 // ==========================================
@@ -1144,7 +1068,6 @@ const AppState = {
     preguntasTotales: 0,
     mejorTiempoReaccion: null,
     cancionActual: null,
-    itemLetraActual: null,
     categoriaSeleccionada: "AZAR",
     categoriaTexto: "Al Azar / De Todo",
     respondiendo: false,
@@ -1157,7 +1080,6 @@ const AppState = {
     esHost: false,
     rondaActual: 1,
     isEvaluatingLocal: false,
-    tiempoInicioRondaLocal: 0,
     salaListener: null
 };
 
@@ -1223,7 +1145,7 @@ const AudioController = {
             playPromise.then(() => {
                 this.tiempoInicioAudio = performance.now();
                 UIController.setSoundwaveActive(true);
-                UIController.setEstadoTexto(AppState.tipoJuego === "completa_letra" ? "▶️ Escucha con atención la letra..." : "▶️ Escuchando la canción...");
+                UIController.setEstadoTexto("▶️️ Escuchando la canción...");
                 document.getElementById("btn-play").disabled = true;
 
                 this.iniciarAnimacionProgreso(onCorteAudio, onTimeoutTotal);
@@ -1251,8 +1173,7 @@ const AudioController = {
                 const restante = Math.max(0, (totalAudioMs - tiempoTranscurrido) / 1000);
                 const porcentaje = (1 - (tiempoTranscurrido / totalAudioMs)) * 100;
                 
-                const label = AppState.tipoJuego === "completa_letra" ? "🎙️ Escuchando letra..." : "🔊 Escuchando tema...";
-                UIController.actualizarBarraTimer(porcentaje, `0${restante.toFixed(1)}s`, label, false);
+                UIController.actualizarBarraTimer(porcentaje, `0${restante.toFixed(1)}s`, "🔊 Escuchando tema...", false);
                 this.animFrameId = requestAnimationFrame(loop);
             } else if (!audioFinalizado) {
                 audioFinalizado = true;
@@ -1260,12 +1181,7 @@ const AudioController = {
                 this.reproducirEfectoCorte();
                 UIController.setSoundwaveActive(false);
 
-                if (AppState.tipoJuego === "completa_letra") {
-                    UIController.activarCorteLetraUI(true);
-                    UIController.setEstadoTexto("🛑 ¡Música cortada! ¿Qué frase continúa?");
-                } else {
-                    UIController.setEstadoTexto("⏹️ ¡Tiempo terminado! Elige la canción.");
-                }
+                UIController.setEstadoTexto("⏹️ ¡Tiempo terminado! Elige la canción.");
 
                 if (onCorteAudio) onCorteAudio();
                 this.animFrameId = requestAnimationFrame(loop);
@@ -1295,7 +1211,7 @@ const AudioController = {
 };
 
 // ==========================================
-// 5. SERVICIO ITUNES & LIRCLIB (SINCRONIZACIÓN DE LETRAS)
+// 5. SERVICIO ITUNES (BÚSQUEDA DE BANCAS Y FALSAS)
 // ==========================================
 const MusicService = {
     normalizarTitulo(str) {
@@ -1330,12 +1246,6 @@ const MusicService = {
             case "MEXICO": return this.elegirAleatorio(ARTISTAS_MEXICO);
             case "USA": return this.elegirAleatorio(ARTISTAS_USA);
             case "PELICULAS": return this.elegirAleatorio(SOUNDTRACKS);
-            case "LETRA_URBANO": return this.elegirAleatorio(ARTISTAS_URBANO);
-            case "LETRA_ROCK": return this.elegirAleatorio(ARTISTAS_ROCK_BANDAS);
-            case "LETRA_POP_LATINO": return this.elegirAleatorio(ARTISTAS_POP_LATINO);
-            case "LETRA_FIESTA": return "Cumbia";
-            case "LETRA_DISNEY": return "Disney";
-            case "LETRA_INGLES": return this.elegirAleatorio(ARTISTAS_USA);
             default: return this.elegirAleatorio(PALABRAS_AZAR);
         }
     },
@@ -1460,86 +1370,6 @@ const MusicService = {
             startTime: 0,
             duracionSegs: 5
         });
-    },
-
-    obtenerPreguntaCompletaLetra(categoriaVal, callbackExito, intentos = 5) {
-        if (intentos <= 0) {
-            UIController.mostrarToast("Reintentando encontrar letra disponible...");
-            return this.obtenerPreguntaCompletaLetra("LETRA_TODAS", callbackExito, 5);
-        }
-
-        const termino = this.obtenerTerminoDeCategoria(categoriaVal);
-
-        this.buscarCancionesItunes(termino, (datosItunes) => {
-            const cancion = datosItunes.cancion;
-            const tituloLimpio = this.normalizarTitulo(cancion.trackName);
-            const artistaLimpio = cancion.artistName;
-
-            const urlLrc = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artistaLimpio)}&track_name=${encodeURIComponent(tituloLimpio)}`;
-
-            fetch(urlLrc)
-                .then(res => {
-                    if (!res.ok) throw new Error("Sin letra");
-                    return res.json();
-                })
-                .then(data => {
-                    if (!data || !data.syncedLyrics) {
-                        throw new Error("Sin letras sincronizadas");
-                    }
-
-                    const lineas = this.parsearLRC(data.syncedLyrics);
-                    const lineas30s = lineas.filter(l => l.tiempoSegundos < 26);
-
-                    if (lineas30s.length < 2) {
-                        throw new Error("Fragmento insuficiente en 30s");
-                    }
-
-                    const idx = Math.floor(Math.random() * (lineas30s.length - 1));
-                    const versoActual = lineas30s[idx];
-                    const versoSiguiente = lineas30s[idx + 1];
-
-                    const otrasLineas = lineas.map(l => l.texto).filter(t => t !== versoSiguiente.texto && t.length > 3);
-                    const falsas = otrasLineas.sort(() => Math.random() - 0.5).slice(0, 3);
-
-                    if (falsas.length < 3) {
-                        throw new Error("Opción de distractores baja");
-                    }
-
-                    const todasOpciones = [...falsas, versoSiguiente.texto].sort(() => Math.random() - 0.5);
-
-                    callbackExito({
-                        tipoJuego: "completa_letra",
-                        cancion: cancion,
-                        verso: versoActual.texto,
-                        opciones: todasOpciones,
-                        solucion: versoSiguiente.texto,
-                        startTime: versoActual.tiempoSegundos,
-                        duracionSegs: 5.5
-                    });
-                })
-                .catch(() => {
-                    this.obtenerPreguntaCompletaLetra(categoriaVal, callbackExito, intentos - 1);
-                });
-        });
-    },
-
-    parsearLRC(lrcText) {
-        const lineas = [];
-        const regex = /\[(\d{2}):(\d{2}\.\d{2})\]\s*(.+)/;
-        
-        lrcText.split('\n').forEach(linea => {
-            const match = linea.match(regex);
-            if (match) {
-                const minutos = parseInt(match[1], 10);
-                const segundos = parseFloat(match[2]);
-                const tiempoTotal = (minutos * 60) + segundos;
-                const texto = match[3].trim();
-                if (texto.length > 3 && !texto.startsWith("By ") && !texto.startsWith("Sync ")) {
-                    lineas.push({ tiempoSegundos: tiempoTotal, texto: texto });
-                }
-            }
-        });
-        return lineas;
     }
 };
 
@@ -1571,7 +1401,7 @@ function comenzarJuegoSolitario() {
 
     document.getElementById("ui-solitario").style.display = "block";
     document.getElementById("ui-multi").style.display = "none";
-    document.getElementById("modo-texto").innerText = AppState.tipoJuego === "completa_letra" ? "Modo Solo • Completa la Letra 🎤" : "Modo Solo • Adivina Canción 🎵";
+    document.getElementById("modo-texto").innerText = "Modo Solo • Adivina Canción 🎵";
     document.getElementById("categoria-badge").innerText = AppState.categoriaTexto.split(" ")[0];
     document.getElementById("puntaje").innerText = "0";
 
@@ -1587,7 +1417,6 @@ function siguienteRondaSolitario() {
     UIController.ocultarFeedback();
     UIController.setEstadoTexto("🔍 Buscando tema musical...");
     UIController.limpiarOpciones();
-    UIController.activarCorteLetraUI(false);
     document.getElementById("btn-play").disabled = true;
 
     if (AppState.proximaCancionCache) {
@@ -1598,33 +1427,16 @@ function siguienteRondaSolitario() {
         return;
     }
 
-    if (AppState.tipoJuego === "completa_letra") {
-        MusicService.obtenerPreguntaCompletaLetra(AppState.categoriaSeleccionada, (resultado) => {
-            configurarRondaSolitario(resultado);
-            precargarSiguienteSolitario();
-        });
-    } else {
-        const termino = MusicService.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
-        MusicService.buscarCancionesItunes(termino, (resultado) => {
-            configurarRondaSolitario(resultado);
-            precargarSiguienteSolitario();
-        });
-    }
+    const termino = MusicService.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+    MusicService.buscarCancionesItunes(termino, (resultado) => {
+        configurarRondaSolitario(resultado);
+        precargarSiguienteSolitario();
+    });
 }
 
 function configurarRondaSolitario(data) {
     AppState.cancionActual = data.cancion;
-    AppState.itemLetraActual = data.itemLetra || null;
     if (data.cancion.trackId) AppState.cancionesJugadas.add(data.cancion.trackId);
-
-    if (AppState.tipoJuego === "completa_letra") {
-        document.getElementById("box-letra-container").style.display = "block";
-        document.getElementById("lyric-status-tag").innerText = `🎙️ ${data.cancion.artistName} - ${data.cancion.trackName}`;
-        document.getElementById("lyric-snippet-txt").innerText = `"${data.verso}"`;
-        document.getElementById("lyric-cutoff-indicator").style.display = "none";
-    } else {
-        document.getElementById("box-letra-container").style.display = "none";
-    }
 
     if (data.cancion.previewUrl) {
         audio.src = data.cancion.previewUrl;
@@ -1640,7 +1452,7 @@ function configurarRondaSolitario(data) {
 
     AudioController.reproducirConControl(
         data.duracionSegs || 5,
-        data.startTime || 0,
+        0,
         () => { },
         () => {
             if (!AppState.respondiendo) {
@@ -1651,18 +1463,11 @@ function configurarRondaSolitario(data) {
 }
 
 function precargarSiguienteSolitario() {
-    if (AppState.tipoJuego === "completa_letra") {
-        MusicService.obtenerPreguntaCompletaLetra(AppState.categoriaSeleccionada, (resultado) => {
-            AppState.proximaCancionCache = resultado;
-            if (resultado.cancion.previewUrl) AudioController.preCargarAudio(resultado.cancion.previewUrl);
-        });
-    } else {
-        const termino = MusicService.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
-        MusicService.buscarCancionesItunes(termino, (resultado) => {
-            AppState.proximaCancionCache = resultado;
-            if (resultado.cancion.previewUrl) AudioController.preCargarAudio(resultado.cancion.previewUrl);
-        });
-    }
+    const termino = MusicService.obtenerTerminoDeCategoria(AppState.categoriaSeleccionada);
+    MusicService.buscarCancionesItunes(termino, (resultado) => {
+        AppState.proximaCancionCache = resultado;
+        if (resultado.cancion.previewUrl) AudioController.preCargarAudio(resultado.cancion.previewUrl);
+    });
 }
 
 function verificarRespuestaSolitario(seleccion, correcta, btn) {
@@ -1744,9 +1549,7 @@ function finalizarJuegoSolitario() {
     document.getElementById("stat-tiempo").innerText = AppState.mejorTiempoReaccion ? `${AppState.mejorTiempoReaccion}s` : "-";
 
     document.getElementById("podio-final-area").innerHTML = "";
-    document.getElementById("categoria-final").innerText = `Modo: ${AppState.tipoJuego === "completa_letra" ? "Completa la Letra 🎤" : "Adivina Canción 🎵"} • ${AppState.categoriaTexto}`;
-    document.getElementById("tarjeta-modo-nombre").innerText = AppState.tipoJuego === "completa_letra" ? "COMPLETA LA LETRA" : "ADIVINA LA CANCIÓN";
-    document.getElementById("tarjeta-icono-modo").innerText = AppState.tipoJuego === "completa_letra" ? "🎤" : "🎵";
+    document.getElementById("categoria-final").innerText = `Modo: Adivina Canción 🎵 • ${AppState.categoriaTexto}`;
 }
 
 // ==========================================
@@ -1875,6 +1678,7 @@ const TicTacToeManager = {
         db.ref(`salas/${AppState.miCodigoSala}`).once("value").then(snap => {
             if (!snap.exists()) return;
             const sala = snap.val();
+
             // Intercalar el símbolo inicial: Si empezó X, ahora empieza O; si empezó O, ahora X
             const ultimoInicio = sala.tttStartingSymbol || "X";
             const nuevoInicio = (ultimoInicio === "X") ? "O" : "X";
@@ -1891,7 +1695,7 @@ const TicTacToeManager = {
 };
 
 // ==========================================
-// 8. MÓDULO MULTIJUGADOR (FIREBASE COMPAT)
+// 8. MÓDULO MULTIJUGADOR
 // ==========================================
 const MultiplayerManager = {
     timerEvaluacionFallback: null,
@@ -2011,7 +1815,6 @@ const MultiplayerManager = {
         document.getElementById("codigo-sala-display").innerText = AppState.miCodigoSala;
         
         let modoTag = "Modo: 🎵 Adivina";
-        if (AppState.tipoJuego === "completa_letra") modoTag = "Modo: 🎤 Completa Letra";
         if (AppState.tipoJuego === "tic_tac_toe") modoTag = "Modo: ❌⭕ Tic Tac Toe";
 
         document.getElementById("lobby-mode-badge").innerText = modoTag;
@@ -2067,8 +1870,7 @@ const MultiplayerManager = {
                 document.getElementById("ui-solitario").style.display = "none";
                 document.getElementById("ui-multi").style.display = "block";
                 
-                const modoLabel = AppState.tipoJuego === "completa_letra" ? "🎤 Completa la Letra" : "🎵 Adivina Canción";
-                document.getElementById("modo-texto").innerText = `${modoLabel} • Ronda ${AppState.rondaActual}/10`;
+                document.getElementById("modo-texto").innerText = `🎵 Adivina Canción • Ronda ${AppState.rondaActual}/10`;
                 document.getElementById("categoria-badge").innerText = (sala.categoriaTxt || "Música").split(" ")[0];
                 UIController.mostrarPantalla("pantalla-juego");
 
@@ -2080,23 +1882,13 @@ const MultiplayerManager = {
                     AppState.cancionActual = sala.cancionActual;
                     AppState.respondiendo = false;
                     UIController.ocultarFeedback();
-                    UIController.activarCorteLetraUI(false);
-
-                    if (AppState.tipoJuego === "completa_letra") {
-                        document.getElementById("box-letra-container").style.display = "block";
-                        document.getElementById("lyric-status-tag").innerText = `🎙️ ${sala.cancionActual.artistName} - ${sala.cancionActual.trackName}`;
-                        document.getElementById("lyric-snippet-txt").innerText = `"${sala.verso || '...'}"`;
-                        document.getElementById("lyric-cutoff-indicator").style.display = "none";
-                    } else {
-                        document.getElementById("box-letra-container").style.display = "none";
-                    }
 
                     if (sala.cancionActual.previewUrl) {
                         audio.src = sala.cancionActual.previewUrl;
                         audio.load();
                     }
 
-                    UIController.setEstadoTexto(AppState.tipoJuego === "completa_letra" ? "¡Atención a la letra! Escucha atentamente." : "¡Canción lista! Escucha los 5 segundos.");
+                    UIController.setEstadoTexto("¡Canción lista! Escucha los 5 segundos.");
                     document.getElementById("btn-play").disabled = false;
 
                     const correctaTexto = sala.solucionCorrecta || `${sala.cancionActual.trackName} - ${sala.cancionActual.artistName}`;
@@ -2106,7 +1898,7 @@ const MultiplayerManager = {
 
                     AudioController.reproducirConControl(
                         sala.duracionSegs || 5,
-                        sala.startTime || 0,
+                        0,
                         () => { },
                         () => {
                             if (!AppState.respondiendo) {
@@ -2161,43 +1953,23 @@ const MultiplayerManager = {
     cargarTemaRondaHost(sala) {
         UIController.setEstadoTexto("Host preparando ronda...");
 
-        if (AppState.tipoJuego === "completa_letra") {
-            MusicService.obtenerPreguntaCompletaLetra(sala.categoriaVal, (resultado) => {
-                if (resultado.cancion.previewUrl) AudioController.preCargarAudio(resultado.cancion.previewUrl);
+        const termino = MusicService.obtenerTerminoDeCategoria(sala.categoriaVal);
+        MusicService.buscarCancionesItunes(termino, (resultado) => {
+            if (resultado.cancion.previewUrl) AudioController.preCargarAudio(resultado.cancion.previewUrl);
 
-                db.ref("salas/" + AppState.miCodigoSala).update({
-                    cancionActual: resultado.cancion,
-                    verso: resultado.verso,
-                    solucionCorrecta: resultado.solucion,
-                    opcionesRonda: resultado.opciones,
-                    startTime: resultado.startTime || 0,
-                    duracionSegs: resultado.duracionSegs,
-                    respuestasRonda: {},
-                    evaluandoRonda: false,
-                    tiempoInicioRonda: firebase.database.ServerValue.TIMESTAMP
-                });
-
-                this.programarFallbackHost();
+            db.ref("salas/" + AppState.miCodigoSala).update({
+                cancionActual: resultado.cancion,
+                solucionCorrecta: resultado.solucion,
+                opcionesRonda: resultado.opciones,
+                startTime: 0,
+                duracionSegs: resultado.duracionSegs,
+                respuestasRonda: {},
+                evaluandoRonda: false,
+                tiempoInicioRonda: firebase.database.ServerValue.TIMESTAMP
             });
-        } else {
-            const termino = MusicService.obtenerTerminoDeCategoria(sala.categoriaVal);
-            MusicService.buscarCancionesItunes(termino, (resultado) => {
-                if (resultado.cancion.previewUrl) AudioController.preCargarAudio(resultado.cancion.previewUrl);
 
-                db.ref("salas/" + AppState.miCodigoSala).update({
-                    cancionActual: resultado.cancion,
-                    solucionCorrecta: resultado.solucion,
-                    opcionesRonda: resultado.opciones,
-                    startTime: 0,
-                    duracionSegs: resultado.duracionSegs,
-                    respuestasRonda: {},
-                    evaluandoRonda: false,
-                    tiempoInicioRonda: firebase.database.ServerValue.TIMESTAMP
-                });
-
-                this.programarFallbackHost();
-            });
-        }
+            this.programarFallbackHost();
+        });
     },
 
     programarFallbackHost() {
@@ -2314,20 +2086,13 @@ const MultiplayerManager = {
                 ...updates,
                 estado: "podio_ronda",
                 resultadoRonda: tablaResultados,
-                cancionAnterior: cancionNombre,
-                letraAnteriorSolucion: salaFresca.solucionCorrecta || ""
+                cancionAnterior: cancionNombre
             }).then(() => {
                 if (salaFresca.ronda < 10) {
-                    if (AppState.tipoJuego === "completa_letra") {
-                        MusicService.obtenerPreguntaCompletaLetra(salaFresca.categoriaVal, (prox) => {
-                            AppState.proximaCancionCache = prox;
-                        });
-                    } else {
-                        const termino = MusicService.obtenerTerminoDeCategoria(salaFresca.categoriaVal);
-                        MusicService.buscarCancionesItunes(termino, (prox) => {
-                            AppState.proximaCancionCache = prox;
-                        });
-                    }
+                    const termino = MusicService.obtenerTerminoDeCategoria(salaFresca.categoriaVal);
+                    MusicService.buscarCancionesItunes(termino, (prox) => {
+                        AppState.proximaCancionCache = prox;
+                    });
                 }
 
                 setTimeout(() => {
@@ -2341,10 +2106,9 @@ const MultiplayerManager = {
                                 estado: "jugando",
                                 ronda: nuevaRonda,
                                 cancionActual: temaListo.cancion,
-                                verso: temaListo.verso || "",
                                 solucionCorrecta: temaListo.solucion,
                                 opcionesRonda: temaListo.opciones,
-                                startTime: temaListo.startTime || 0,
+                                startTime: 0,
                                 duracionSegs: temaListo.duracionSegs,
                                 respuestasRonda: {},
                                 evaluandoRonda: false,
@@ -2371,14 +2135,6 @@ const MultiplayerManager = {
         AudioController.detenerTodo();
         UIController.mostrarPantalla("pantalla-ranking");
         document.getElementById("cancion-anterior-txt").innerText = sala.cancionAnterior || "Canción";
-
-        const letraBox = document.getElementById("letra-correcta-ronda-txt");
-        if (AppState.tipoJuego === "completa_letra" && sala.letraAnteriorSolucion) {
-            letraBox.style.display = "block";
-            letraBox.innerText = `🎶 Letra que sigue: "${sala.letraAnteriorSolucion}"`;
-        } else {
-            letraBox.style.display = "none";
-        }
 
         let html = "";
         (sala.resultadoRonda || []).forEach(res => {
@@ -2448,9 +2204,7 @@ const MultiplayerManager = {
         podioHtml += "</div>";
 
         document.getElementById("podio-final-area").innerHTML = podioHtml;
-        document.getElementById("categoria-final").innerText = `Modo: ${AppState.tipoJuego === "completa_letra" ? "Completa la Letra 🎤" : "Adivina la Canción 🎵"} • ${AppState.categoriaTexto}`;
-        document.getElementById("tarjeta-modo-nombre").innerText = AppState.tipoJuego === "completa_letra" ? "COMPLETA LA LETRA" : "ADIVINA LA CANCIÓN";
-        document.getElementById("tarjeta-icono-modo").innerText = AppState.tipoJuego === "completa_letra" ? "🎤" : "🎵";
+        document.getElementById("categoria-final").innerText = `Modo: Adivina la Canción 🎵 • ${AppState.categoriaTexto}`;
 
         const miData = jugadores[AppState.miPlayerId];
         document.getElementById("stat-aciertos").innerText = miData ? `${miData.puntaje} pts` : "-";
@@ -2516,17 +2270,9 @@ const UIController = {
     setSoundwaveActive(activo) {
         const bars = document.querySelectorAll(".wave-bar");
         bars.forEach(b => {
-            if (AppState.tipoJuego === "completa_letra") b.classList.add("wave-purple");
-            else b.classList.remove("wave-purple");
-
             if (activo) b.classList.add("animating");
             else b.classList.remove("animating");
         });
-    },
-
-    activarCorteLetraUI(activar) {
-        const indicator = document.getElementById("lyric-cutoff-indicator");
-        if (indicator) indicator.style.display = activar ? "inline-flex" : "none";
     },
 
     actualizarBarraTimer(porcentaje, clockTexto, phaseLabel, esFaseRespuesta) {
@@ -2575,7 +2321,7 @@ const UIController = {
             const btn = document.createElement("button");
             btn.className = "option-btn";
             btn.dataset.rawOption = op;
-            btn.innerHTML = `<span>${op}</span> <span style="opacity: 0.6;">${AppState.tipoJuego === "completa_letra" ? '🎤' : '🎵'}</span>`;
+            btn.innerHTML = `<span>${op}</span> <span style="opacity: 0.6;">🎵</span>`;
             btn.onclick = () => onSelect(op, btn);
             cont.appendChild(btn);
         });
@@ -2600,33 +2346,24 @@ const UIController = {
         wrapper.style.display = "block";
         select.innerHTML = "";
 
-        if (modo === "completa_letra") {
-            CATEGORIAS_COMPLETA_LETRA.forEach(item => {
+        CATEGORIAS_ADIVINAR.forEach(item => {
+            if (item.group) {
+                const optgroup = document.createElement("optgroup");
+                optgroup.label = item.group;
+                item.options.forEach(sub => {
+                    const opt = document.createElement("option");
+                    opt.value = sub.value;
+                    opt.innerText = sub.label;
+                    optgroup.appendChild(opt);
+                });
+                select.appendChild(optgroup);
+            } else {
                 const opt = document.createElement("option");
                 opt.value = item.value;
                 opt.innerText = item.label;
                 select.appendChild(opt);
-            });
-        } else {
-            CATEGORIAS_ADIVINAR.forEach(item => {
-                if (item.group) {
-                    const optgroup = document.createElement("optgroup");
-                    optgroup.label = item.group;
-                    item.options.forEach(sub => {
-                        const opt = document.createElement("option");
-                        opt.value = sub.value;
-                        opt.innerText = sub.label;
-                        optgroup.appendChild(opt);
-                    });
-                    select.appendChild(optgroup);
-                } else {
-                    const opt = document.createElement("option");
-                    opt.value = item.value;
-                    opt.innerText = item.label;
-                    select.appendChild(opt);
-                }
-            });
-        }
+            }
+        });
     }
 };
 
@@ -2639,7 +2376,6 @@ function cambiarModoJuegoPrincipal(nuevoModo) {
     AppState.proximaCancionCache = null;
 
     const tabCancion = document.getElementById("tab-mode-cancion");
-    const tabLetra = document.getElementById("tab-mode-letra");
     const tabTicTacToe = document.getElementById("tab-mode-tictactoe");
     const headerTitle = document.getElementById("header-title");
     const headerIcon = document.getElementById("header-icon");
@@ -2648,17 +2384,9 @@ function cambiarModoJuegoPrincipal(nuevoModo) {
     const btnSolo = document.getElementById("btn-solo-action");
 
     tabCancion.classList.remove("active");
-    tabLetra.classList.remove("active", "tab-letra");
     tabTicTacToe.classList.remove("active", "tab-tictactoe");
 
-    if (nuevoModo === "completa_letra") {
-        tabLetra.classList.add("active", "tab-letra");
-        headerTitle.innerText = "Completa la Letra";
-        headerIcon.innerText = "🎤";
-        desc.innerText = "La canción se detiene de golpe: ¿qué frase continúa la letra?";
-        catLabel.innerText = "👇 Selecciona Género Musical (Letras)";
-        btnSolo.style.display = "block";
-    } else if (nuevoModo === "tic_tac_toe") {
+    if (nuevoModo === "tic_tac_toe") {
         tabTicTacToe.classList.add("active", "tab-tictactoe");
         headerTitle.innerText = "Tic Tac Toe (El Gato)";
         headerIcon.innerText = "❌⭕";
@@ -2708,9 +2436,7 @@ function copiarCodigoSala() {
 }
 
 function iniciarReproduccionManual() {
-    const duracion = AppState.tipoJuego === "completa_letra" ? 5.5 : 5;
-    const startTime = AppState.cancionActual ? (AppState.cancionActual.startTime || 0) : 0;
-    AudioController.reproducirConControl(duracion, startTime);
+    AudioController.reproducirConControl(5, 0);
 }
 
 function reiniciarJuego() {
@@ -2743,7 +2469,6 @@ function obtenerUrlDesafio() {
 function compartirWhatsApp() {
     const shareUrl = obtenerUrlDesafio();
     let modoTexto = "🎵 Adivina la Canción";
-    if (AppState.tipoJuego === "completa_letra") modoTexto = "🎤 Completa la Letra";
     if (AppState.tipoJuego === "tic_tac_toe") modoTexto = "❌⭕ Tic Tac Toe";
 
     const msg = `🔥 ¡Jugamos a "${modoTexto}" (${AppState.categoriaTexto})!\n\n¿Te crees capaz de superarme? Juega aquí:\n${shareUrl}`;
@@ -2794,7 +2519,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const modoParam = params.get("modo");
     const catParam = params.get("cat");
 
-    if (modoParam === "completa_letra" || modoParam === "tic_tac_toe") {
+    if (modoParam === "tic_tac_toe") {
         cambiarModoJuegoPrincipal(modoParam);
     }
 
