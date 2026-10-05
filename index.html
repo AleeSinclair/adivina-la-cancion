@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adivina la Canción & Completa la Letra 🎵🎤</title>
+    <title>Adivina la Canción, Completa la Letra & Tic Tac Toe 🎵🎤❌⭕</title>
     
     <!-- Meta SEO & Social Sharing -->
-    <meta name="description" content="Juego musical interactivo: Adivina el tema o Completa la letra que sigue cuando se detiene la canción. Modos Solo y Multijugador en tiempo real.">
+    <meta name="description" content="Juego interactivo: Adivina el tema, Completa la letra o juega Tic Tac Toe en tiempo real con tus amigos.">
     <meta name="theme-color" content="#0c0f14">
 
     <!-- External Libraries -->
@@ -106,8 +106,8 @@
             background: transparent;
             color: var(--text-muted);
             border: none;
-            padding: 10px 12px;
-            font-size: 13px;
+            padding: 10px 8px;
+            font-size: 12px;
             font-weight: 700;
             border-radius: 10px;
             cursor: pointer;
@@ -116,7 +116,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .mode-tab:hover {
@@ -136,6 +136,12 @@
             background: linear-gradient(135deg, var(--neon-purple), #d946ef);
             color: #fff;
             box-shadow: 0 4px 15px var(--neon-purple-glow);
+        }
+
+        .mode-tab.active.tab-tictactoe {
+            background: linear-gradient(135deg, var(--neon-cyan), #0284c7);
+            color: #fff;
+            box-shadow: 0 4px 15px var(--neon-cyan-glow);
         }
 
         .screen-section {
@@ -560,6 +566,62 @@
             color: var(--danger-red);
         }
 
+        /* --- ESTILOS TIC TAC TOE --- */
+        .ttt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .ttt-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-btn);
+            font-size: 38px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .ttt-cell:hover:not(.disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--neon-cyan);
+            transform: scale(1.03);
+        }
+
+        .ttt-cell.cell-x {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px var(--neon-cyan-glow);
+        }
+
+        .ttt-cell.cell-o {
+            color: var(--neon-purple);
+            text-shadow: 0 0 15px var(--neon-purple-glow);
+        }
+
+        .ttt-cell.winning-cell {
+            background: rgba(30, 215, 96, 0.2) !important;
+            border-color: var(--spotify-green) !important;
+            animation: pulseCutoff 0.8s infinite alternate;
+        }
+
+        .ttt-turn-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-btn);
+            padding: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
         .ranking-list {
             list-style: none;
             padding: 0;
@@ -715,8 +777,8 @@
                 font-size: 23px;
             }
             .mode-tab {
-                font-size: 12px;
-                padding: 8px 10px;
+                font-size: 11px;
+                padding: 8px 4px;
             }
         }
     </style>
@@ -733,10 +795,13 @@
     <div id="pantalla-inicio" class="screen-section active">
         <div class="mode-selector-tabs">
             <button id="tab-mode-cancion" class="mode-tab active" onclick="cambiarModoJuegoPrincipal('adivinar_cancion')">
-                <span>🎵</span> Adivinar Tema
+                <span>🎵</span> Adivinar
             </button>
             <button id="tab-mode-letra" class="mode-tab" onclick="cambiarModoJuegoPrincipal('completa_letra')">
-                <span>🎤</span> Completa la Letra
+                <span>🎤</span> Letra
+            </button>
+            <button id="tab-mode-tictactoe" class="mode-tab" onclick="cambiarModoJuegoPrincipal('tic_tac_toe')">
+                <span>❌⭕</span> Tic Tac Toe
             </button>
         </div>
 
@@ -746,7 +811,7 @@
         
         <input type="text" id="player-nickname" placeholder="Tu Nickname (Ej: Leo)" maxlength="12" autocomplete="off" spellcheck="false">
         
-        <div style="margin-top: 8px;">
+        <div id="categoria-select-wrapper" style="margin-top: 8px;">
             <label class="select-label" for="categoria" id="categoria-label">👇 Selecciona Categoría Musical</label>
             <div class="select-container">
                 <select id="categoria"></select>
@@ -767,7 +832,7 @@
             <h2 style="color: var(--neon-purple); margin: 0;">Sala Multijugador ⚔️</h2>
             <span id="lobby-mode-badge" class="status-pill pill-purple">Modo: 🎵 Adivina</span>
         </div>
-        <p class="subtitle" id="lobby-subtitulo">Compite en tiempo real con amigos por velocidad y precisión.</p>
+        <p class="subtitle" id="lobby-subtitulo">Compite en tiempo real con amigos en la misma sala.</p>
 
         <div id="lobby-join-area">
             <button class="btn-block" onclick="crearSala()">🏠 Crear Nueva Sala</button>
@@ -791,7 +856,7 @@
             <p style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">Jugadores conectados:</p>
             <div id="lista-jugadores-lobby" style="min-height: 48px; margin-bottom: 16px;"></div>
 
-            <button id="btn-iniciar-partida" class="btn-block" style="display: none;" onclick="iniciarPartidaHost()">🚀 Iniciar Partida (10 Rondas)</button>
+            <button id="btn-iniciar-partida" class="btn-block" style="display: none;" onclick="iniciarPartidaHost()">🚀 Iniciar Partida</button>
             <p id="esperando-host-txt" style="display: none; font-size: 13px; color: var(--neon-purple); font-weight: 700;">Esperando que el Host inicie la partida...</p>
         </div>
 
@@ -800,7 +865,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA 3: JUEGO (SOLO & MULTI) -->
+    <!-- PANTALLA 3: JUEGO MUSICAL (SOLO & MULTI) -->
     <div id="pantalla-juego" class="screen-section">
         <div id="ui-solitario">
             <div class="status-bar">
@@ -857,6 +922,37 @@
         </button>
 
         <div id="opciones" style="margin-top: 14px;"></div>
+    </div>
+
+    <!-- PANTALLA 3.5: TIC TAC TOE (EL GATO) -->
+    <div id="pantalla-tictactoe" class="screen-section">
+        <div class="status-bar">
+            <span class="status-pill pill-cyan">Modo: ❌⭕ Tic Tac Toe</span>
+            <span class="status-pill pill-purple" id="ttt-symbol-badge">Símbolo: -</span>
+        </div>
+
+        <div class="ttt-turn-box" id="ttt-turn-status">
+            Esperando que se unan los jugadores...
+        </div>
+
+        <div class="ttt-grid" id="ttt-grid-container">
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(0)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(1)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(2)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(3)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(4)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(5)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(6)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(7)"></div>
+            <div class="ttt-cell" onclick="TicTacToeManager.marcarCasilla(8)"></div>
+        </div>
+
+        <button class="btn-block btn-secondary" onclick="TicTacToeManager.reiniciarPartidaLocalHost()">
+            <span>🔄</span> Reiniciar Tablero
+        </button>
+        <button class="btn-block btn-secondary" style="margin-top: 6px;" onclick="reiniciarJuego()">
+            <span>⬅️</span> Salir al Menú
+        </button>
     </div>
 
     <!-- PANTALLA 4: RANKING EN VIVO ENTRE RONDAS -->
@@ -1411,7 +1507,7 @@ const BANCO_COMPLETA_LETRA = [
 const CATEGORIAS_ADIVINAR = [
     { value: "AZAR", label: "🎲 Al Azar / De Todo (Mezclado)" },
     { group: "Cultura Pop & Cine", options: [
-        { value: "HAMILTON", label: "Hamilton (El Musical) ⭐️🎭" },
+        { value: "HAMILTON", label: "Hamilton (El Musical) ⭐️️🎭" },
         { value: "DISNEY_MUSICALES", label: "Disney & Musicales 🏰🎬" },
         { value: "PELICULAS", label: "Películas, Anime & Juegos 🎬🎮" },
         { value: "KPOP", label: "K-Pop 🇰🇷" }
@@ -1693,7 +1789,6 @@ const MusicService = {
             this.procesarCancionesAdivinar(data.results, callbackExito, intentosRestantes);
         };
 
-        // Si la categoría seleccionada es Hamilton o de bandas/musicales, no restringir estrictamente attribute=artistTerm
         const attributeFilter = (AppState.categoriaSeleccionada === "HAMILTON" || AppState.categoriaSeleccionada === "PELICULAS") 
             ? "" 
             : "&attribute=artistTerm";
@@ -1848,6 +1943,12 @@ const MusicService = {
 // ==========================================
 function comenzarJuegoSolitario() {
     AudioController.desbloquearContexto();
+
+    if (AppState.tipoJuego === "tic_tac_toe") {
+        alert("El modo Tic Tac Toe es exclusivo para 2 Jugadores en Multijugador.");
+        return;
+    }
+
     AppState.modoMulti = false;
     AppState.puntaje = 0;
     AppState.vidas = 3;
@@ -2044,7 +2145,139 @@ function finalizarJuegoSolitario() {
 }
 
 // ==========================================
-// 8. MÓDULO MULTIJUGADOR (FIREBASE COMPAT)
+// 8. MÓDULO TIC TAC TOE (EL GATO)
+// ==========================================
+const TicTacToeManager = {
+    misSimbolo: "", // "X" u "O"
+
+    inicializarPartida(sala) {
+        UIController.mostrarPantalla("pantalla-tictactoe");
+        
+        const ids = Object.keys(sala.jugadores || {});
+        if (ids[0] === AppState.miPlayerId) {
+            this.misSimbolo = "X";
+        } else {
+            this.misSimbolo = "O";
+        }
+
+        document.getElementById("ttt-symbol-badge").innerText = `Tus Fichas: ${this.misSimbolo}`;
+        this.renderizarTablero(sala.tttBoard || Array(9).fill(""), sala.tttWinner, sala.tttWinningLine);
+        this.actualizarTurnoUI(sala);
+    },
+
+    actualizarTurnoUI(sala) {
+        const statusBox = document.getElementById("ttt-turn-status");
+        if (sala.tttWinner) {
+            if (sala.tttWinner === "EMPATE") {
+                statusBox.innerText = "¡Es un EMPATE! 🤝";
+                statusBox.style.color = "var(--amber-gold)";
+            } else if (sala.tttWinner === this.misSimbolo) {
+                statusBox.innerText = `¡GANASTE LA PARTIDA! 🎉 (${this.misSimbolo})`;
+                statusBox.style.color = "var(--spotify-green)";
+            } else {
+                statusBox.innerText = `¡Gana el jugador ${sala.tttWinner}! ❌⭕`;
+                statusBox.style.color = "var(--danger-red)";
+            }
+            return;
+        }
+
+        const turnoActual = sala.tttTurn || "X";
+        if (turnoActual === this.misSimbolo) {
+            statusBox.innerText = "¡Es tu turno de colocar ficha! 🎯";
+            statusBox.style.color = "var(--spotify-green)";
+        } else {
+            statusBox.innerText = `Turno del oponente (${turnoActual})... ⏳`;
+            statusBox.style.color = "var(--text-muted)";
+        }
+    },
+
+    marcarCasilla(index) {
+        if (!AppState.miCodigoSala) return;
+
+        db.ref(`salas/${AppState.miCodigoSala}`).once("value").then(snap => {
+            if (!snap.exists()) return;
+            const sala = snap.val();
+
+            if (sala.estado !== "jugando_ttt" || sala.tttWinner) return;
+            const turno = sala.tttTurn || "X";
+            if (turno !== this.misSimbolo) {
+                UIController.mostrarToast("No es tu turno aún ⏳");
+                return;
+            }
+
+            const board = sala.tttBoard || Array(9).fill("");
+            if (board[index] !== "") return;
+
+            board[index] = this.misSimbolo;
+            const evalRes = this.comprobarGanador(board);
+
+            const updates = {};
+            updates[`tttBoard`] = board;
+
+            if (evalRes.winner) {
+                updates[`tttWinner`] = evalRes.winner;
+                updates[`tttWinningLine`] = evalRes.line || null;
+            } else {
+                updates[`tttTurn`] = (this.misSimbolo === "X") ? "O" : "X";
+            }
+
+            db.ref(`salas/${AppState.miCodigoSala}`).update(updates);
+        });
+    },
+
+    comprobarGanador(b) {
+        const combinaciones = [
+            [0,1,2], [3,4,5], [6,7,8], // Filas
+            [0,3,6], [1,4,7], [2,5,8], // Columnas
+            [0,4,8], [2,4,6]          // Diagonales
+        ];
+
+        for (let comb of combinaciones) {
+            const [a, bIdx, c] = comb;
+            if (b[a] && b[a] === b[bIdx] && b[a] === b[c]) {
+                return { winner: b[a], line: comb };
+            }
+        }
+
+        if (b.every(cell => cell !== "")) {
+            return { winner: "EMPATE", line: null };
+        }
+
+        return { winner: null, line: null };
+    },
+
+    renderizarTablero(board, winner, line) {
+        const cells = document.querySelectorAll(".ttt-cell");
+        cells.forEach((cell, idx) => {
+            const val = board[idx] || "";
+            cell.innerText = val;
+            cell.className = "ttt-cell";
+
+            if (val === "X") cell.classList.add("cell-x");
+            if (val === "O") cell.classList.add("cell-o");
+
+            if (winner) cell.classList.add("disabled");
+            if (line && line.includes(idx)) cell.classList.add("winning-cell");
+        });
+    },
+
+    reiniciarPartidaLocalHost() {
+        if (!AppState.esHost) {
+            UIController.mostrarToast("Solo el Host de la sala puede reiniciar el tablero");
+            return;
+        }
+
+        db.ref(`salas/${AppState.miCodigoSala}`).update({
+            tttBoard: Array(9).fill(""),
+            tttTurn: "X",
+            tttWinner: null,
+            tttWinningLine: null
+        });
+    }
+};
+
+// ==========================================
+// 9. MÓDULO MULTIJUGADOR (FIREBASE COMPAT)
 // ==========================================
 const MultiplayerManager = {
     timerEvaluacionFallback: null,
@@ -2082,7 +2315,7 @@ const MultiplayerManager = {
 
         const select = document.getElementById("categoria");
         AppState.categoriaSeleccionada = select.value;
-        AppState.categoriaTexto = select.options[select.selectedIndex].text;
+        AppState.categoriaTexto = select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : "Tic Tac Toe";
 
         const salaRef = db.ref("salas/" + AppState.miCodigoSala);
         salaRef.onDisconnect().remove();
@@ -2163,7 +2396,10 @@ const MultiplayerManager = {
         document.getElementById("lobby-wait-area").style.display = "block";
         document.getElementById("codigo-sala-display").innerText = AppState.miCodigoSala;
         
-        const modoTag = AppState.tipoJuego === "completa_letra" ? "Modo: 🎤 Completa Letra" : "Modo: 🎵 Adivina Tema";
+        let modoTag = "Modo: 🎵 Adivina";
+        if (AppState.tipoJuego === "completa_letra") modoTag = "Modo: 🎤 Completa Letra";
+        if (AppState.tipoJuego === "tic_tac_toe") modoTag = "Modo: ❌⭕ Tic Tac Toe";
+
         document.getElementById("lobby-mode-badge").innerText = modoTag;
 
         if (AppState.esHost) {
@@ -2193,11 +2429,18 @@ const MultiplayerManager = {
             AppState.tipoJuego = sala.tipoJuego || "adivinar_cancion";
 
             if (sala.estado === "esperando") {
+                this.prepararVistaLobby();
+                UIController.mostrarPantalla("pantalla-lobby");
+
                 let html = "";
                 Object.values(sala.jugadores || {}).forEach(j => {
                     html += `<span class="player-badge">👤 ${j.nick} ${j.host ? '👑' : ''}</span>`;
                 });
                 document.getElementById("lista-jugadores-lobby").innerHTML = html;
+            }
+
+            if (sala.estado === "jugando_ttt") {
+                TicTacToeManager.inicializarPartida(sala);
             }
 
             if (sala.estado === "jugando") {
@@ -2281,6 +2524,18 @@ const MultiplayerManager = {
 
     iniciarPartidaHost() {
         if (!AppState.esHost) return;
+
+        if (AppState.tipoJuego === "tic_tac_toe") {
+            db.ref("salas/" + AppState.miCodigoSala).update({
+                estado: "jugando_ttt",
+                tttBoard: Array(9).fill(""),
+                tttTurn: "X",
+                tttWinner: null,
+                tttWinningLine: null
+            });
+            return;
+        }
+
         db.ref("salas/" + AppState.miCodigoSala).update({
             estado: "jugando",
             ronda: 1,
@@ -2587,12 +2842,31 @@ const MultiplayerManager = {
         document.getElementById("stat-racha").innerText = "10 Rondas";
         document.getElementById("stat-precision").innerText = "Multijugador";
         document.getElementById("stat-tiempo").innerText = "Fin";
+    },
 
-        if (AppState.esHost) {
-            setTimeout(() => {
-                db.ref("salas/" + AppState.miCodigoSala).remove().catch(() => {});
-            }, 60000);
-        }
+    reiniciarMismaSalaHost() {
+        if (!AppState.miCodigoSala) return;
+
+        db.ref(`salas/${AppState.miCodigoSala}`).once("value").then(snap => {
+            if (!snap.exists()) return;
+            const sala = snap.val();
+            const jugadores = sala.jugadores || {};
+
+            // Restablecer puntajes a 0
+            Object.keys(jugadores).forEach(pid => {
+                jugadores[pid].puntaje = 0;
+            });
+
+            db.ref(`salas/${AppState.miCodigoSala}`).update({
+                estado: "esperando",
+                ronda: 1,
+                cancionActual: null,
+                respuestasRonda: {},
+                resultadoRonda: null,
+                evaluandoRonda: false,
+                jugadores: jugadores
+            });
+        });
     },
 
     salirDeSalaLobby() {
@@ -2607,7 +2881,7 @@ const MultiplayerManager = {
 };
 
 // ==========================================
-// 9. CONTROLADOR DE INTERFAZ (UI/UX)
+// 10. CONTROLADOR DE INTERFAZ (UI/UX)
 // ==========================================
 const UIController = {
     mostrarPantalla(id) {
@@ -2702,6 +2976,14 @@ const UIController = {
 
     poblarCategorias(modo) {
         const select = document.getElementById("categoria");
+        const wrapper = document.getElementById("categoria-select-wrapper");
+        
+        if (modo === "tic_tac_toe") {
+            wrapper.style.display = "none";
+            return;
+        }
+
+        wrapper.style.display = "block";
         select.innerHTML = "";
 
         if (modo === "completa_letra") {
@@ -2735,7 +3017,7 @@ const UIController = {
 };
 
 // ==========================================
-// 10. FUNCIONES DE CAMBIO DE MODO Y SOCIAL
+// 11. FUNCIONES DE CAMBIO DE MODO Y SOCIAL
 // ==========================================
 function cambiarModoJuegoPrincipal(nuevoModo) {
     AppState.tipoJuego = nuevoModo;
@@ -2744,25 +3026,37 @@ function cambiarModoJuegoPrincipal(nuevoModo) {
 
     const tabCancion = document.getElementById("tab-mode-cancion");
     const tabLetra = document.getElementById("tab-mode-letra");
+    const tabTicTacToe = document.getElementById("tab-mode-tictactoe");
     const headerTitle = document.getElementById("header-title");
     const headerIcon = document.getElementById("header-icon");
     const desc = document.getElementById("modo-descripcion");
     const catLabel = document.getElementById("categoria-label");
+    const btnSolo = document.getElementById("btn-solo-action");
+
+    tabCancion.classList.remove("active");
+    tabLetra.classList.remove("active", "tab-letra");
+    tabTicTacToe.classList.remove("active", "tab-tictactoe");
 
     if (nuevoModo === "completa_letra") {
-        tabCancion.classList.remove("active");
         tabLetra.classList.add("active", "tab-letra");
         headerTitle.innerText = "Completa la Letra";
         headerIcon.innerText = "🎤";
         desc.innerText = "La canción se detiene de golpe: ¿qué frase continúa la letra?";
         catLabel.innerText = "👇 Selecciona Género Musical (Letras)";
+        btnSolo.style.display = "block";
+    } else if (nuevoModo === "tic_tac_toe") {
+        tabTicTacToe.classList.add("active", "tab-tictactoe");
+        headerTitle.innerText = "Tic Tac Toe (El Gato)";
+        headerIcon.innerText = "❌⭕";
+        desc.innerText = "Modo multijugador por turnos en tiempo real. Coloca tu ficha sin apuros.";
+        btnSolo.style.display = "none";
     } else {
-        tabLetra.classList.remove("active", "tab-letra");
         tabCancion.classList.add("active");
         headerTitle.innerText = "Adivina la Canción";
         headerIcon.innerText = "🎵";
         desc.innerText = "Escucha 5 segundos y adivina el título y artista antes que nadie.";
         catLabel.innerText = "👇 Selecciona Categoría Musical";
+        btnSolo.style.display = "block";
     }
 
     UIController.poblarCategorias(nuevoModo);
@@ -2808,7 +3102,17 @@ function iniciarReproduccionManual() {
 function reiniciarJuego() {
     AudioController.detenerTodo();
     if (AppState.modoMulti) {
-        MultiplayerManager.salirDeSalaLobby();
+        if (AppState.esHost) {
+            MultiplayerManager.reiniciarMismaSalaHost();
+        } else {
+            // El jugador cliente espera que el host mande la sala a estado esperando
+            UIController.mostrarToast("Esperando que el host reinicie la sala...");
+            db.ref(`salas/${AppState.miCodigoSala}/estado`).once("value").then(snap => {
+                if (snap.exists() && snap.val() === "esperando") {
+                    UIController.mostrarPantalla("pantalla-lobby");
+                }
+            });
+        }
     } else {
         UIController.mostrarPantalla("pantalla-inicio");
     }
@@ -2816,14 +3120,18 @@ function reiniciarJuego() {
 
 function obtenerUrlDesafio() {
     const sel = document.getElementById("categoria");
+    const catVal = sel ? sel.value : "";
     const baseUrl = window.location.href.split('?')[0];
-    return `${baseUrl}?modo=${encodeURIComponent(AppState.tipoJuego)}&cat=${encodeURIComponent(sel.value)}`;
+    return `${baseUrl}?modo=${encodeURIComponent(AppState.tipoJuego)}&cat=${encodeURIComponent(catVal)}`;
 }
 
 function compartirWhatsApp() {
     const shareUrl = obtenerUrlDesafio();
-    const modoTexto = AppState.tipoJuego === "completa_letra" ? "🎤 Completa la Letra" : "🎵 Adivina la Canción";
-    const msg = `🔥 ¡Hice ${AppState.puntaje} puntos en "${modoTexto}" (${AppState.categoriaTexto})!\n\n¿Te crees capaz de continuar la letra y superarme? Juega aquí:\n${shareUrl}`;
+    let modoTexto = "🎵 Adivina la Canción";
+    if (AppState.tipoJuego === "completa_letra") modoTexto = "🎤 Completa la Letra";
+    if (AppState.tipoJuego === "tic_tac_toe") modoTexto = "❌⭕ Tic Tac Toe";
+
+    const msg = `🔥 ¡Jugamos a "${modoTexto}" (${AppState.categoriaTexto})!\n\n¿Te crees capaz de superarme? Juega aquí:\n${shareUrl}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
@@ -2871,16 +3179,18 @@ window.addEventListener("DOMContentLoaded", () => {
     const modoParam = params.get("modo");
     const catParam = params.get("cat");
 
-    if (modoParam === "completa_letra") {
-        cambiarModoJuegoPrincipal("completa_letra");
+    if (modoParam === "completa_letra" || modoParam === "tic_tac_toe") {
+        cambiarModoJuegoPrincipal(modoParam);
     }
 
     if (catParam) {
         const select = document.getElementById("categoria");
-        for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value === catParam) {
-                select.selectedIndex = i;
-                break;
+        if (select) {
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === catParam) {
+                    select.selectedIndex = i;
+                    break;
+                }
             }
         }
     }
