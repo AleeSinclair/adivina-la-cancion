@@ -1462,9 +1462,6 @@ const MusicService = {
         });
     },
 
-    // ==========================================
-    // BÚSQUEDA Y SINCRONIZACIÓN LIRCLIB
-    // ==========================================
     obtenerPreguntaCompletaLetra(categoriaVal, callbackExito, intentos = 5) {
         if (intentos <= 0) {
             UIController.mostrarToast("Reintentando encontrar letra disponible...");
@@ -1491,7 +1488,6 @@ const MusicService = {
                     }
 
                     const lineas = this.parsearLRC(data.syncedLyrics);
-                    // Filtrar líneas dentro de los 30 segundos que dura la vista previa
                     const lineas30s = lineas.filter(l => l.tiempoSegundos < 26);
 
                     if (lineas30s.length < 2) {
@@ -1754,7 +1750,7 @@ function finalizarJuegoSolitario() {
 }
 
 // ==========================================
-// 7. MÓDULO TIC TAC TOE (EL GATO)
+// 7. MÓDULO TIC TAC TOE (EL GATO CON INTERCALADO)
 // ==========================================
 const TicTacToeManager = {
     misSimbolo: "",
@@ -1876,11 +1872,20 @@ const TicTacToeManager = {
             return;
         }
 
-        db.ref(`salas/${AppState.miCodigoSala}`).update({
-            tttBoard: Array(9).fill(""),
-            tttTurn: "X",
-            tttWinner: null,
-            tttWinningLine: null
+        db.ref(`salas/${AppState.miCodigoSala}`).once("value").then(snap => {
+            if (!snap.exists()) return;
+            const sala = snap.val();
+            // Intercalar el símbolo inicial: Si empezó X, ahora empieza O; si empezó O, ahora X
+            const ultimoInicio = sala.tttStartingSymbol || "X";
+            const nuevoInicio = (ultimoInicio === "X") ? "O" : "X";
+
+            db.ref(`salas/${AppState.miCodigoSala}`).update({
+                tttBoard: Array(9).fill(""),
+                tttTurn: nuevoInicio,
+                tttStartingSymbol: nuevoInicio,
+                tttWinner: null,
+                tttWinningLine: null
+            });
         });
     }
 };
@@ -2139,6 +2144,7 @@ const MultiplayerManager = {
                 estado: "jugando_ttt",
                 tttBoard: Array(9).fill(""),
                 tttTurn: "X",
+                tttStartingSymbol: "X",
                 tttWinner: null,
                 tttWinningLine: null
             });
@@ -2710,7 +2716,9 @@ function iniciarReproduccionManual() {
 function reiniciarJuego() {
     AudioController.detenerTodo();
     if (AppState.modoMulti) {
-        if (AppState.esHost) {
+        if (AppState.tipoJuego === "tic_tac_toe") {
+            TicTacToeManager.reiniciarPartidaLocalHost();
+        } else if (AppState.esHost) {
             MultiplayerManager.reiniciarMismaSalaHost();
         } else {
             UIController.mostrarToast("Esperando que el host reinicie la sala...");
