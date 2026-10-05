@@ -858,15 +858,16 @@
         <div id="opciones" style="margin-top: 14px;"></div>
     </div>
 
-    <!-- PANTALLA 3.5: TIC TAC TOE (EL GATO) -->
+    <!-- PANTALLA 3.5: TIC TAC TOE (EL GATO EN TIEMPO REAL CON NICKNAMES) -->
     <div id="pantalla-tictactoe" class="screen-section">
-        <div class="status-bar">
-            <span class="status-pill pill-cyan">Modo: ❌⭕ Tic Tac Toe</span>
-            <span class="status-pill pill-purple" id="ttt-symbol-badge">Símbolo: -</span>
+        <div class="status-bar" style="flex-wrap: wrap; gap: 6px;">
+            <span class="status-pill pill-cyan" id="ttt-p1-badge">❌ Jugador 1</span>
+            <span style="font-size: 11px; color: var(--text-muted);">VS</span>
+            <span class="status-pill pill-purple" id="ttt-p2-badge">⭕ Jugador 2</span>
         </div>
 
         <div class="ttt-turn-box" id="ttt-turn-status">
-            Esperando que se unan los jugadores...
+            Cargando tablero...
         </div>
 
         <div class="ttt-grid" id="ttt-grid-container">
@@ -885,7 +886,7 @@
             <span>🔄</span> Reiniciar Tablero
         </button>
         <button class="btn-block btn-secondary" style="margin-top: 6px;" onclick="reiniciarJuego()">
-            <span>⬅️️</span> Salir al Menú
+            <span>⬅️</span> Salir al Menú
         </button>
     </div>
 
@@ -1105,6 +1106,28 @@ const AudioController = {
         }).catch(() => {});
     },
 
+    reproducirSonidoTurno() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(880, ctx.currentTime); // Nota A5 suave
+            osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12); // Bell-tone hacia E6
+
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.26);
+        } catch (e) {}
+    },
+
     reproducirEfectoCorte() {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1145,7 +1168,7 @@ const AudioController = {
             playPromise.then(() => {
                 this.tiempoInicioAudio = performance.now();
                 UIController.setSoundwaveActive(true);
-                UIController.setEstadoTexto("▶️️ Escuchando la canción...");
+                UIController.setEstadoTexto("▶ Escuchando la canción...");
                 document.getElementById("btn-play").disabled = true;
 
                 this.iniciarAnimacionProgreso(onCorteAudio, onTimeoutTotal);
@@ -1211,7 +1234,7 @@ const AudioController = {
 };
 
 // ==========================================
-// 5. SERVICIO ITUNES (BÚSQUEDA DE BANCAS Y FALSAS)
+// 5. SERVICIO ITUNES (BÚSQUEDA DE CANCIONES)
 // ==========================================
 const MusicService = {
     normalizarTitulo(str) {
@@ -1553,14 +1576,19 @@ function finalizarJuegoSolitario() {
 }
 
 // ==========================================
-// 7. MÓDULO TIC TAC TOE (EL GATO CON INTERCALADO)
+// 7. MÓDULO TIC TAC TOE (EL GATO CON SONIDO & NICKNAMES)
 // ==========================================
 const TicTacToeManager = {
     misSimbolo: "",
+    ultimoTurnoSonado: "",
 
     inicializarPartida(sala) {
         UIController.mostrarPantalla("pantalla-tictactoe");
         
+        const jugadores = Object.values(sala.jugadores || {});
+        const p1 = jugadores[0] || { nick: "Jugador 1" };
+        const p2 = jugadores[1] || { nick: "Jugador 2" };
+
         const ids = Object.keys(sala.jugadores || {});
         if (ids[0] === AppState.miPlayerId) {
             this.misSimbolo = "X";
@@ -1568,33 +1596,43 @@ const TicTacToeManager = {
             this.misSimbolo = "O";
         }
 
-        document.getElementById("ttt-symbol-badge").innerText = `Tus Fichas: ${this.misSimbolo}`;
+        document.getElementById("ttt-p1-badge").innerText = `❌ ${p1.nick}`;
+        document.getElementById("ttt-p2-badge").innerText = `⭕ ${p2.nick}`;
+
         this.renderizarTablero(sala.tttBoard || Array(9).fill(""), sala.tttWinner, sala.tttWinningLine);
-        this.actualizarTurnoUI(sala);
+        this.actualizarTurnoUI(sala, p1.nick, p2.nick);
     },
 
-    actualizarTurnoUI(sala) {
+    actualizarTurnoUI(sala, p1Nick, p2Nick) {
         const statusBox = document.getElementById("ttt-turn-status");
+        const turnoActual = sala.tttTurn || "X";
+
+        // Reproducir sonido de notificación si acaba de cambiar al turno del jugador
+        if (!sala.tttWinner && turnoActual === this.misSimbolo && this.ultimoTurnoSonado !== turnoActual) {
+            AudioController.reproducirSonidoTurno();
+            this.ultimoTurnoSonado = turnoActual;
+        }
+
         if (sala.tttWinner) {
+            this.ultimoTurnoSonado = "";
             if (sala.tttWinner === "EMPATE") {
                 statusBox.innerText = "¡Es un EMPATE! 🤝";
                 statusBox.style.color = "var(--amber-gold)";
-            } else if (sala.tttWinner === this.misSimbolo) {
-                statusBox.innerText = `¡GANASTE LA PARTIDA! 🎉 (${this.misSimbolo})`;
-                statusBox.style.color = "var(--spotify-green)";
             } else {
-                statusBox.innerText = `¡Gana el jugador ${sala.tttWinner}! ❌⭕`;
-                statusBox.style.color = "var(--danger-red)";
+                const nickGanador = (sala.tttWinner === "X") ? p1Nick : p2Nick;
+                statusBox.innerText = `¡GANÓ ${nickGanador.toUpperCase()}! 🎉 (${sala.tttWinner})`;
+                statusBox.style.color = (sala.tttWinner === "X") ? "var(--neon-cyan)" : "var(--neon-purple)";
             }
             return;
         }
 
-        const turnoActual = sala.tttTurn || "X";
+        const nickEnTurno = (turnoActual === "X") ? p1Nick : p2Nick;
+
         if (turnoActual === this.misSimbolo) {
-            statusBox.innerText = "¡Es tu turno de colocar ficha! 🎯";
+            statusBox.innerText = `¡Es tu turno, ${nickEnTurno}! 🎯 (${this.misSimbolo})`;
             statusBox.style.color = "var(--spotify-green)";
         } else {
-            statusBox.innerText = `Turno del oponente (${turnoActual})... ⏳`;
+            statusBox.innerText = `Turno de ${nickEnTurno}... ⏳ (${turnoActual})`;
             statusBox.style.color = "var(--text-muted)";
         }
     },
