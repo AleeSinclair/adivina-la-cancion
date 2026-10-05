@@ -950,7 +950,7 @@
             <span>🔄</span> Reiniciar Tablero
         </button>
         <button class="btn-block btn-secondary" style="margin-top: 6px;" onclick="reiniciarJuego()">
-            <span>⬅️️</span> Salir al Menú
+            <span>⬅️</span> Salir al Menú
         </button>
     </div>
 
@@ -1070,7 +1070,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ==========================================
-// 2. BANCOS DE MÚSICA & REPERTORIO
+// 2. BANCOS DE MÚSICA & CATEGORÍAS
 // ==========================================
 const PALABRAS_NAVISTAS = ["navidad", "navideño", "villancico", "silent night", "noche de paz", "blanca navidad", "merry christmas", "santa claus", "jingle bell", "feliz navidad"];
 
@@ -1091,535 +1091,6 @@ const ARTISTAS_ELECTRONICA = ["Daft Punk", "Avicii", "David Guetta", "Calvin Har
 const ARTISTAS_KPOP = ["BTS", "BLACKPINK", "TWICE", "Stray Kids", "NewJeans", "SEVENTEEN", "EXO", "ITZY", "TXT", "ENHYPEN", "IVE", "AESPA"];
 const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Ghibli", "Super Mario Bros Theme", "Harry Potter Soundtrack"];
 const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL];
-
-// ==========================================
-// 3. BASE DE DATOS SINCRONIZADA POR MARCAS DE TIEMPO (startTime)
-// ==========================================
-const BANCO_COMPLETA_LETRA = [
-    {
-        id: "torero",
-        titulo: "Torero",
-        artista: "Chayanne",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Chayanne Torero",
-        tramos: [
-            {
-                startTime: 0.0,
-                verso: "De lunes a domingo voy desesperado...",
-                correcta: "El corazón bombeando al ritmo de un motor",
-                falsas: [
-                    "Buscando tu perfume en cada callejón",
-                    "Manejando en la noche sin ninguna dirección",
-                    "Bailando bajo la lluvia esperando tu perdón"
-                ]
-            },
-            {
-                startTime: 11.5,
-                verso: "Dime qué tengo que hacer, para que quieras conmigo...",
-                correcta: "Me juego la vida por ti",
-                falsas: [
-                    "Buscando tu perfume en cada callejón",
-                    "El corazón bombeando al ritmo de un motor",
-                    "Manejando en la noche sin ninguna dirección"
-                ]
-            }
-        ]
-    },
-    {
-        id: "dia_de_enero",
-        titulo: "Día de Enero",
-        artista: "Shakira",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Shakira Dia de Enero",
-        tramos: [
-            {
-                startTime: 11.5,
-                verso: "Y ahora que andamos por el mundo como Eneas y Benitín...",
-                correcta: "Ya te encontré varios rasguños que te hicieron por ahí",
-                falsas: [
-                    "Ya vas a ver cómo van sanando poco a poco tus heridas",
-                    "Y si entre todos los errores desafías la razón",
-                    "Con tal de verte sonreír y no verte llorar jamás"
-                ]
-            }
-        ]
-    },
-    {
-        id: "lamento_boliviano",
-        titulo: "Lamento Boliviano",
-        artista: "Los Enanitos Verdes",
-        categoria: "LETRA_ROCK",
-        busqueda: "Enanitos Verdes Lamento Boliviano",
-        tramos: [
-            {
-                startTime: 14.0,
-                verso: "Y hoy estoy aquí, borracho y loco...",
-                correcta: "Y mi corazón idiota siempre brillará",
-                falsas: [
-                    "Bailando en la calle con mis amigos al amanecer",
-                    "Y no me importa si el mundo se viene abajo",
-                    "Esperando que algún día tú me vuelvas a llamar"
-                ]
-            }
-        ]
-    },
-    {
-        id: "despacito",
-        titulo: "Despacito",
-        artista: "Luis Fonsi ft. Daddy Yankee",
-        categoria: "LETRA_URBANO",
-        busqueda: "Luis Fonsi Despacito",
-        tramos: [
-            {
-                startTime: 12.0,
-                verso: "Quiero respirar tu cuello despacito...",
-                correcta: "Deja que te diga cosas al oído",
-                falsas: [
-                    "Para que te acuerdes si no estás conmigo",
-                    "Bailando pegaditos bajo las estrellas",
-                    "Dime si esta noche tú te vas conmigo"
-                ]
-            }
-        ]
-    },
-    {
-        id: "musica_ligera",
-        titulo: "De Música Ligera",
-        artista: "Soda Stereo",
-        categoria: "LETRA_ROCK",
-        busqueda: "Soda Stereo De Musica Ligera",
-        tramos: [
-            {
-                startTime: 10.0,
-                verso: "Ella durmió al calor de las masas...",
-                correcta: "Y yo desperté queriendo soñarla",
-                falsas: [
-                    "Y nadie la vio partir en silencio",
-                    "Buscando un lugar donde olvidar",
-                    "Sintiendo el dolor de no encontrarla"
-                ]
-            }
-        ]
-    },
-    {
-        id: "bzrp_shakira",
-        titulo: "Shakira: Bzrp Music Sessions, Vol. 53",
-        artista: "Bizarrap & Shakira",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Bizarrap Shakira Bzrp Music Sessions",
-        tramos: [
-            {
-                startTime: 15.0,
-                verso: "Una loba como yo no está pa' novatos...",
-                correcta: "Una loba como yo no está pa' tipos como tú",
-                falsas: [
-                    "Que no saben querer ni saben pagar la luz",
-                    "Que se asustan cuando ruge una leona de verdad",
-                    "Que cambian un Ferrari por un auto de juguete"
-                ]
-            }
-        ]
-    },
-    {
-        id: "gasolina",
-        titulo: "Gasolina",
-        artista: "Daddy Yankee",
-        categoria: "LETRA_URBANO",
-        busqueda: "Daddy Yankee Gasolina",
-        tramos: [
-            {
-                startTime: 8.0,
-                verso: "¿A ella le gusta la gasolina?...",
-                correcta: "¡Dame más gasolina!",
-                falsas: [
-                    "¡Métele con candela y fuego!",
-                    "¡Acelera que la fiesta empezó!",
-                    "¡Préndete en la pista de baile!"
-                ]
-            }
-        ]
-    },
-    {
-        id: "tu_falta_de_querer",
-        titulo: "Tu Falta de Querer",
-        artista: "Mon Laferte",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Mon Laferte Tu Falta de Querer",
-        tramos: [
-            {
-                startTime: 13.5,
-                verso: "Ven y cuéntame la verdad...",
-                correcta: "Ten piedad y dime por qué, cómo fue que me dejaste de amar",
-                falsas: [
-                    "Dime a los ojos si ya tienes a otra persona",
-                    "Porque no aguanto pasar otra noche sin verte",
-                    "Si todo lo que vivimos se fue con el viento"
-                ]
-            }
-        ]
-    },
-    {
-        id: "pepas",
-        titulo: "Pepas",
-        artista: "Farruko",
-        categoria: "LETRA_URBANO",
-        busqueda: "Farruko Pepas",
-        tramos: [
-            {
-                startTime: 10.0,
-                verso: "No me importa lo que de mí se diga...",
-                correcta: "Viva usted su vida, que yo vivo la mía",
-                falsas: [
-                    "Que esta noche la rumba no se va a terminar",
-                    "Porque el que trabaja duro tiene derecho a gozar",
-                    "Que la discoteca se prende fuego hasta el día"
-                ]
-            }
-        ]
-    },
-    {
-        id: "la_incondicional",
-        titulo: "La Incondicional",
-        artista: "Luis Miguel",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Luis Miguel La Incondicional",
-        tramos: [
-            {
-                startTime: 12.0,
-                verso: "Tú, la misma siempre tú...",
-                correcta: "Amistad, ternura, ¡qué sé yo!",
-                falsas: [
-                    "La que nunca me supo fallar",
-                    "Esperándome sola en la estación",
-                    "El amor que jamás olvidé"
-                ]
-            }
-        ]
-    },
-    {
-        id: "tren_al_sur",
-        titulo: "Tren al Sur",
-        artista: "Los Prisioneros",
-        categoria: "LETRA_ROCK",
-        busqueda: "Los Prisioneros Tren al Sur",
-        tramos: [
-            {
-                startTime: 9.0,
-                verso: "Siento el vapor de un humo que me hace...",
-                correcta: "Volver a escapar, y siento el silbato de un tren al sur",
-                falsas: [
-                    "Llorar de nostalgia y mirar hacia atrás",
-                    "Soñar con los campos verdes de mi hogar",
-                    "Pensar en los días que no volverán jamás"
-                ]
-            }
-        ]
-    },
-    {
-        id: "ella_baila_sola",
-        titulo: "Ella Baila Sola",
-        artista: "Peso Pluma & Eslabón Armado",
-        categoria: "LETRA_URBANO",
-        busqueda: "Eslabon Armado Peso Pluma Ella Baila Sola",
-        tramos: [
-            {
-                startTime: 11.0,
-                verso: "Compa, ¿qué le parece esa morra?...",
-                correcta: "La que anda bailando sola me gusta pa' mí",
-                falsas: [
-                    "Tiene una mirada que me vuelve loco a mí",
-                    "Vamos a invitarle un trago a ver si dice que sí",
-                    "Trae un porte fino que resalta en el lugar"
-                ]
-            }
-        ]
-    },
-    {
-        id: "provenza",
-        titulo: "Provenza",
-        artista: "Karol G",
-        categoria: "LETRA_URBANO",
-        busqueda: "Karol G Provenza",
-        tramos: [
-            {
-                startTime: 10.5,
-                verso: "Baby, ¿qué más? Hace rato que no sé na' de ti...",
-                correcta: "Estaba con alguien pero ya estoy free",
-                falsas: [
-                    "Hoy salí con mis amigas a vacilar por ahí",
-                    "Me dijeron que preguntaste ayer por mí",
-                    "Pásate por el barrio que hoy no duermo aquí"
-                ]
-            }
-        ]
-    },
-    {
-        id: "bohemian_rhapsody",
-        titulo: "Bohemian Rhapsody",
-        artista: "Queen",
-        categoria: "LETRA_INGLES",
-        busqueda: "Queen Bohemian Rhapsody",
-        tramos: [
-            {
-                startTime: 15.0,
-                verso: "Mama, just killed a man...",
-                correcta: "Put a gun against his head, pulled my trigger, now he's dead",
-                falsas: [
-                    "Threw him down the river where the shadows lie ahead",
-                    "Left him in the dark with all the words I never said",
-                    "Running from the law until the morning painted red"
-                ]
-            }
-        ]
-    },
-    {
-        id: "flaca",
-        titulo: "Flaca",
-        artista: "Andrés Calamaro",
-        categoria: "LETRA_ROCK",
-        busqueda: "Andres Calamaro Flaca",
-        tramos: [
-            {
-                startTime: 12.0,
-                verso: "Flaca, no me claves tus puñales...",
-                correcta: "Por la espalda, tan profundo, no me duelen, no me hacen mal",
-                falsas: [
-                    "En el pecho cuando sabes que no puedo respirar",
-                    "Porque sabes que este loco todavía te va a esperar",
-                    "Sin avisarme primero que te vas a retirar"
-                ]
-            }
-        ]
-    },
-    {
-        id: "rayando_el_sol",
-        titulo: "Rayando el Sol",
-        artista: "Maná",
-        categoria: "LETRA_ROCK",
-        busqueda: "Mana Rayando el Sol",
-        tramos: [
-            {
-                startTime: 10.0,
-                verso: "Rayando el sol, desesperación...",
-                correcta: "Es más fácil llegar al sol que a tu corazón",
-                falsas: [
-                    "Buscando tu mirada en cada rincón",
-                    "Esperando que vuelvas y calmes mi dolor",
-                    "Sintiendo el fuego que quema esta pasión"
-                ]
-            }
-        ]
-    },
-    {
-        id: "danza_kuduro",
-        titulo: "Danza Kuduro",
-        artista: "Don Omar & Lucenzo",
-        categoria: "LETRA_URBANO",
-        busqueda: "Don Omar Danza Kuduro",
-        tramos: [
-            {
-                startTime: 14.0,
-                verso: "La mano arriba, cintura sola...",
-                correcta: "Da media vuelta, danza kuduro",
-                falsas: [
-                    "Mueve los hombros, rompe el taburete",
-                    "Baja despacio hasta tocar el suelo",
-                    "Sigue mi ritmo y no pares de gozar"
-                ]
-            }
-        ]
-    },
-    {
-        id: "17_anos",
-        titulo: "17 Años",
-        artista: "Los Ángeles Azules",
-        categoria: "LETRA_FIESTA",
-        busqueda: "Los Angeles Azules 17 Anos",
-        tramos: [
-            {
-                startTime: 13.0,
-                verso: "Amigo, ¿sabes qué? Ella tiene sólo...",
-                correcta: "17 años, es callada, tímida, inocente y tiene la mirada",
-                falsas: [
-                    "17 abriles y una sonrisa que me ilumina",
-                    "Ganas de bailar cumbia toda la noche conmigo",
-                    "Un secreto guardado que a nadie le puede contar"
-                ]
-            }
-        ]
-    },
-    {
-        id: "persiana_americana",
-        titulo: "Persiana Americana",
-        artista: "Soda Stereo",
-        categoria: "LETRA_ROCK",
-        busqueda: "Soda Stereo Persiana Americana",
-        tramos: [
-            {
-                startTime: 12.0,
-                verso: "No voy a parar...",
-                correcta: "Hasta verla bailar entre sombras y luz de neón",
-                falsas: [
-                    "Hasta que tu puerta se abra y me dejes entrar",
-                    "De seguir tus pasos por la gran ciudad",
-                    "De buscar el reflejo de tu cuerpo en el cristal"
-                ]
-            }
-        ]
-    },
-    {
-        id: "libre_soy",
-        titulo: "Libre Soy (Let It Go)",
-        artista: "Disney Frozen",
-        categoria: "LETRA_DISNEY",
-        busqueda: "Libre Soy Frozen Espanol",
-        tramos: [
-            {
-                startTime: 10.0,
-                verso: "Libre soy, libre soy...",
-                correcta: "No puedo ocultarlo más",
-                falsas: [
-                    "El frío nunca fue mi problema jamás",
-                    "El viento me llevará muy lejos de aquí",
-                    "La nieve ya no me hace temblar"
-                ]
-            }
-        ]
-    },
-    {
-        id: "un_mundo_ideal",
-        titulo: "Un Mundo Ideal",
-        artista: "Disney Aladdín",
-        categoria: "LETRA_DISNEY",
-        busqueda: "Un Mundo Ideal Aladdin Espanol",
-        tramos: [
-            {
-                startTime: 11.0,
-                verso: "Un mundo ideal...",
-                correcta: "Un mundo en el que tú y yo podamos decidir cómo vivir",
-                falsas: [
-                    "Volando juntos por un cielo de zafiro",
-                    "Donde no existan las cadenas ni el dolor",
-                    "Brillando como estrellas en la inmensidad"
-                ]
-            }
-        ]
-    },
-    {
-        id: "no_se_habla_de_bruno",
-        titulo: "No Se Habla de Bruno",
-        artista: "Disney Encanto",
-        categoria: "LETRA_DISNEY",
-        busqueda: "No Se Habla de Bruno Encanto Espanol",
-        tramos: [
-            {
-                startTime: 9.0,
-                verso: "No se habla de Bruno, no, no, no...",
-                correcta: "¡No se habla de Bruno!",
-                falsas: [
-                    "¡Porque el futuro te va a revelar!",
-                    "¡Ni una sola palabra vas a mencionar!",
-                    "¡Que trae la lluvia y la mala suerte aquí!"
-                ]
-            }
-        ]
-    },
-    {
-        id: "asereje",
-        titulo: "Aserejé",
-        artista: "Las Ketchup",
-        categoria: "LETRA_FIESTA",
-        busqueda: "Las Ketchup Asereje",
-        tramos: [
-            {
-                startTime: 12.0,
-                verso: "Y donde más no cabe un alma, ahí se mete a darse caña...",
-                correcta: "Poseído por el ritmo ragatanga",
-                falsas: [
-                    "Bailando con los ojos fijos en la pista",
-                    "Cantando su canción favorita en el bar",
-                    "Con su traje elegante y camisa hawaiana"
-                ]
-            }
-        ]
-    },
-    {
-        id: "i_want_it_that_way",
-        titulo: "I Want It That Way",
-        artista: "Backstreet Boys",
-        categoria: "LETRA_INGLES",
-        busqueda: "Backstreet Boys I Want It That Way",
-        tramos: [
-            {
-                startTime: 10.0,
-                verso: "Tell me why...",
-                correcta: "Ain't nothin' but a heartache",
-                falsas: [
-                    "You never told me how you feel inside",
-                    "We keep on walking through the rainy night",
-                    "You turned your back when love was on the line"
-                ]
-            }
-        ]
-    },
-    {
-        id: "billie_jean",
-        titulo: "Billie Jean",
-        artista: "Michael Jackson",
-        categoria: "LETRA_INGLES",
-        busqueda: "Michael Jackson Billie Jean",
-        tramos: [
-            {
-                startTime: 14.0,
-                verso: "Billie Jean is not my lover...",
-                correcta: "She's just a girl who claims that I am the one",
-                falsas: [
-                    "She danced with someone else until the rise of the sun",
-                    "She told everybody that we had already won",
-                    "She's walking through the crowd like she owns everyone"
-                ]
-            }
-        ]
-    },
-    {
-        id: "don_t_stop_believin",
-        titulo: "Don't Stop Believin'",
-        artista: "Journey",
-        categoria: "LETRA_INGLES",
-        busqueda: "Journey Dont Stop Believin",
-        tramos: [
-            {
-                startTime: 11.0,
-                verso: "Just a small town girl, livin' in a lonely world...",
-                correcta: "She took the midnight train goin' anywhere",
-                falsas: [
-                    "She dreamed of brighter lights beyond the city square",
-                    "Singing her favorite song without a single care",
-                    "Searching for someone who would truly be there"
-                ]
-            }
-        ]
-    },
-    {
-        id: "la_bicicleta",
-        titulo: "La Bicicleta",
-        artista: "Carlos Vives & Shakira",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Carlos Vives Shakira La Bicicleta",
-        tramos: [
-            {
-                startTime: 12.0,
-                verso: "Que si a Piqué tú le muestras el Tayrona...",
-                correcta: "Después no va a querer irse pa' Barcelona",
-                falsas: [
-                    "Se queda a vivir bailando con las olas",
-                    "Aprende a montar en bicicleta a solas",
-                    "Te cambia los trofeos por una chalupa"
-                ]
-            }
-        ]
-    }
-];
 
 const CATEGORIAS_ADIVINAR = [
     { value: "AZAR", label: "🎲 Al Azar / De Todo (Mezclado)" },
@@ -1661,7 +1132,7 @@ const CATEGORIAS_COMPLETA_LETRA = [
 ];
 
 // ==========================================
-// 4. ESTADO GLOBAL DE LA APLICACIÓN
+// 3. ESTADO GLOBAL DE LA APLICACIÓN
 // ==========================================
 const AppState = {
     tipoJuego: "adivinar_cancion",
@@ -1694,7 +1165,7 @@ const audio = document.getElementById("audio-player");
 const audioPreloader = document.getElementById("audio-preloader");
 
 // ==========================================
-// 5. CONTROLADOR DE AUDIO Y EFECTOS
+// 4. CONTROLADOR DE AUDIO Y EFECTOS
 // ==========================================
 const AudioController = {
     animFrameId: null,
@@ -1824,7 +1295,7 @@ const AudioController = {
 };
 
 // ==========================================
-// 6. SERVICIO ITUNES & GESTOR DE LETRAS SINCRONIZADAS
+// 5. SERVICIO ITUNES & LIRCLIB (SINCRONIZACIÓN DE LETRAS)
 // ==========================================
 const MusicService = {
     normalizarTitulo(str) {
@@ -1859,7 +1330,13 @@ const MusicService = {
             case "MEXICO": return this.elegirAleatorio(ARTISTAS_MEXICO);
             case "USA": return this.elegirAleatorio(ARTISTAS_USA);
             case "PELICULAS": return this.elegirAleatorio(SOUNDTRACKS);
-            default: return catVal;
+            case "LETRA_URBANO": return this.elegirAleatorio(ARTISTAS_URBANO);
+            case "LETRA_ROCK": return this.elegirAleatorio(ARTISTAS_ROCK_BANDAS);
+            case "LETRA_POP_LATINO": return this.elegirAleatorio(ARTISTAS_POP_LATINO);
+            case "LETRA_FIESTA": return "Cumbia";
+            case "LETRA_DISNEY": return "Disney";
+            case "LETRA_INGLES": return this.elegirAleatorio(ARTISTAS_USA);
+            default: return this.elegirAleatorio(PALABRAS_AZAR);
         }
     },
 
@@ -1985,81 +1462,93 @@ const MusicService = {
         });
     },
 
-    obtenerPreguntaCompletaLetra(categoriaVal, callbackExito) {
-        let pool = BANCO_COMPLETA_LETRA.filter(item => !AppState.cancionesJugadas.has(item.id));
-        if (categoriaVal !== "LETRA_TODAS") {
-            const poolCat = pool.filter(item => item.categoria === categoriaVal);
-            if (poolCat.length > 0) pool = poolCat;
+    // ==========================================
+    // BÚSQUEDA Y SINCRONIZACIÓN LIRCLIB
+    // ==========================================
+    obtenerPreguntaCompletaLetra(categoriaVal, callbackExito, intentos = 5) {
+        if (intentos <= 0) {
+            UIController.mostrarToast("Reintentando encontrar letra disponible...");
+            return this.obtenerPreguntaCompletaLetra("LETRA_TODAS", callbackExito, 5);
         }
 
-        if (pool.length === 0) {
-            AppState.cancionesJugadas.clear();
-            pool = BANCO_COMPLETA_LETRA;
-        }
+        const termino = this.obtenerTerminoDeCategoria(categoriaVal);
 
-        const elegido = this.elegirAleatorio(pool);
-        AppState.cancionesJugadas.add(elegido.id);
+        this.buscarCancionesItunes(termino, (datosItunes) => {
+            const cancion = datosItunes.cancion;
+            const tituloLimpio = this.normalizarTitulo(cancion.trackName);
+            const artistaLimpio = cancion.artistName;
 
-        // Seleccionar aleatoriamente uno de los tramos sincronizados de esta canción
-        const tramoSeleccionado = this.elegirAleatorio(elegido.tramos);
+            const urlLrc = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artistaLimpio)}&track_name=${encodeURIComponent(tituloLimpio)}`;
 
-        this.obtenerAudioPreviewDeLetra(elegido.busqueda, (previewUrl) => {
-            const todasOpciones = [...tramoSeleccionado.falsas, tramoSeleccionado.correcta].sort(() => Math.random() - 0.5);
+            fetch(urlLrc)
+                .then(res => {
+                    if (!res.ok) throw new Error("Sin letra");
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data || !data.syncedLyrics) {
+                        throw new Error("Sin letras sincronizadas");
+                    }
 
-            callbackExito({
-                tipoJuego: "completa_letra",
-                cancion: {
-                    trackName: elegido.titulo,
-                    artistName: elegido.artista,
-                    previewUrl: previewUrl,
-                    trackId: elegido.id
-                },
-                itemLetra: tramoSeleccionado,
-                verso: tramoSeleccionado.verso,
-                opciones: todasOpciones,
-                solucion: tramoSeleccionado.correcta,
-                startTime: tramoSeleccionado.startTime || 0,
-                duracionSegs: 5.5
-            });
+                    const lineas = this.parsearLRC(data.syncedLyrics);
+                    // Filtrar líneas dentro de los 30 segundos que dura la vista previa
+                    const lineas30s = lineas.filter(l => l.tiempoSegundos < 26);
+
+                    if (lineas30s.length < 2) {
+                        throw new Error("Fragmento insuficiente en 30s");
+                    }
+
+                    const idx = Math.floor(Math.random() * (lineas30s.length - 1));
+                    const versoActual = lineas30s[idx];
+                    const versoSiguiente = lineas30s[idx + 1];
+
+                    const otrasLineas = lineas.map(l => l.texto).filter(t => t !== versoSiguiente.texto && t.length > 3);
+                    const falsas = otrasLineas.sort(() => Math.random() - 0.5).slice(0, 3);
+
+                    if (falsas.length < 3) {
+                        throw new Error("Opción de distractores baja");
+                    }
+
+                    const todasOpciones = [...falsas, versoSiguiente.texto].sort(() => Math.random() - 0.5);
+
+                    callbackExito({
+                        tipoJuego: "completa_letra",
+                        cancion: cancion,
+                        verso: versoActual.texto,
+                        opciones: todasOpciones,
+                        solucion: versoSiguiente.texto,
+                        startTime: versoActual.tiempoSegundos,
+                        duracionSegs: 5.5
+                    });
+                })
+                .catch(() => {
+                    this.obtenerPreguntaCompletaLetra(categoriaVal, callbackExito, intentos - 1);
+                });
         });
     },
 
-    obtenerAudioPreviewDeLetra(termino, onPreviewListo) {
-        const callbackName = `itunes_letra_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-        const script = document.createElement("script");
-
-        const limpiar = () => {
-            if (window[callbackName]) delete window[callbackName];
-            if (script && script.parentNode) script.parentNode.removeChild(script);
-        };
-
-        const timeout = setTimeout(() => {
-            limpiar();
-            onPreviewListo("");
-        }, 4000);
-
-        window[callbackName] = (data) => {
-            clearTimeout(timeout);
-            limpiar();
-            if (data && data.results && data.results.length > 0 && data.results[0].previewUrl) {
-                onPreviewListo(data.results[0].previewUrl);
-            } else {
-                onPreviewListo("");
+    parsearLRC(lrcText) {
+        const lineas = [];
+        const regex = /\[(\d{2}):(\d{2}\.\d{2})\]\s*(.+)/;
+        
+        lrcText.split('\n').forEach(linea => {
+            const match = linea.match(regex);
+            if (match) {
+                const minutos = parseInt(match[1], 10);
+                const segundos = parseFloat(match[2]);
+                const tiempoTotal = (minutos * 60) + segundos;
+                const texto = match[3].trim();
+                if (texto.length > 3 && !texto.startsWith("By ") && !texto.startsWith("Sync ")) {
+                    lineas.push({ tiempoSegundos: tiempoTotal, texto: texto });
+                }
             }
-        };
-
-        script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(termino)}&entity=song&limit=5&callback=${callbackName}`;
-        script.onerror = () => {
-            clearTimeout(timeout);
-            limpiar();
-            onPreviewListo("");
-        };
-        document.body.appendChild(script);
+        });
+        return lineas;
     }
 };
 
 // ==========================================
-// 7. CONTROLADOR MODO SOLITARIO
+// 6. CONTROLADOR MODO SOLITARIO
 // ==========================================
 function comenzarJuegoSolitario() {
     AudioController.desbloquearContexto();
@@ -2265,10 +1754,10 @@ function finalizarJuegoSolitario() {
 }
 
 // ==========================================
-// 8. MÓDULO TIC TAC TOE (EL GATO)
+// 7. MÓDULO TIC TAC TOE (EL GATO)
 // ==========================================
 const TicTacToeManager = {
-    misSimbolo: "", // "X" u "O"
+    misSimbolo: "",
 
     inicializarPartida(sala) {
         UIController.mostrarPantalla("pantalla-tictactoe");
@@ -2397,7 +1886,7 @@ const TicTacToeManager = {
 };
 
 // ==========================================
-// 9. MÓDULO MULTIJUGADOR (FIREBASE COMPAT)
+// 8. MÓDULO MULTIJUGADOR (FIREBASE COMPAT)
 // ==========================================
 const MultiplayerManager = {
     timerEvaluacionFallback: null,
@@ -3000,7 +2489,7 @@ const MultiplayerManager = {
 };
 
 // ==========================================
-// 10. CONTROLADOR DE INTERFAZ (UI/UX)
+// 9. CONTROLADOR DE INTERFAZ (UI/UX)
 // ==========================================
 const UIController = {
     mostrarPantalla(id) {
@@ -3136,7 +2625,7 @@ const UIController = {
 };
 
 // ==========================================
-// 11. FUNCIONES DE CAMBIO DE MODO Y SOCIAL
+// 10. FUNCIONES SOCIALES Y DE CAMBIO DE MODO
 // ==========================================
 function cambiarModoJuegoPrincipal(nuevoModo) {
     AppState.tipoJuego = nuevoModo;
@@ -3214,7 +2703,7 @@ function copiarCodigoSala() {
 
 function iniciarReproduccionManual() {
     const duracion = AppState.tipoJuego === "completa_letra" ? 5.5 : 5;
-    const startTime = AppState.itemLetraActual ? AppState.itemLetraActual.startTime : 0;
+    const startTime = AppState.cancionActual ? (AppState.cancionActual.startTime || 0) : 0;
     AudioController.reproducirConControl(duracion, startTime);
 }
 
