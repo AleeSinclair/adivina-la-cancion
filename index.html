@@ -6,7 +6,7 @@
     <title>Adivina la Canción, Completa la Letra & Tic Tac Toe 🎵🎤❌⭕</title>
     
     <!-- Meta SEO & Social Sharing -->
-    <meta name="description" content="Juego interactivo: Adivina el tema, Completa la letra o juega Tic Tac Toe en tiempo real con tus amigos.">
+    <meta name="description" content="Juego interactivo: Adivina el tema, Completa la letra sincronizada o juega Tic Tac Toe en tiempo real con tus amigos.">
     <meta name="theme-color" content="#0c0f14">
 
     <!-- External Libraries -->
@@ -566,7 +566,6 @@
             color: var(--danger-red);
         }
 
-        /* --- ESTILOS TIC TAC TOE --- */
         .ttt-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -951,7 +950,7 @@
             <span>🔄</span> Reiniciar Tablero
         </button>
         <button class="btn-block btn-secondary" style="margin-top: 6px;" onclick="reiniciarJuego()">
-            <span>⬅️</span> Salir al Menú
+            <span>⬅️️</span> Salir al Menú
         </button>
     </div>
 
@@ -1094,22 +1093,55 @@ const SOUNDTRACKS = ["Disney Soundtrack", "Star Wars Theme", "Hans Zimmer", "Ghi
 const PALABRAS_AZAR = [...ARTISTAS_CHILE, ...ARTISTAS_ARGENTINA, ...ARTISTAS_COLOMBIA, ...ARTISTAS_MEXICO, ...ARTISTAS_USA, ...ARTISTAS_SOLISTAS, ...ARTISTAS_ROCK_BANDAS, ...ARTISTAS_KPOP, ...ARTISTAS_INFANTIL];
 
 // ==========================================
-// 3. BASE DE DATOS CON TIMESTAMP EXACTO (startTime)
+// 3. BASE DE DATOS SINCRONIZADA POR MARCAS DE TIEMPO (startTime)
 // ==========================================
 const BANCO_COMPLETA_LETRA = [
+    {
+        id: "torero",
+        titulo: "Torero",
+        artista: "Chayanne",
+        categoria: "LETRA_POP_LATINO",
+        busqueda: "Chayanne Torero",
+        tramos: [
+            {
+                startTime: 0.0,
+                verso: "De lunes a domingo voy desesperado...",
+                correcta: "El corazón bombeando al ritmo de un motor",
+                falsas: [
+                    "Buscando tu perfume en cada callejón",
+                    "Manejando en la noche sin ninguna dirección",
+                    "Bailando bajo la lluvia esperando tu perdón"
+                ]
+            },
+            {
+                startTime: 11.5,
+                verso: "Dime qué tengo que hacer, para que quieras conmigo...",
+                correcta: "Me juego la vida por ti",
+                falsas: [
+                    "Buscando tu perfume en cada callejón",
+                    "El corazón bombeando al ritmo de un motor",
+                    "Manejando en la noche sin ninguna dirección"
+                ]
+            }
+        ]
+    },
     {
         id: "dia_de_enero",
         titulo: "Día de Enero",
         artista: "Shakira",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Shakira Dia de Enero",
-        startTime: 11.5,
-        verso: "Y ahora que andamos por el mundo como Eneas y Benitín...",
-        correcta: "Ya te encontré varios rasguños que te hicieron por ahí",
-        falsas: [
-            "Ya vas a ver cómo van sanando poco a poco tus heridas",
-            "Y si entre todos los errores desafías la razón",
-            "Con tal de verte sonreír y no verte llorar jamás"
+        tramos: [
+            {
+                startTime: 11.5,
+                verso: "Y ahora que andamos por el mundo como Eneas y Benitín...",
+                correcta: "Ya te encontré varios rasguños que te hicieron por ahí",
+                falsas: [
+                    "Ya vas a ver cómo van sanando poco a poco tus heridas",
+                    "Y si entre todos los errores desafías la razón",
+                    "Con tal de verte sonreír y no verte llorar jamás"
+                ]
+            }
         ]
     },
     {
@@ -1118,13 +1150,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Los Enanitos Verdes",
         categoria: "LETRA_ROCK",
         busqueda: "Enanitos Verdes Lamento Boliviano",
-        startTime: 14.0,
-        verso: "Y hoy estoy aquí, borracho y loco...",
-        correcta: "Y mi corazón idiota siempre brillará",
-        falsas: [
-            "Bailando en la calle con mis amigos al amanecer",
-            "Y no me importa si el mundo se viene abajo",
-            "Esperando que algún día tú me vuelvas a llamar"
+        tramos: [
+            {
+                startTime: 14.0,
+                verso: "Y hoy estoy aquí, borracho y loco...",
+                correcta: "Y mi corazón idiota siempre brillará",
+                falsas: [
+                    "Bailando en la calle con mis amigos al amanecer",
+                    "Y no me importa si el mundo se viene abajo",
+                    "Esperando que algún día tú me vuelvas a llamar"
+                ]
+            }
         ]
     },
     {
@@ -1133,13 +1169,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Luis Fonsi ft. Daddy Yankee",
         categoria: "LETRA_URBANO",
         busqueda: "Luis Fonsi Despacito",
-        startTime: 12.0,
-        verso: "Quiero respirar tu cuello despacito...",
-        correcta: "Deja que te diga cosas al oído",
-        falsas: [
-            "Para que te acuerdes si no estás conmigo",
-            "Bailando pegaditos bajo las estrellas",
-            "Dime si esta noche tú te vas conmigo"
+        tramos: [
+            {
+                startTime: 12.0,
+                verso: "Quiero respirar tu cuello despacito...",
+                correcta: "Deja que te diga cosas al oído",
+                falsas: [
+                    "Para que te acuerdes si no estás conmigo",
+                    "Bailando pegaditos bajo las estrellas",
+                    "Dime si esta noche tú te vas conmigo"
+                ]
+            }
         ]
     },
     {
@@ -1148,13 +1188,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Soda Stereo",
         categoria: "LETRA_ROCK",
         busqueda: "Soda Stereo De Musica Ligera",
-        startTime: 10.0,
-        verso: "Ella durmió al calor de las masas...",
-        correcta: "Y yo desperté queriendo soñarla",
-        falsas: [
-            "Y nadie la vio partir en silencio",
-            "Buscando un lugar donde olvidar",
-            "Sintiendo el dolor de no encontrarla"
+        tramos: [
+            {
+                startTime: 10.0,
+                verso: "Ella durmió al calor de las masas...",
+                correcta: "Y yo desperté queriendo soñarla",
+                falsas: [
+                    "Y nadie la vio partir en silencio",
+                    "Buscando un lugar donde olvidar",
+                    "Sintiendo el dolor de no encontrarla"
+                ]
+            }
         ]
     },
     {
@@ -1163,13 +1207,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Bizarrap & Shakira",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Bizarrap Shakira Bzrp Music Sessions",
-        startTime: 15.0,
-        verso: "Una loba como yo no está pa' novatos...",
-        correcta: "Una loba como yo no está pa' tipos como tú",
-        falsas: [
-            "Que no saben querer ni saben pagar la luz",
-            "Que se asustan cuando ruge una leona de verdad",
-            "Que cambian un Ferrari por un auto de juguete"
+        tramos: [
+            {
+                startTime: 15.0,
+                verso: "Una loba como yo no está pa' novatos...",
+                correcta: "Una loba como yo no está pa' tipos como tú",
+                falsas: [
+                    "Que no saben querer ni saben pagar la luz",
+                    "Que se asustan cuando ruge una leona de verdad",
+                    "Que cambian un Ferrari por un auto de juguete"
+                ]
+            }
         ]
     },
     {
@@ -1178,13 +1226,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Daddy Yankee",
         categoria: "LETRA_URBANO",
         busqueda: "Daddy Yankee Gasolina",
-        startTime: 8.0,
-        verso: "¿A ella le gusta la gasolina?...",
-        correcta: "¡Dame más gasolina!",
-        falsas: [
-            "¡Métele con candela y fuego!",
-            "¡Acelera que la fiesta empezó!",
-            "¡Préndete en la pista de baile!"
+        tramos: [
+            {
+                startTime: 8.0,
+                verso: "¿A ella le gusta la gasolina?...",
+                correcta: "¡Dame más gasolina!",
+                falsas: [
+                    "¡Métele con candela y fuego!",
+                    "¡Acelera que la fiesta empezó!",
+                    "¡Préndete en la pista de baile!"
+                ]
+            }
         ]
     },
     {
@@ -1193,13 +1245,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Mon Laferte",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Mon Laferte Tu Falta de Querer",
-        startTime: 13.5,
-        verso: "Ven y cuéntame la verdad...",
-        correcta: "Ten piedad y dime por qué, cómo fue que me dejaste de amar",
-        falsas: [
-            "Dime a los ojos si ya tienes a otra persona",
-            "Porque no aguanto pasar otra noche sin verte",
-            "Si todo lo que vivimos se fue con el viento"
+        tramos: [
+            {
+                startTime: 13.5,
+                verso: "Ven y cuéntame la verdad...",
+                correcta: "Ten piedad y dime por qué, cómo fue que me dejaste de amar",
+                falsas: [
+                    "Dime a los ojos si ya tienes a otra persona",
+                    "Porque no aguanto pasar otra noche sin verte",
+                    "Si todo lo que vivimos se fue con el viento"
+                ]
+            }
         ]
     },
     {
@@ -1208,13 +1264,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Farruko",
         categoria: "LETRA_URBANO",
         busqueda: "Farruko Pepas",
-        startTime: 10.0,
-        verso: "No me importa lo que de mí se diga...",
-        correcta: "Viva usted su vida, que yo vivo la mía",
-        falsas: [
-            "Que esta noche la rumba no se va a terminar",
-            "Porque el que trabaja duro tiene derecho a gozar",
-            "Que la discoteca se prende fuego hasta el día"
+        tramos: [
+            {
+                startTime: 10.0,
+                verso: "No me importa lo que de mí se diga...",
+                correcta: "Viva usted su vida, que yo vivo la mía",
+                falsas: [
+                    "Que esta noche la rumba no se va a terminar",
+                    "Porque el que trabaja duro tiene derecho a gozar",
+                    "Que la discoteca se prende fuego hasta el día"
+                ]
+            }
         ]
     },
     {
@@ -1223,13 +1283,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Luis Miguel",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Luis Miguel La Incondicional",
-        startTime: 12.0,
-        verso: "Tú, la misma siempre tú...",
-        correcta: "Amistad, ternura, ¡qué sé yo!",
-        falsas: [
-            "La que nunca me supo fallar",
-            "Esperándome sola en la estación",
-            "El amor que jamás olvidé"
+        tramos: [
+            {
+                startTime: 12.0,
+                verso: "Tú, la misma siempre tú...",
+                correcta: "Amistad, ternura, ¡qué sé yo!",
+                falsas: [
+                    "La que nunca me supo fallar",
+                    "Esperándome sola en la estación",
+                    "El amor que jamás olvidé"
+                ]
+            }
         ]
     },
     {
@@ -1238,13 +1302,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Los Prisioneros",
         categoria: "LETRA_ROCK",
         busqueda: "Los Prisioneros Tren al Sur",
-        startTime: 9.0,
-        verso: "Siento el vapor de un humo que me hace...",
-        correcta: "Volver a escapar, y siento el silbato de un tren al sur",
-        falsas: [
-            "Llorar de nostalgia y mirar hacia atrás",
-            "Soñar con los campos verdes de mi hogar",
-            "Pensar en los días que no volverán jamás"
+        tramos: [
+            {
+                startTime: 9.0,
+                verso: "Siento el vapor de un humo que me hace...",
+                correcta: "Volver a escapar, y siento el silbato de un tren al sur",
+                falsas: [
+                    "Llorar de nostalgia y mirar hacia atrás",
+                    "Soñar con los campos verdes de mi hogar",
+                    "Pensar en los días que no volverán jamás"
+                ]
+            }
         ]
     },
     {
@@ -1253,13 +1321,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Peso Pluma & Eslabón Armado",
         categoria: "LETRA_URBANO",
         busqueda: "Eslabon Armado Peso Pluma Ella Baila Sola",
-        startTime: 11.0,
-        verso: "Compa, ¿qué le parece esa morra?...",
-        correcta: "La que anda bailando sola me gusta pa' mí",
-        falsas: [
-            "Tiene una mirada que me vuelve loco a mí",
-            "Vamos a invitarle un trago a ver si dice que sí",
-            "Trae un porte fino que resalta en el lugar"
+        tramos: [
+            {
+                startTime: 11.0,
+                verso: "Compa, ¿qué le parece esa morra?...",
+                correcta: "La que anda bailando sola me gusta pa' mí",
+                falsas: [
+                    "Tiene una mirada que me vuelve loco a mí",
+                    "Vamos a invitarle un trago a ver si dice que sí",
+                    "Trae un porte fino que resalta en el lugar"
+                ]
+            }
         ]
     },
     {
@@ -1268,13 +1340,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Karol G",
         categoria: "LETRA_URBANO",
         busqueda: "Karol G Provenza",
-        startTime: 10.5,
-        verso: "Baby, ¿qué más? Hace rato que no sé na' de ti...",
-        correcta: "Estaba con alguien pero ya estoy free",
-        falsas: [
-            "Hoy salí con mis amigas a vacilar por ahí",
-            "Me dijeron que preguntaste ayer por mí",
-            "Pásate por el barrio que hoy no duermo aquí"
+        tramos: [
+            {
+                startTime: 10.5,
+                verso: "Baby, ¿qué más? Hace rato que no sé na' de ti...",
+                correcta: "Estaba con alguien pero ya estoy free",
+                falsas: [
+                    "Hoy salí con mis amigas a vacilar por ahí",
+                    "Me dijeron que preguntaste ayer por mí",
+                    "Pásate por el barrio que hoy no duermo aquí"
+                ]
+            }
         ]
     },
     {
@@ -1283,13 +1359,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Queen",
         categoria: "LETRA_INGLES",
         busqueda: "Queen Bohemian Rhapsody",
-        startTime: 15.0,
-        verso: "Mama, just killed a man...",
-        correcta: "Put a gun against his head, pulled my trigger, now he's dead",
-        falsas: [
-            "Threw him down the river where the shadows lie ahead",
-            "Left him in the dark with all the words I never said",
-            "Running from the law until the morning painted red"
+        tramos: [
+            {
+                startTime: 15.0,
+                verso: "Mama, just killed a man...",
+                correcta: "Put a gun against his head, pulled my trigger, now he's dead",
+                falsas: [
+                    "Threw him down the river where the shadows lie ahead",
+                    "Left him in the dark with all the words I never said",
+                    "Running from the law until the morning painted red"
+                ]
+            }
         ]
     },
     {
@@ -1298,13 +1378,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Andrés Calamaro",
         categoria: "LETRA_ROCK",
         busqueda: "Andres Calamaro Flaca",
-        startTime: 12.0,
-        verso: "Flaca, no me claves tus puñales...",
-        correcta: "Por la espalda, tan profundo, no me duelen, no me hacen mal",
-        falsas: [
-            "En el pecho cuando sabes que no puedo respirar",
-            "Porque sabes que este loco todavía te va a esperar",
-            "Sin avisarme primero que te vas a retirar"
+        tramos: [
+            {
+                startTime: 12.0,
+                verso: "Flaca, no me claves tus puñales...",
+                correcta: "Por la espalda, tan profundo, no me duelen, no me hacen mal",
+                falsas: [
+                    "En el pecho cuando sabes que no puedo respirar",
+                    "Porque sabes que este loco todavía te va a esperar",
+                    "Sin avisarme primero que te vas a retirar"
+                ]
+            }
         ]
     },
     {
@@ -1313,28 +1397,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Maná",
         categoria: "LETRA_ROCK",
         busqueda: "Mana Rayando el Sol",
-        startTime: 10.0,
-        verso: "Rayando el sol, desesperación...",
-        correcta: "Es más fácil llegar al sol que a tu corazón",
-        falsas: [
-            "Buscando tu mirada en cada rincón",
-            "Esperando que vuelvas y calmes mi dolor",
-            "Sintiendo el fuego que quema esta pasión"
-        ]
-    },
-    {
-        id: "torero",
-        titulo: "Torero",
-        artista: "Chayanne",
-        categoria: "LETRA_POP_LATINO",
-        busqueda: "Chayanne Torero",
-        startTime: 0.0,
-        verso: "De lunes a domingo voy desesperado...",
-        correcta: "El corazón bombeando al ritmo de un motor",
-        falsas: [
-            "Buscando tu perfume en cada callejón",
-            "Manejando en la noche sin ninguna dirección",
-            "Bailando bajo la lluvia esperando tu perdón"
+        tramos: [
+            {
+                startTime: 10.0,
+                verso: "Rayando el sol, desesperación...",
+                correcta: "Es más fácil llegar al sol que a tu corazón",
+                falsas: [
+                    "Buscando tu mirada en cada rincón",
+                    "Esperando que vuelvas y calmes mi dolor",
+                    "Sintiendo el fuego que quema esta pasión"
+                ]
+            }
         ]
     },
     {
@@ -1343,13 +1416,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Don Omar & Lucenzo",
         categoria: "LETRA_URBANO",
         busqueda: "Don Omar Danza Kuduro",
-        startTime: 14.0,
-        verso: "La mano arriba, cintura sola...",
-        correcta: "Da media vuelta, danza kuduro",
-        falsas: [
-            "Mueve los hombros, rompe el taburete",
-            "Baja despacio hasta tocar el suelo",
-            "Sigue mi ritmo y no pares de gozar"
+        tramos: [
+            {
+                startTime: 14.0,
+                verso: "La mano arriba, cintura sola...",
+                correcta: "Da media vuelta, danza kuduro",
+                falsas: [
+                    "Mueve los hombros, rompe el taburete",
+                    "Baja despacio hasta tocar el suelo",
+                    "Sigue mi ritmo y no pares de gozar"
+                ]
+            }
         ]
     },
     {
@@ -1358,13 +1435,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Los Ángeles Azules",
         categoria: "LETRA_FIESTA",
         busqueda: "Los Angeles Azules 17 Anos",
-        startTime: 13.0,
-        verso: "Amigo, ¿sabes qué? Ella tiene sólo...",
-        correcta: "17 años, es callada, tímida, inocente y tiene la mirada",
-        falsas: [
-            "17 abriles y una sonrisa que me ilumina",
-            "Ganas de bailar cumbia toda la noche conmigo",
-            "Un secreto guardado que a nadie le puede contar"
+        tramos: [
+            {
+                startTime: 13.0,
+                verso: "Amigo, ¿sabes qué? Ella tiene sólo...",
+                correcta: "17 años, es callada, tímida, inocente y tiene la mirada",
+                falsas: [
+                    "17 abriles y una sonrisa que me ilumina",
+                    "Ganas de bailar cumbia toda la noche conmigo",
+                    "Un secreto guardado que a nadie le puede contar"
+                ]
+            }
         ]
     },
     {
@@ -1373,13 +1454,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Soda Stereo",
         categoria: "LETRA_ROCK",
         busqueda: "Soda Stereo Persiana Americana",
-        startTime: 12.0,
-        verso: "No voy a parar...",
-        correcta: "Hasta verla bailar entre sombras y luz de neón",
-        falsas: [
-            "Hasta que tu puerta se abra y me dejes entrar",
-            "De seguir tus pasos por la gran ciudad",
-            "De buscar el reflejo de tu cuerpo en el cristal"
+        tramos: [
+            {
+                startTime: 12.0,
+                verso: "No voy a parar...",
+                correcta: "Hasta verla bailar entre sombras y luz de neón",
+                falsas: [
+                    "Hasta que tu puerta se abra y me dejes entrar",
+                    "De seguir tus pasos por la gran ciudad",
+                    "De buscar el reflejo de tu cuerpo en el cristal"
+                ]
+            }
         ]
     },
     {
@@ -1388,13 +1473,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Disney Frozen",
         categoria: "LETRA_DISNEY",
         busqueda: "Libre Soy Frozen Espanol",
-        startTime: 10.0,
-        verso: "Libre soy, libre soy...",
-        correcta: "No puedo ocultarlo más",
-        falsas: [
-            "El frío nunca fue mi problema jamás",
-            "El viento me llevará muy lejos de aquí",
-            "La nieve ya no me hace temblar"
+        tramos: [
+            {
+                startTime: 10.0,
+                verso: "Libre soy, libre soy...",
+                correcta: "No puedo ocultarlo más",
+                falsas: [
+                    "El frío nunca fue mi problema jamás",
+                    "El viento me llevará muy lejos de aquí",
+                    "La nieve ya no me hace temblar"
+                ]
+            }
         ]
     },
     {
@@ -1403,13 +1492,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Disney Aladdín",
         categoria: "LETRA_DISNEY",
         busqueda: "Un Mundo Ideal Aladdin Espanol",
-        startTime: 11.0,
-        verso: "Un mundo ideal...",
-        correcta: "Un mundo en el que tú y yo podamos decidir cómo vivir",
-        falsas: [
-            "Volando juntos por un cielo de zafiro",
-            "Donde no existan las cadenas ni el dolor",
-            "Brillando como estrellas en la inmensidad"
+        tramos: [
+            {
+                startTime: 11.0,
+                verso: "Un mundo ideal...",
+                correcta: "Un mundo en el que tú y yo podamos decidir cómo vivir",
+                falsas: [
+                    "Volando juntos por un cielo de zafiro",
+                    "Donde no existan las cadenas ni el dolor",
+                    "Brillando como estrellas en la inmensidad"
+                ]
+            }
         ]
     },
     {
@@ -1418,13 +1511,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Disney Encanto",
         categoria: "LETRA_DISNEY",
         busqueda: "No Se Habla de Bruno Encanto Espanol",
-        startTime: 9.0,
-        verso: "No se habla de Bruno, no, no, no...",
-        correcta: "¡No se habla de Bruno!",
-        falsas: [
-            "¡Porque el futuro te va a revelar!",
-            "¡Ni una sola palabra vas a mencionar!",
-            "¡Que trae la lluvia y la mala suerte aquí!"
+        tramos: [
+            {
+                startTime: 9.0,
+                verso: "No se habla de Bruno, no, no, no...",
+                correcta: "¡No se habla de Bruno!",
+                falsas: [
+                    "¡Porque el futuro te va a revelar!",
+                    "¡Ni una sola palabra vas a mencionar!",
+                    "¡Que trae la lluvia y la mala suerte aquí!"
+                ]
+            }
         ]
     },
     {
@@ -1433,13 +1530,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Las Ketchup",
         categoria: "LETRA_FIESTA",
         busqueda: "Las Ketchup Asereje",
-        startTime: 12.0,
-        verso: "Y donde más no cabe un alma, ahí se mete a darse caña...",
-        correcta: "Poseído por el ritmo ragatanga",
-        falsas: [
-            "Bailando con los ojos fijos en la pista",
-            "Cantando su canción favorita en el bar",
-            "Con su traje elegante y camisa hawaiana"
+        tramos: [
+            {
+                startTime: 12.0,
+                verso: "Y donde más no cabe un alma, ahí se mete a darse caña...",
+                correcta: "Poseído por el ritmo ragatanga",
+                falsas: [
+                    "Bailando con los ojos fijos en la pista",
+                    "Cantando su canción favorita en el bar",
+                    "Con su traje elegante y camisa hawaiana"
+                ]
+            }
         ]
     },
     {
@@ -1448,13 +1549,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Backstreet Boys",
         categoria: "LETRA_INGLES",
         busqueda: "Backstreet Boys I Want It That Way",
-        startTime: 10.0,
-        verso: "Tell me why...",
-        correcta: "Ain't nothin' but a heartache",
-        falsas: [
-            "You never told me how you feel inside",
-            "We keep on walking through the rainy night",
-            "You turned your back when love was on the line"
+        tramos: [
+            {
+                startTime: 10.0,
+                verso: "Tell me why...",
+                correcta: "Ain't nothin' but a heartache",
+                falsas: [
+                    "You never told me how you feel inside",
+                    "We keep on walking through the rainy night",
+                    "You turned your back when love was on the line"
+                ]
+            }
         ]
     },
     {
@@ -1463,13 +1568,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Michael Jackson",
         categoria: "LETRA_INGLES",
         busqueda: "Michael Jackson Billie Jean",
-        startTime: 14.0,
-        verso: "Billie Jean is not my lover...",
-        correcta: "She's just a girl who claims that I am the one",
-        falsas: [
-            "She danced with someone else until the rise of the sun",
-            "She told everybody that we had already won",
-            "She's walking through the crowd like she owns everyone"
+        tramos: [
+            {
+                startTime: 14.0,
+                verso: "Billie Jean is not my lover...",
+                correcta: "She's just a girl who claims that I am the one",
+                falsas: [
+                    "She danced with someone else until the rise of the sun",
+                    "She told everybody that we had already won",
+                    "She's walking through the crowd like she owns everyone"
+                ]
+            }
         ]
     },
     {
@@ -1478,13 +1587,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Journey",
         categoria: "LETRA_INGLES",
         busqueda: "Journey Dont Stop Believin",
-        startTime: 11.0,
-        verso: "Just a small town girl, livin' in a lonely world...",
-        correcta: "She took the midnight train goin' anywhere",
-        falsas: [
-            "She dreamed of brighter lights beyond the city square",
-            "Singing her favorite song without a single care",
-            "Searching for someone who would truly be there"
+        tramos: [
+            {
+                startTime: 11.0,
+                verso: "Just a small town girl, livin' in a lonely world...",
+                correcta: "She took the midnight train goin' anywhere",
+                falsas: [
+                    "She dreamed of brighter lights beyond the city square",
+                    "Singing her favorite song without a single care",
+                    "Searching for someone who would truly be there"
+                ]
+            }
         ]
     },
     {
@@ -1493,13 +1606,17 @@ const BANCO_COMPLETA_LETRA = [
         artista: "Carlos Vives & Shakira",
         categoria: "LETRA_POP_LATINO",
         busqueda: "Carlos Vives Shakira La Bicicleta",
-        startTime: 12.0,
-        verso: "Que si a Piqué tú le muestras el Tayrona...",
-        correcta: "Después no va a querer irse pa' Barcelona",
-        falsas: [
-            "Se queda a vivir bailando con las olas",
-            "Aprende a montar en bicicleta a solas",
-            "Te cambia los trofeos por una chalupa"
+        tramos: [
+            {
+                startTime: 12.0,
+                verso: "Que si a Piqué tú le muestras el Tayrona...",
+                correcta: "Después no va a querer irse pa' Barcelona",
+                falsas: [
+                    "Se queda a vivir bailando con las olas",
+                    "Aprende a montar en bicicleta a solas",
+                    "Te cambia los trofeos por una chalupa"
+                ]
+            }
         ]
     }
 ];
@@ -1507,7 +1624,7 @@ const BANCO_COMPLETA_LETRA = [
 const CATEGORIAS_ADIVINAR = [
     { value: "AZAR", label: "🎲 Al Azar / De Todo (Mezclado)" },
     { group: "Cultura Pop & Cine", options: [
-        { value: "HAMILTON", label: "Hamilton (El Musical) ⭐️️🎭" },
+        { value: "HAMILTON", label: "Hamilton (El Musical) ⭐🎭" },
         { value: "DISNEY_MUSICALES", label: "Disney & Musicales 🏰🎬" },
         { value: "PELICULAS", label: "Películas, Anime & Juegos 🎬🎮" },
         { value: "KPOP", label: "K-Pop 🇰🇷" }
@@ -1707,7 +1824,7 @@ const AudioController = {
 };
 
 // ==========================================
-// 6. SERVICIO ITUNES & GESTOR DE LETRAS
+// 6. SERVICIO ITUNES & GESTOR DE LETRAS SINCRONIZADAS
 // ==========================================
 const MusicService = {
     normalizarTitulo(str) {
@@ -1883,8 +2000,11 @@ const MusicService = {
         const elegido = this.elegirAleatorio(pool);
         AppState.cancionesJugadas.add(elegido.id);
 
+        // Seleccionar aleatoriamente uno de los tramos sincronizados de esta canción
+        const tramoSeleccionado = this.elegirAleatorio(elegido.tramos);
+
         this.obtenerAudioPreviewDeLetra(elegido.busqueda, (previewUrl) => {
-            const todasOpciones = [...elegido.falsas, elegido.correcta].sort(() => Math.random() - 0.5);
+            const todasOpciones = [...tramoSeleccionado.falsas, tramoSeleccionado.correcta].sort(() => Math.random() - 0.5);
 
             callbackExito({
                 tipoJuego: "completa_letra",
@@ -1894,11 +2014,11 @@ const MusicService = {
                     previewUrl: previewUrl,
                     trackId: elegido.id
                 },
-                itemLetra: elegido,
-                verso: elegido.verso,
+                itemLetra: tramoSeleccionado,
+                verso: tramoSeleccionado.verso,
                 opciones: todasOpciones,
-                solucion: elegido.correcta,
-                startTime: elegido.startTime || 0,
+                solucion: tramoSeleccionado.correcta,
+                startTime: tramoSeleccionado.startTime || 0,
                 duracionSegs: 5.5
             });
         });
@@ -2227,9 +2347,9 @@ const TicTacToeManager = {
 
     comprobarGanador(b) {
         const combinaciones = [
-            [0,1,2], [3,4,5], [6,7,8], // Filas
-            [0,3,6], [1,4,7], [2,5,8], // Columnas
-            [0,4,8], [2,4,6]          // Diagonales
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
         ];
 
         for (let comb of combinaciones) {
@@ -2852,7 +2972,6 @@ const MultiplayerManager = {
             const sala = snap.val();
             const jugadores = sala.jugadores || {};
 
-            // Restablecer puntajes a 0
             Object.keys(jugadores).forEach(pid => {
                 jugadores[pid].puntaje = 0;
             });
@@ -3105,7 +3224,6 @@ function reiniciarJuego() {
         if (AppState.esHost) {
             MultiplayerManager.reiniciarMismaSalaHost();
         } else {
-            // El jugador cliente espera que el host mande la sala a estado esperando
             UIController.mostrarToast("Esperando que el host reinicie la sala...");
             db.ref(`salas/${AppState.miCodigoSala}/estado`).once("value").then(snap => {
                 if (snap.exists() && snap.val() === "esperando") {
